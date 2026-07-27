@@ -1,0 +1,122 @@
+/* Gallery.module.css */
+
+.gallery {
+  background-color: #010101;
+  padding: 4rem 1.5rem;
+  width: 100%;
+  max-width: 1500px;
+  margin: 1rem auto 0 auto;
+  height: 150px;
+  border-radius: 0.5rem;
+}
+
+.container {
+  max-width: 1500px;
+  margin: -2rem auto;
+}
+
+.title {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color:#ea580c;
+}
+
+.description {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #ffffff;
+  max-width: 600px;
+  margin: 0 auto 3rem auto;
+  font-style: italic;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 2rem;
+}
+
+.folderCard {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  text-align: center;
+}
+
+.folderCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.folderIcon {
+  color: #ea580c;
+  margin-bottom: 0.25rem;
+}
+
+.folderName {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+}
+
+.folderCount {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* ─── Mobile adjustments ─── */
+@media (max-width: 767px) {
+  .gallery {
+    padding: 2.5rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+    color:#ea580c;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+
+  .description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .folderCard {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .folderIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .folderName {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+}
