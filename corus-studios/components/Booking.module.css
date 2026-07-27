@@ -1,0 +1,119 @@
+.bookingSection{
+    width:100%;
+    padding:80px 8%;
+    background:#f2f2f2;
+}
+
+.bookingSection h2{
+    text-align:center;
+    font-size:42px;
+    margin-bottom:50px;
+    color: black;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-weight: bold;
+}
+
+.form{
+    max-width:700px;
+    margin:auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.form input,
+.form select{
+    width:100%;
+    height:55px;
+    border:2px solid #ddd;
+    padding:0 18px;
+    font-size:15px;
+    background:white;
+    color:black;
+}
+
+.row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.phoneGroup{
+    display:flex;
+}
+
+.phoneGroup span{
+    width:75px;
+    border:1px solid #ddd;
+    border-right:none;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#fafafa;
+}
+
+.phoneGroup input{
+    border-left:none;
+}
+
+.packageContainer{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.packageCard{
+    border:2px solid #ddd;
+    padding:20px;
+    text-align:center;
+    cursor:pointer;
+    transition:.3s;
+    background:white;
+}
+
+.packageCard h3{
+    margin-bottom:8px;
+    color:black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+}
+
+.packageCard p{
+    font-size:13px;
+    color:#666;
+}
+
+.packageCard:hover{
+    border-color:#ff5b00;
+}
+
+.active{
+    border-color:#ff5b00;
+}
+
+.form button{
+    height:55px;
+    border:none;
+    cursor:pointer;
+    background:#ff5b00;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    transition:.3s;
+}
+
+.form button:hover{
+    background:#e14d00;
+}
+
+@media(max-width:768px){
+
+    .row{
+        grid-template-columns:1fr;
+    }
+
+    .packageContainer{
+        grid-template-columns:1fr;
+    }
+
+}

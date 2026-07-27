@@ -1,0 +1,154 @@
+.gallerySection {
+    width: 100%;
+    padding: 70px 8%;
+    background: #efefef00;
+    margin: 1rem 0 auto;
+}
+
+/* ===========================
+        FILTER BUTTONS
+=========================== */
+
+.filters {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 35px;
+}
+
+.filterButton {
+    background: white;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 10px 18px;
+    font-size: 14px;
+    transition: .3s;
+}
+
+.filterButton:hover {
+    background: #ff5b00;
+    color: white;
+}
+
+.active {
+    background: #ff5b00;
+    color: white;
+}
+
+/* ===========================
+        MASONRY LAYOUT
+=========================== */
+
+.galleryGrid {
+    column-count: 4;
+    column-gap: 18px;
+}
+
+/* Tablet */
+
+@media (max-width:1100px) {
+
+    .galleryGrid {
+        column-count: 3;
+    }
+
+}
+
+/* Mobile */
+
+@media (max-width:700px) {
+
+    .galleryGrid {
+        column-count: 2;
+    }
+
+}
+
+@media (max-width:480px) {
+
+    .galleryGrid {
+        column-count: 1;
+    }
+
+}
+
+/* ===========================
+        IMAGE CARD
+=========================== */
+
+.galleryItem {
+    width: 100%;
+    margin-bottom: 18px;
+    break-inside: avoid;
+    overflow: hidden;
+    border-radius: 4px;
+    cursor: pointer;
+    background: white;
+}
+
+.image {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: .4s;
+}
+
+.galleryItem:hover .image {
+    transform: scale(1.05);
+}
+
+/* ===========================
+        VIEW MORE BUTTON
+=========================== */
+
+.buttonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.viewMore {
+    border: none;
+    outline: none;
+    background: #ff5b00;
+    color: white;
+    cursor: pointer;
+    padding: 14px 34px;
+    font-size: 15px;
+    transition: .3s;
+}
+
+.viewMore:hover {
+    background: #e14d00;
+}
+
+/* ===========================
+        SKELETON LOADER
+=========================== */
+
+.skeleton {
+    width: 100%;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        #e6e6e6 25%,
+        #f3f3f3 50%,
+        #e6e6e6 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.3s infinite linear;
+}
+
+@keyframes shimmer {
+
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+
+}
