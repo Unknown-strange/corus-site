@@ -121,6 +121,7 @@ def register(request: Request, payload: RegisterRequest, db: DbSession) -> Regis
 
         existing.first_name = payload.first_name.strip()
         existing.last_name = payload.last_name.strip()
+        existing.phone_number = payload.phone_number.strip()
         existing.username = username
         existing.email = email
         existing.hashed_password = hash_password(payload.password)
@@ -129,6 +130,7 @@ def register(request: Request, payload: RegisterRequest, db: DbSession) -> Regis
         user = User(
             first_name=payload.first_name.strip(),
             last_name=payload.last_name.strip(),
+            phone_number=payload.phone_number.strip(),
             username=username,
             email=email,
             hashed_password=hash_password(payload.password),

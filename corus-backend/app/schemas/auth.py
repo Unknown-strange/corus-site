@@ -9,6 +9,7 @@ class RegisterRequest(BaseModel):
     last_name: str = Field(min_length=1, max_length=100)
     username: str = Field(min_length=3, max_length=100)
     email: EmailStr
+    phone_number: str = Field(min_length=10, max_length=20, pattern=r"^\+?[0-9\s\-]{10,20}$")
     password: str = Field(min_length=8)
 
 
@@ -68,6 +69,7 @@ class UserResponse(BaseModel):
     username: str | None
     first_name: str | None
     last_name: str | None
+    phone_number: str | None
     role: str
     email_verified: bool
     is_active: bool

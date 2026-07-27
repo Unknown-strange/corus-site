@@ -23,6 +23,7 @@ from app.services.receipt_templates import (
     ReceiptDocument,
     ReceiptLineItem,
     ReceiptType,
+    render_admin_receipt_email,
     render_receipt_email,
     render_receipt_pdf_html,
     render_receipt_plain,
@@ -59,6 +60,7 @@ def document_from_summary(summary: dict) -> ReceiptDocument:
         issued_at=datetime.fromisoformat(summary["issued_at"]),
         customer_name=summary.get("customer_name"),
         customer_email=summary.get("customer_email"),
+        customer_phone=summary.get("customer_phone"),
         line_items=line_items,
         amount_paid_ghs=Decimal(str(summary["amount_paid_ghs"])),
         total_price_ghs=Decimal(str(summary["total_price_ghs"])) if summary.get("total_price_ghs") is not None else None,
@@ -75,6 +77,7 @@ def document_to_summary(doc: ReceiptDocument) -> dict:
         "issued_at": doc.issued_at.isoformat(),
         "customer_name": doc.customer_name,
         "customer_email": doc.customer_email,
+        "customer_phone": doc.customer_phone,
         "line_items": [
             {
                 "description": item.description,
@@ -93,6 +96,17 @@ def document_to_summary(doc: ReceiptDocument) -> dict:
     }
 
 
+def _customer_fields(user: User | None) -> dict[str, str | None]:
+    if user is None:
+        return {"customer_name": None, "customer_email": None, "customer_phone": None}
+    name = f"{user.first_name or ''} {user.last_name or ''}".strip() or None
+    return {
+        "customer_name": name,
+        "customer_email": user.email,
+        "customer_phone": user.phone_number,
+    }
+
+
 def build_document_from_payment(db: Session, payment: Payment, receipt_number: str) -> ReceiptDocument | None:
     user = db.get(User, payment.user_id)
     receipt_type = PURPOSE_TO_RECEIPT_TYPE.get(payment.purpose)
@@ -103,9 +117,8 @@ def build_document_from_payment(db: Session, payment: Payment, receipt_number: s
         "receipt_number": receipt_number,
         "receipt_type": receipt_type,
         "issued_at": datetime.now(UTC),
-        "customer_name": user.first_name if user else None,
-        "customer_email": user.email if user else None,
         "payment_reference": payment.reference,
+        **_customer_fields(user),
     }
 
     if payment.purpose == PaymentPurpose.session_deposit and payment.booking_id:
@@ -282,6 +295,7 @@ def _send_receipt_email(
 
     doc = document_from_summary(receipt.summary_json)
     subject, plain, html = render_receipt_email(doc)
+    admin_subject, admin_plain, admin_html = render_admin_receipt_email(doc)
     pdf_bytes = receipt_document_to_pdf(doc)
     pdf_attachment = (f"{receipt.receipt_number}.pdf", pdf_bytes) if pdf_bytes else None
 
@@ -300,6 +314,9 @@ def _send_receipt_email(
             force_send=force_send,
             pdf_attachment=pdf_attachment,
             send_admin_copy=admin_copy,
+            admin_subject=admin_subject,
+            admin_plain_text=admin_plain,
+            admin_html=admin_html,
         )
     else:
         db.commit()

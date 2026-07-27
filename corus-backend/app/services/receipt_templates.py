@@ -59,6 +59,7 @@ class ReceiptDocument:
     issued_at: datetime
     customer_name: str | None
     customer_email: str | None
+    customer_phone: str | None = None
     line_items: list[ReceiptLineItem] = field(default_factory=list)
     amount_paid_ghs: Decimal = Decimal("0")
     total_price_ghs: Decimal | None = None
@@ -83,6 +84,29 @@ def _format_date(value: datetime) -> str:
 
 def _format_datetime(value: datetime) -> str:
     return value.strftime("%B %d, %Y · %H:%M UTC")
+
+
+def _customer_contact_html(doc: ReceiptDocument, *, font_size: str = "11px") -> str:
+    customer_name = doc.customer_name or "Customer"
+    lines = [customer_name]
+    if doc.customer_email:
+        lines.append(
+            f"<span style='color:{INK_MUTED};font-size:{font_size};'>{doc.customer_email}</span>"
+        )
+    if doc.customer_phone:
+        lines.append(
+            f"<span style='color:{INK_MUTED};font-size:{font_size};'>{doc.customer_phone}</span>"
+        )
+    return "<br/>".join(lines)
+
+
+def _customer_contact_plain(doc: ReceiptDocument) -> list[str]:
+    lines = [f"Customer   : {doc.customer_name or 'Customer'}"]
+    if doc.customer_email:
+        lines.append(f"Email      : {doc.customer_email}")
+    if doc.customer_phone:
+        lines.append(f"Phone      : {doc.customer_phone}")
+    return lines
 
 
 def _item_rows(doc: ReceiptDocument) -> str:
@@ -146,12 +170,7 @@ def _totals_block(doc: ReceiptDocument) -> str:
 
 
 def render_receipt_body_html(doc: ReceiptDocument) -> str:
-    customer_name = doc.customer_name or "Customer"
-    customer_email = doc.customer_email or ""
-    customer_block = customer_name
-    if customer_email:
-        customer_block += f"<br/><span style='color:{INK_MUTED};font-size:11px;'>{customer_email}</span>"
-
+    customer_block = _customer_contact_html(doc)
     ref_line = ""
     if doc.payment_reference:
         ref_line = f"<br/>Ref: {doc.payment_reference}"
@@ -315,12 +334,7 @@ def _pdf_totals_rows(doc: ReceiptDocument) -> str:
 
 def render_receipt_pdf_html(doc: ReceiptDocument) -> str:
     """PDF-optimized HTML — same branded invoice layout as the email receipt card."""
-    customer_name = doc.customer_name or "Customer"
-    customer_email = doc.customer_email or ""
-    customer_lines = customer_name
-    if customer_email:
-        customer_lines += f'<br/><span style="color:{INK_MUTED};font-size:9px;">{customer_email}</span>'
-
+    customer_lines = _customer_contact_html(doc, font_size="9px")
     ref_line = ""
     if doc.payment_reference:
         ref_line = f"<br/>Ref: {doc.payment_reference}"
@@ -458,10 +472,8 @@ def render_receipt_plain(doc: ReceiptDocument) -> str:
         f"Receipt No : {doc.receipt_number}",
         f"Date       : {_format_datetime(doc.issued_at)}",
         f"Type       : {doc.type_label}",
-        f"Customer   : {doc.customer_name or 'Customer'}",
+        *_customer_contact_plain(doc),
     ]
-    if doc.customer_email:
-        lines.append(f"Email      : {doc.customer_email}")
     if doc.payment_reference:
         lines.append(f"Reference  : {doc.payment_reference}")
     lines.extend(["", "ITEMS", "-" * 48])
@@ -507,6 +519,72 @@ def render_receipt_email(doc: ReceiptDocument) -> tuple[str, str, str]:
                 Payment confirmed. Your receipt is below and attached as a PDF.
               </p>
             </td>
+          </tr>
+          <tr>
+            <td>{body_inner}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>"""
+    return subject, plain, html
+
+
+def _admin_customer_summary_html(doc: ReceiptDocument) -> str:
+    name = doc.customer_name or "—"
+    email = doc.customer_email or "—"
+    phone = doc.customer_phone or "—"
+    return f"""
+    <div style="margin-bottom:16px;padding:16px 20px;background:{BG_SOFT};border:1px solid {BORDER};border-left:4px solid {ACCENT};">
+      <div style="font-size:12px;font-weight:700;color:{INK};margin-bottom:10px;">Customer details</div>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size:12px;line-height:1.7;color:{INK_SOFT};">
+        <tr><td style="width:72px;font-weight:700;color:{INK};">Name</td><td>{name}</td></tr>
+        <tr><td style="font-weight:700;color:{INK};">Email</td><td>{email}</td></tr>
+        <tr><td style="font-weight:700;color:{INK};">Phone</td><td>{phone}</td></tr>
+      </table>
+    </div>"""
+
+
+def _admin_customer_summary_plain(doc: ReceiptDocument) -> str:
+    return "\n".join(
+        [
+            "CUSTOMER DETAILS",
+            f"Name  : {doc.customer_name or '—'}",
+            f"Email : {doc.customer_email or '—'}",
+            f"Phone : {doc.customer_phone or '—'}",
+            "",
+        ]
+    )
+
+
+def render_admin_receipt_email(doc: ReceiptDocument) -> tuple[str, str, str]:
+    subject = f"[Admin copy] Receipt — {doc.receipt_number} ({doc.type_label})"
+    plain = _admin_customer_summary_plain(doc) + render_receipt_plain(doc)
+    body_inner = render_receipt_body_html(doc)
+    customer_summary = _admin_customer_summary_html(doc)
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{subject}</title>
+</head>
+<body style="margin:0;padding:24px 12px;background-color:#EEEEEE;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;">
+          <tr>
+            <td style="padding:0 0 16px;">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:{INK_SOFT};">
+                A customer payment was confirmed. Customer contact details and receipt are below.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td>{customer_summary}</td>
           </tr>
           <tr>
             <td>{body_inner}</td>

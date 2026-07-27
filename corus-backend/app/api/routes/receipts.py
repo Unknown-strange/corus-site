@@ -45,6 +45,7 @@ def _to_detail(receipt: Receipt) -> ReceiptDetailResponse:
         payment_reference=doc.payment_reference,
         customer_name=doc.customer_name,
         customer_email=doc.customer_email,
+        customer_phone=doc.customer_phone,
     )
 
 
