@@ -24,3 +24,10 @@
 .env.development.local
 .env.test.local
 .env.production.local
+
+/static
+__pycache__
+/migrations
+/staticfiles
+/uploads
+/staticfiles
