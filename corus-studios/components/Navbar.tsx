@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, UserCircle2 } from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 import { useState } from "react";
 import styles from "./Navbar.module.css";
 
@@ -48,15 +48,10 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <div className={styles.authGroup}>
-            <Link href="/login" className={styles.loginLink}>
-              <UserCircle2 size={20} />
-              Log In
-            </Link>
-            <Link href="/signup" className={styles.signupLink}>
-              Sign Up
-            </Link>
-          </div>
+          <Link href="/login" className={styles.loginLink}>
+            <UserCircle2 size={20} />
+            Log In
+          </Link>
         </div>
       </nav>
 
@@ -70,11 +65,6 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
-          <li onClick={closeMenu}>
-            <Link href="/signup" className={styles.mobileSignupLink}>
-              Sign Up
-            </Link>
-          </li>
         </ul>
       </div>
     </header>

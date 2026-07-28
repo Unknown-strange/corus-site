@@ -571,7 +571,8 @@ Track these with the backend team; update as they resolve.
 | 3 | Will `PAYSTACK_CALLBACK_URL` point at one unified `/payment/callback`, or the four per-flow paths? Affects how many callback pages we build. | Open |
 | 4 | Confirm the deployed Render backend URL and whether a staging instance exists. | Open |
 | 5 | Are money fields serialised as JSON strings or numbers? Verify against a live response and record it. | Open |
-| 6 | **Blocks Sign Up submit.** The design collects a phone number, but `User` has no phone column and `RegisterRequest` has no phone field — it would be silently discarded. The design also omits `username`, which `POST /auth/register` requires and which `/auth/login` authenticates against. Backend needs to add `phone` and relax `username` (or the design needs a username field). | **Open — blocking** |
+| 6 | **Blocks Sign Up and Log In submit.** The Sign Up design collects a phone number, but `User` has no phone column and `RegisterRequest` has no phone field — it would be silently discarded. The design also omits `username`, which `POST /auth/register` requires. The Log In design collects an **email**, but `POST /auth/login` authenticates on `username` only. Backend needs to add `phone` and relax `username` (or the designs need a username field). | **Open — blocking** |
+| 7 | **Blocks Google sign-in.** The Log In design has a "Continue with Google" button, but the backend has no OAuth routes, no provider config, and no social-account columns on `User`. The feature needs scoping before the button can do anything. | **Open — blocking** |
 
 ---
 
@@ -592,8 +593,14 @@ Mirrors the backend's phase structure so progress is comparable.
 ### Phase 2 — Auth screens
 
 - [x] Sign Up screen — UI only, submit not wired (blocked by open question 6)
+- [x] Log In screen — UI only, submit not wired (blocked by open questions 6, 7)
+- [x] Admin Log In screen (`/admin/login`) — UI only. **Not blocked by the API**;
+      needs the client, `NEXT_PUBLIC_API_URL`, and token storage
 - [ ] Sign Up wired to `POST /auth/register`
-- [ ] OTP verification, login
+- [ ] Log In wired to `POST /auth/login`
+- [ ] Forgot password / reset password screens (`/forgot-password` is linked
+      from Log In but does not exist yet)
+- [ ] OTP verification
 - [ ] Forgot password, reset password
 - [ ] Role-based redirect after login (customer vs admin portal)
 

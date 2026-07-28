@@ -1,0 +1,133 @@
+/*
+ * Shared chrome for the auth screens (Sign Up, Log In, and whatever follows).
+ *
+ * The card is two rectangles: photos on the left, form panel on the right.
+ * Mobile-first — below 1024px the mosaic is dropped and the panel goes
+ * full-bleed. From 1024px up the design layout takes over on a 1289 x 1030
+ * stage, where `--s` is one design pixel, so screen stylesheets can write
+ * `calc(283 * var(--s))` and mean "283px at the design width".
+ *
+ * This file owns the card only. Everything inside the panel is styled by the
+ * individual screen's stylesheet.
+ */
+
+.screen {
+  --orange: #ff5100;
+  --panel: #f0f0f0;
+  --page: #f4f5f6;
+  --card-border: #efefef;
+  --seam: #f4f5f6;
+  /* Tune here if the left rectangle needs to read lighter or darker. */
+  --photo-scrim: rgba(0, 0, 0, 0.4);
+  --border: #d9d9d9;
+  --placeholder: #888888;
+  --gutter: 0px;
+
+  box-sizing: border-box;
+  container-type: inline-size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--gutter);
+  background: var(--page);
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  /* Shows only in the seams between mosaic photos. */
+  background: var(--seam);
+}
+
+/* ── Photo mosaic (desktop only) ─────────────────────────────── */
+
+.mosaic {
+  display: none;
+}
+
+.shot {
+  position: absolute;
+  overflow: hidden;
+}
+
+.shotImage {
+  object-fit: cover;
+}
+
+/* ── Form panel ──────────────────────────────────────────────── */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 3rem 1.25rem 4rem;
+  background: var(--panel);
+}
+
+/* ── Design layout ───────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .screen {
+    --gutter: 48px;
+  }
+
+  .frame {
+    /*
+     * One design pixel. The card is 1289 x 1030 — the design's 1396 width
+     * minus the 107px of empty canvas left of the photos. Scaled to fit
+     * whichever of width or height runs out first, never past 1:1.
+     */
+    --s: calc(
+      min(1289px, 100cqw, (100dvh - 2 * var(--gutter)) * 1289 / 1030) / 1289
+    );
+
+    width: calc(1289 * var(--s));
+    height: calc(1030 * var(--s));
+    /* A ring rather than a border: it draws outside the box, so it can't
+       shift the absolutely positioned children by the border width. */
+    box-shadow: 0 0 0 1px var(--card-border);
+    overflow: hidden;
+  }
+
+  .mosaic {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
+  /* The dark wash is a single sheet over the left rectangle — it covers the
+     seams between photos too, not just the photos themselves. */
+  .mosaic::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(559 * var(--s));
+    height: 100%;
+    background: var(--photo-scrim);
+    pointer-events: none;
+  }
+
+  .shot {
+    left: calc(var(--l) * var(--s));
+    top: calc(var(--t) * var(--s));
+    width: calc(var(--w) * var(--s));
+    height: calc(var(--h) * var(--s));
+  }
+
+  /* Panel spans x 559–1289 of the card: the 580-wide form with a matching
+     75px gutter either side. */
+  .panel {
+    position: absolute;
+    top: 0;
+    left: calc(559 * var(--s));
+    display: block;
+    width: calc(730 * var(--s));
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+}

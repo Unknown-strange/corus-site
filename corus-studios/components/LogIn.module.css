@@ -1,0 +1,277 @@
+/*
+ * Log In panel contents. The card around it lives in AuthShell.module.css,
+ * which also supplies the colour variables and the `--s` design-pixel unit.
+ *
+ * The form is shorter than Sign Up, so the block sits lower on the panel.
+ * Vertical rhythm is driven by explicit margins rather than a flex gap,
+ * because the spacing between rows is uneven (field → forgot-password link →
+ * button → divider → Google button).
+ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.title {
+  margin: 0;
+  color: var(--orange);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.subtitle {
+  margin: 0.75rem 0 0;
+  color: #000000;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 32rem;
+  margin: 2rem auto 0;
+}
+
+.field {
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 400;
+  text-align: left;
+}
+
+.field::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+.field:focus-visible,
+.submit:focus-visible,
+.googleButton:focus-visible,
+.forgot:focus-visible,
+.footerLink:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.password {
+  margin-top: 1rem;
+}
+
+.forgot {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  color: var(--orange);
+  font-size: 0.875rem;
+  font-style: italic;
+  text-decoration: underline;
+}
+
+.submit {
+  height: 4rem;
+  margin-top: 1.25rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--orange);
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: #e64900;
+}
+
+.divider {
+  width: 100%;
+  max-width: 32rem;
+  margin: 1.25rem auto 0;
+  color: #666666;
+  font-size: 0.875rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 32rem;
+  height: 4rem;
+  margin: 0.75rem auto 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.googleButton:hover {
+  background: #f7f7f7;
+}
+
+.googleIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+}
+
+.footer {
+  width: 100%;
+  max-width: 32rem;
+  margin: 2.5rem auto 0;
+  color: #000000;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.footerLink {
+  color: var(--orange);
+  font-style: italic;
+  text-decoration: underline;
+}
+
+.notice {
+  width: 100%;
+  max-width: 32rem;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffc7ad;
+  border-radius: 4px;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ── Design layout ───────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .header {
+    position: absolute;
+    top: calc(172 * var(--s));
+    left: 0;
+    width: 100%;
+    height: calc(51 * var(--s));
+    gap: 0;
+  }
+
+  .icon {
+    width: calc(51 * var(--s));
+    height: calc(51 * var(--s));
+  }
+
+  .title {
+    font-size: calc(36 * var(--s));
+  }
+
+  .subtitle {
+    position: absolute;
+    top: calc(231 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    margin: 0;
+    font-size: calc(24 * var(--s));
+  }
+
+  .form {
+    position: absolute;
+    top: calc(310 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+  }
+
+  .field {
+    height: calc(74 * var(--s));
+    padding: 0 calc(45 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  .password {
+    margin-top: calc(30 * var(--s));
+  }
+
+  .forgot {
+    margin-top: calc(8 * var(--s));
+    font-size: calc(20 * var(--s));
+  }
+
+  .submit {
+    height: calc(80 * var(--s));
+    margin-top: calc(25 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  .divider {
+    position: absolute;
+    top: calc(646 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+    font-size: calc(20 * var(--s));
+  }
+
+  .googleButton {
+    position: absolute;
+    top: calc(682 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    height: calc(80 * var(--s));
+    margin: 0;
+    gap: calc(14 * var(--s));
+    font-size: calc(28 * var(--s));
+  }
+
+  .googleIcon {
+    width: calc(36 * var(--s));
+    height: calc(36 * var(--s));
+  }
+
+  .footer {
+    position: absolute;
+    top: calc(887 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+    font-size: calc(24 * var(--s));
+  }
+
+  .notice {
+    position: absolute;
+    top: calc(940 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+  }
+}

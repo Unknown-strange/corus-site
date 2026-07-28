@@ -134,6 +134,84 @@ reservations.
 - Email, Phone Number, Password, and Confirm Password left aligned with a 45px
   inset. First and Last Name stay centred, per the design.
 
+### 2026-07-28 — Log In screen, AuthShell extraction, navbar cleanup
+
+**AuthShell.** The card chrome — page background, scaled stage, photo mosaic,
+scrim, form panel — moved into `AuthShell.tsx` + `AuthShell.module.css`. The
+mosaic had already been edited three times; keeping a second copy in the Log In
+screen would have guaranteed the two drifting apart.
+
+Split of responsibility: the shell styles the card and supplies the colour
+variables and `--s`; each screen's stylesheet styles everything inside the
+panel. The two never set the same property on the same element, so CSS Module
+load order can't produce an override surprise.
+
+Pages now compose: `app/<route>/page.tsx` renders `<AuthShell><Form /></AuthShell>`,
+which keeps the shell a server component and ships only the form as client JS.
+Sign Up geometry re-measured after the move and is unchanged.
+
+**Files**
+
+- `components/AuthShell.tsx`, `components/AuthShell.module.css`
+- `components/LogIn.tsx`, `components/LogIn.module.css`
+- `app/login/page.tsx`
+- `components/SignUp.tsx`, `components/SignUp.module.css` — panel contents only
+
+**Log In layout.** Same 1289 × 1030 card and 580-wide form at panel x 75. The
+form is shorter, so the block starts lower (email at y 310 vs 250). Vertical
+rhythm uses explicit margins rather than a flex gap, because the spacing is
+uneven: field → forgot-password → button → divider → Google button.
+
+No coordinates were supplied for this screen, so positions were derived
+proportionally from the mockup. Field height (74), field width (580), and
+button height (80) all landed on the Sign Up values, which is a good sign the
+derivation is right.
+
+**Navbar.** Removed the Sign Up button from both the desktop bar and the mobile
+menu. Nav labels stack one word per line again — "Our" above "Gallery", "Log"
+above "In" — via a `StackedLabel` helper, with `.navLink` set to `inline-flex`
+so the anchor box wraps both lines. All five items share a centre line within
+2px.
+
+`/signup` is now reached from the Log In screen's footer link and from the
+booking-form redirect.
+
+---
+
+### 2026-07-28 — Admin Log In, copy fixes, navbar alignment
+
+**Copy corrected** on the customer Log In screen, at the team's call: the
+subtitle now reads "Log in to continue." (was Sign Up's copy) and the footer
+"Don't have an account?" (was a misplaced apostrophe).
+
+**Navbar labels — one line each.** "Our Gallery" and "Log In" were wrapping onto
+two lines. Root cause: `.navCenter` is absolutely positioned at `left: 50%`, so
+its shrink-to-fit width was capped at the space remaining to the *right* of
+that offset — about half the header — which squeezed the group and broke the
+two-word labels. Fixed with `width: max-content` on `.navCenter` plus
+`white-space: nowrap` on the links.
+
+Verified single-line at 1536px and at 768px (the narrowest width where the
+desktop bar shows), with no overflow past the header or the viewport at either.
+
+**Admin Log In** — `app/admin/login/page.tsx`, `components/AdminLogIn.tsx`,
+`components/AdminLogIn.module.css`.
+
+Customer Log In minus the Google option, the "Sign In Options" divider, and the
+sign-up footer, with username in place of email. Forgot Password was kept — it
+wasn't in the removal list.
+
+No coordinates were given, and dropping three elements leaves the block 459
+design px tall in a 1030 card. Rather than leave the bottom third empty, the
+block is centred vertically: header at y 286, button ending at 745, so 286
+above and 285 below. Say the word if it should instead sit at the customer
+screen's y 172.
+
+**This is the first screen nothing blocks.** `POST /auth/login` takes
+`{ username, password }` — exactly what the form collects, for admin and staff
+alike. What's missing is frontend plumbing, not a backend change: the API
+client, `NEXT_PUBLIC_API_URL`, and the token-storage decision.
+
 ---
 
 ## Blockers
@@ -162,6 +240,19 @@ surface as a 409 they can't act on.
 `RegisterRequest`, and make `username` optional (or confirm the design should
 gain a username field instead).
 
+### 🔴 Log In cannot submit — same root cause
+
+`POST /auth/login` takes `{ username, password }`. The design collects an
+**email**, and the API does not authenticate on email. Resolving the register
+blocker settles this too: whatever customers register with is what they log in
+with.
+
+### 🔴 "Continue with Google" has no backend
+
+No OAuth routes, no provider config, no social-account columns on `User`. The
+button is a design placeholder; clicking it explains why. Needs scoping as a
+feature before it can be built.
+
 Until then the form renders and validates client-side, and the submit handler
 shows an inline notice explaining why nothing was sent. Remove that notice and
 the block comment in `SignUp.tsx` when wiring it up.
@@ -170,11 +261,12 @@ the block comment in `SignUp.tsx` when wiring it up.
 
 ## Next up
 
-1. Resolve the register blocker, then wire Sign Up → `/auth/register`.
+1. Resolve the register blocker, then wire Sign Up → `/auth/register` and
+   Log In → `/auth/login`.
 2. OTP verification screen — registration returns `201` and emails a 6-digit
    code; only `/auth/verify-otp` returns a token.
-3. Login screen — `/login` is linked from the Navbar but does not exist yet.
-   Note it authenticates on **username**, not email.
+3. Forgot password / reset password screens — `/forgot-password` is linked from
+   Log In but does not exist yet, so that link 404s today.
 4. Auth context, then replace the blanket redirect in `Booking.tsx` with a real
    signed-in check.
 5. `lib/api/` client — base URL, bearer token, error-envelope parsing.

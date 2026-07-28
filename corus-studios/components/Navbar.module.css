@@ -62,6 +62,10 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  /* Without this the shrink-to-fit width is capped at the space to the right
+     of the 50% offset, which squeezes the group and wraps "Our Gallery" and
+     "Log In" onto two lines. */
+  width: max-content;
 }
 
 /* Desktop menu */
@@ -87,17 +91,11 @@
   color: black;
   font-family: Helvetica, Arial, sans-serif;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .navLink:hover {
   color: #ea580c;
-}
-
-/* Log In + Sign Up sit together, tighter than the 8rem navCenter gap */
-.authGroup {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
 }
 
 /* Desktop login link (hidden on mobile) */
@@ -105,6 +103,7 @@
   display: none;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
   color: #ea580c;
   font-weight: 600;
   text-decoration: none;
@@ -117,31 +116,6 @@
 @media (min-width: 768px) {
   .loginLink {
     display: flex;
-  }
-}
-
-/* Desktop sign up link (hidden on mobile — it lives in the slide-down menu) */
-.signupLink {
-  display: none;
-  align-items: center;
-  padding: 0.5rem 1.25rem;
-  border-radius: 0.375rem;
-  background: #ea580c;
-  color: #ffffff;
-  font-family: Helvetica, Arial, sans-serif;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.2s;
-}
-
-.signupLink:hover {
-  background: #c2410c;
-}
-
-@media (min-width: 768px) {
-  .signupLink {
-    display: inline-flex;
   }
 }
 
@@ -325,18 +299,3 @@
   color: #ea580c;
 }
 
-.mobileSignupLink {
-  display: inline-block;
-  padding: 0.5rem 1.5rem;
-  border-radius: 0.375rem;
-  background: #ea580c;
-  color: #ffffff;
-  font-family: Helvetica, Arial, sans-serif;
-  font-weight: 700;
-  font-size: 1.2rem;
-  text-decoration: none;
-}
-
-.mobileSignupLink:hover {
-  background: #c2410c;
-}

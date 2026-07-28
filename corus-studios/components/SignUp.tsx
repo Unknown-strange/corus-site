@@ -4,15 +4,6 @@ import Image from "next/image";
 import { useState } from "react";
 import styles from "./SignUp.module.css";
 
-const MOSAIC = [
-  { src: "/gallery/Aunt Vida.jpg", left: 0, top: 0, width: 283, height: 321, priority: true },
-  { src: "/gallery/1.png", left: 294, top: 0, width: 283, height: 487, priority: true },
-  { src: "/gallery/4.png", left: 0, top: 331, width: 283, height: 397, priority: false },
-  { src: "/gallery/5.png", left: 294, top: 498, width: 283, height: 397, priority: false },
-  { src: "/gallery/9.png", left: 3, top: 741, width: 280, height: 321, priority: false },
-  { src: "/gallery/10.png", left: 294, top: 902, width: 283, height: 160, priority: false },
-];
-
 export default function SignUp() {
   const [notice, setNotice] = useState("");
 
@@ -40,129 +31,98 @@ export default function SignUp() {
   }
 
   return (
-    <div className={styles.screen}>
-      <div className={styles.frame}>
-        {/* Decorative portfolio imagery — conveys no information to a screen reader. */}
-        <div className={styles.mosaic} aria-hidden="true">
-          {MOSAIC.map((shot) => (
-            <div
-              key={shot.src}
-              className={styles.shot}
-              style={
-                {
-                  "--l": shot.left,
-                  "--t": shot.top,
-                  "--w": shot.width,
-                  "--h": shot.height,
-                } as React.CSSProperties
-              }
-            >
-              <Image
-                src={shot.src}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 21vw, 0px"
-                priority={shot.priority}
-                className={styles.shotImage}
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className={styles.panel}>
-          <div className={styles.header}>
-            <Image
-              src="/icons/Profile.png"
-              alt=""
-              width={51}
-              height={51}
-              className={styles.icon}
-            />
-            <h1 className={styles.title}>Sign Up</h1>
-          </div>
-
-          <p className={styles.subtitle}>Create an account to continue.</p>
-
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.nameRow}>
-              <input
-                className={styles.field}
-                type="text"
-                name="first_name"
-                placeholder="First Name"
-                aria-label="First name"
-                autoComplete="given-name"
-                required
-              />
-              <input
-                className={styles.field}
-                type="text"
-                name="last_name"
-                placeholder="Last Name"
-                aria-label="Last name"
-                autoComplete="family-name"
-                required
-              />
-            </div>
-
-            <input
-              className={`${styles.field} ${styles.fieldLeft}`}
-              type="email"
-              name="email"
-              placeholder="Email"
-              aria-label="Email"
-              autoComplete="email"
-              required
-            />
-
-            <div className={styles.phoneRow}>
-              <span className={styles.phonePrefix}>+233</span>
-              <input
-                className={`${styles.field} ${styles.fieldLeft}`}
-                type="tel"
-                name="phone"
-                placeholder="Phone Number"
-                aria-label="Phone number"
-                autoComplete="tel-national"
-                inputMode="numeric"
-                required
-              />
-            </div>
-
-            <input
-              className={`${styles.field} ${styles.fieldLeft}`}
-              type="password"
-              name="password"
-              placeholder="Password"
-              aria-label="Password"
-              autoComplete="new-password"
-              minLength={8}
-              required
-            />
-
-            <input
-              className={`${styles.field} ${styles.fieldLeft}`}
-              type="password"
-              name="confirm_password"
-              placeholder="Confirm Password"
-              aria-label="Confirm password"
-              autoComplete="new-password"
-              minLength={8}
-              required
-            />
-
-            <button className={styles.submit} type="submit">
-              Sign Up
-            </button>
-          </form>
-
-          {notice ? (
-            <p className={styles.notice} role="status">
-              {notice}
-            </p>
-          ) : null}
-        </div>
+    <>
+      <div className={styles.header}>
+        <Image
+          src="/icons/Profile.png"
+          alt=""
+          width={51}
+          height={51}
+          className={styles.icon}
+        />
+        <h1 className={styles.title}>Sign Up</h1>
       </div>
-    </div>
+
+      <p className={styles.subtitle}>Create an account to continue.</p>
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.nameRow}>
+          <input
+            className={styles.field}
+            type="text"
+            name="first_name"
+            placeholder="First Name"
+            aria-label="First name"
+            autoComplete="given-name"
+            required
+          />
+          <input
+            className={styles.field}
+            type="text"
+            name="last_name"
+            placeholder="Last Name"
+            aria-label="Last name"
+            autoComplete="family-name"
+            required
+          />
+        </div>
+
+        <input
+          className={`${styles.field} ${styles.fieldLeft}`}
+          type="email"
+          name="email"
+          placeholder="Email"
+          aria-label="Email"
+          autoComplete="email"
+          required
+        />
+
+        <div className={styles.phoneRow}>
+          <span className={styles.phonePrefix}>+233</span>
+          <input
+            className={`${styles.field} ${styles.fieldLeft}`}
+            type="tel"
+            name="phone"
+            placeholder="Phone Number"
+            aria-label="Phone number"
+            autoComplete="tel-national"
+            inputMode="numeric"
+            required
+          />
+        </div>
+
+        <input
+          className={`${styles.field} ${styles.fieldLeft}`}
+          type="password"
+          name="password"
+          placeholder="Password"
+          aria-label="Password"
+          autoComplete="new-password"
+          minLength={8}
+          required
+        />
+
+        <input
+          className={`${styles.field} ${styles.fieldLeft}`}
+          type="password"
+          name="confirm_password"
+          placeholder="Confirm Password"
+          aria-label="Confirm password"
+          autoComplete="new-password"
+          minLength={8}
+          required
+        />
+
+        <button className={styles.submit} type="submit">
+          Sign Up
+        </button>
+      </form>
+
+      {notice ? (
+        <p className={styles.notice} role="status">
+          {notice}
+        </p>
+      ) : null}
+    </>
   );
 }
