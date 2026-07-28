@@ -1,0 +1,329 @@
+/*
+ * Sign Up screen.
+ *
+ * Mobile-first: a plain stacked form.
+ * From 1024px up, the exact design layout takes over — a 1396 x 1030 stage
+ * where every element is placed at its spec coordinate. The `--s` scale unit
+ * is one design pixel, so the numbers below read straight off the design:
+ * `calc(283 * var(--s))` is "283px at the design width", scaled down
+ * proportionally on narrower screens.
+ */
+
+.screen {
+  --orange: #ff5100;
+  --panel: #f0f0f0;
+  --page: #f4f5f6;
+  --card-border: #efefef;
+  --seam: #f4f5f6;
+  /* Tune here if the left rectangle needs to read lighter or darker. */
+  --photo-scrim: rgba(0, 0, 0, 0.4);
+  --border: #d9d9d9;
+  --placeholder: #888888;
+  --gutter: 0px;
+
+  box-sizing: border-box;
+  container-type: inline-size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--gutter);
+  background: var(--page);
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  /* Shows only in the seams between mosaic photos. */
+  background: var(--seam);
+}
+
+/* ── Photo mosaic (desktop only) ─────────────────────────────── */
+
+.mosaic {
+  display: none;
+}
+
+.shot {
+  position: absolute;
+  overflow: hidden;
+}
+
+.shotImage {
+  object-fit: cover;
+}
+
+/* ── Form panel ──────────────────────────────────────────────── */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 3rem 1.25rem 4rem;
+  background: var(--panel);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.title {
+  margin: 0;
+  color: var(--orange);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.subtitle {
+  margin: 0.75rem 0 0;
+  color: #000000;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 32rem;
+  margin: 2rem auto 0;
+}
+
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.phoneRow {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 0.5rem;
+}
+
+.field {
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.field::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+/* Everything below the name row is left aligned in the design; only First and
+   Last Name stay centred. */
+.fieldLeft {
+  padding-left: 1rem;
+  text-align: left;
+}
+
+.field:focus-visible,
+.submit:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.phonePrefix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--placeholder);
+  font-size: 1.125rem;
+}
+
+.submit {
+  height: 4rem;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--orange);
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: #e64900;
+}
+
+.notice {
+  width: 100%;
+  max-width: 32rem;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffc7ad;
+  border-radius: 4px;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ── Design layout ───────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .screen {
+    --gutter: 48px;
+  }
+
+  .frame {
+    /*
+     * One design pixel. The card is 1289 x 1030 — the design's 1396 width
+     * minus the 107px of empty canvas left of the photos. Scaled to fit
+     * whichever of width or height runs out first, never past 1:1.
+     */
+    --s: calc(
+      min(1289px, 100cqw, (100dvh - 2 * var(--gutter)) * 1289 / 1030) / 1289
+    );
+
+    width: calc(1289 * var(--s));
+    height: calc(1030 * var(--s));
+    /* A ring rather than a border: it draws outside the box, so it can't
+       shift the absolutely positioned children by the border width. */
+    box-shadow: 0 0 0 1px var(--card-border);
+    overflow: hidden;
+  }
+
+  .mosaic {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
+  /*
+   * The card is two rectangles: photos on the left, form on the right. The
+   * dark wash is a single sheet over the left one — it covers the seams
+   * between photos too, not just the photos themselves.
+   */
+  .mosaic::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(559 * var(--s));
+    height: 100%;
+    background: var(--photo-scrim);
+    pointer-events: none;
+  }
+
+  .shot {
+    left: calc(var(--l) * var(--s));
+    top: calc(var(--t) * var(--s));
+    width: calc(var(--w) * var(--s));
+    height: calc(var(--h) * var(--s));
+  }
+
+  /* Panel spans x 559–1289 of the card: the 580-wide form with a matching
+     75px gutter either side. */
+  .panel {
+    position: absolute;
+    top: 0;
+    left: calc(559 * var(--s));
+    display: block;
+    width: calc(730 * var(--s));
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .header {
+    position: absolute;
+    top: calc(145 * var(--s));
+    left: calc(280 * var(--s));
+    height: calc(51 * var(--s));
+    gap: 0;
+  }
+
+  .icon {
+    width: calc(51 * var(--s));
+    height: calc(51 * var(--s));
+  }
+
+  .title {
+    font-size: calc(36 * var(--s));
+  }
+
+  .subtitle {
+    position: absolute;
+    top: calc(208 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    margin: 0;
+    font-size: calc(24 * var(--s));
+  }
+
+  .form {
+    position: absolute;
+    top: calc(250 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+    gap: calc(30 * var(--s));
+  }
+
+  .nameRow {
+    grid-template-columns: calc(276 * var(--s)) calc(276 * var(--s));
+    gap: calc(28 * var(--s));
+  }
+
+  .phoneRow {
+    grid-template-columns: calc(103 * var(--s)) 1fr;
+    gap: calc(7 * var(--s));
+  }
+
+  .field,
+  .phonePrefix {
+    height: calc(74 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  .fieldLeft {
+    padding-left: calc(45 * var(--s));
+  }
+
+  .submit {
+    /* Stage y 787: 47px below the last field, 30px of which is the form gap. */
+    height: calc(80 * var(--s));
+    margin-top: calc(17 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  .notice {
+    position: absolute;
+    top: calc(880 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+  }
+}

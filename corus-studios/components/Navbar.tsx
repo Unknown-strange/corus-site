@@ -48,10 +48,15 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <Link href="/login" className={styles.loginLink}>
-            <UserCircle2 size={20} />
-            Log In
-          </Link>
+          <div className={styles.authGroup}>
+            <Link href="/login" className={styles.loginLink}>
+              <UserCircle2 size={20} />
+              Log In
+            </Link>
+            <Link href="/signup" className={styles.signupLink}>
+              Sign Up
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -65,6 +70,11 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          <li onClick={closeMenu}>
+            <Link href="/signup" className={styles.mobileSignupLink}>
+              Sign Up
+            </Link>
+          </li>
         </ul>
       </div>
     </header>
