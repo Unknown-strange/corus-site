@@ -9,7 +9,12 @@ class RegisterRequest(BaseModel):
     last_name: str = Field(min_length=1, max_length=100)
     username: str = Field(min_length=3, max_length=100)
     email: EmailStr
-    phone_number: str = Field(min_length=10, max_length=20, pattern=r"^\+?[0-9\s\-]{10,20}$")
+    phone_number: str = Field(
+    min_length=10,
+    max_length=10,
+    pattern=r"^0\d{9}$",
+    description="10-digit Ghana number starting with 0",
+)
     password: str = Field(min_length=8)
 
 
