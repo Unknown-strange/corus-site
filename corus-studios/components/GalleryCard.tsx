@@ -78,6 +78,36 @@ export default function GalleryCard() {
           image: "/gallery/10.png",
           category: "Agenda",
         },
+        {
+          id: 11,
+          image: "/gallery/1.png",
+          category: "Agenda",
+        },
+        {
+          id: 12,
+          image: "/gallery/2.png",
+          category: "Agenda",
+        },
+        {
+          id: 13,
+          image: "/gallery/4.png",
+          category: "Agenda",
+        },
+        {
+          id: 14,
+          image: "/gallery/8.png",
+          category: "Agenda",
+        },
+        {
+          id: 15,
+          image: "/gallery/9.png",
+          category: "Agenda",
+        },
+        {
+          id: 16,
+          image: "/gallery/5.png",
+          category: "Agenda",
+        },
       ]);
 
       setLoading(false);

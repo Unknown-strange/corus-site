@@ -57,12 +57,12 @@ export default function Hero() {
 
               {/* Content on top – now with dynamic color */}
               <div className={styles.content}>
-                <h1 
+                <div 
                   className={styles.title}
                   style={{ color: slide.textColor || "black" }}  // ← apply custom color
                 >
                   {slide.title}
-                </h1>
+                </div>
                 <p 
                   className={styles.description}
                   style={{ color: slide.textColor || "white" }}  // ← apply custom color
