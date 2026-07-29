@@ -1,0 +1,319 @@
+/*
+ * "Request a studio space" — the page the navbar calls Rentals.
+ *
+ * No design coordinates were supplied for this screen, and unlike the auth
+ * cards it scrolls, so this is a fluid centred column rather than a fixed
+ * design stage.
+ */
+
+.page {
+  --orange: #ff5100;
+  --border: #d9d9d9;
+  --placeholder: #888888;
+  --muted: #b5b5b5;
+
+  min-height: 100dvh;
+  background: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.banner {
+  position: relative;
+  padding: 2.5rem 1.25rem;
+  background: #d9d9d9;
+  text-align: center;
+}
+
+.back {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #000000;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--orange, #ff5100);
+}
+
+.back:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 3px;
+}
+
+/* Below this width the absolute link would sit on top of the heading */
+@media (max-width: 40rem) {
+  .banner {
+    padding-top: 1.25rem;
+  }
+
+  .back {
+    position: static;
+    margin-bottom: 1.25rem;
+  }
+}
+
+.bannerTitle {
+  margin: 0;
+  color: #000000;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 41rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 30rem) {
+  .nameRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  width: 100%;
+  height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.textarea {
+  min-height: 8rem;
+  padding: 1rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.field::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+.field:focus-visible,
+.select:focus-visible,
+.day:focus-visible,
+.slot:focus-visible,
+.submit:focus-visible,
+.monthNav:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.legend {
+  margin: 0.75rem 0 0;
+  color: #444444;
+  font-size: 0.95rem;
+}
+
+.legendHint {
+  font-style: italic;
+}
+
+/* ── Calendar ────────────────────────────────────────────────── */
+
+.calendar {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.calendarHead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.select {
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.weekdays,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.weekdays {
+  margin-top: 1.25rem;
+}
+
+.weekday {
+  padding: 0.5rem 0;
+  color: #000000;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  padding: 0;
+  width: 2rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: #000000;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.day:hover:not(:disabled) {
+  border-color: var(--border);
+}
+
+/* Days spilling in from the neighbouring month */
+.dayOutside {
+  color: var(--muted);
+}
+
+.day:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.daySelected,
+.daySelected:hover {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #000000;
+  font-weight: 700;
+}
+
+/* ── Time slots ──────────────────────────────────────────────── */
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 36rem) {
+  .slots {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 22rem) {
+  .slots {
+    grid-template-columns: 1fr;
+  }
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 3rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.slotMark {
+  flex: 0 0 auto;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1px solid #767676;
+  border-radius: 50%;
+}
+
+.slotSelected {
+  border-color: var(--orange);
+}
+
+.slotSelected .slotMark {
+  border-color: var(--orange);
+  background: var(--orange);
+}
+
+.slot:disabled {
+  border-color: #ececec;
+  background: #fafafa;
+  color: var(--muted);
+  cursor: default;
+}
+
+.slot:disabled .slotMark {
+  border-color: var(--muted);
+}
+
+/* ── Submit ──────────────────────────────────────────────────── */
+
+.submitRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.submit {
+  min-width: 14rem;
+  height: 3.25rem;
+  padding: 0 2rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--orange);
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: #e64900;
+}
+
+.notice {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ffc7ad;
+  border-radius: 4px;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+  text-align: center;
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { UserCircle2 } from "lucide-react";
 import { useState } from "react";
 import styles from "./Navbar.module.css";
@@ -8,15 +9,19 @@ import styles from "./Navbar.module.css";
 const links = [
   { name: "Home", href: "/" },
   { name: "Our Gallery", href: "#gallery" },
-  { name: "Rentals", href: "#rentals" },
+  { name: "Rentals", href: "/rentals" },
   { name: "Store", href: "#store" },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
+
+  /** Only real routes can be current — the in-page hash links never are. */
+  const isCurrent = (href: string) => href.startsWith("/") && href === pathname;
 
   return (
     <header className={styles.header}>
@@ -42,7 +47,11 @@ export default function Navbar() {
           <ul className={styles.desktopMenu}>
             {links.map((link) => (
               <li key={link.name}>
-                <Link href={link.href} className={styles.navLink}>
+                <Link
+                  href={link.href}
+                  className={`${styles.navLink} ${isCurrent(link.href) ? styles.navLinkActive : ""}`}
+                  aria-current={isCurrent(link.href) ? "page" : undefined}
+                >
                   {link.name}
                 </Link>
               </li>
@@ -60,7 +69,11 @@ export default function Navbar() {
         <ul>
           {links.map((link) => (
             <li key={link.name} onClick={closeMenu}>
-              <Link href={link.href} className={styles.mobileNavLink}>
+              <Link
+                href={link.href}
+                className={`${styles.mobileNavLink} ${isCurrent(link.href) ? styles.navLinkActive : ""}`}
+                aria-current={isCurrent(link.href) ? "page" : undefined}
+              >
                 {link.name}
               </Link>
             </li>

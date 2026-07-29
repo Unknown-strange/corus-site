@@ -98,6 +98,13 @@
   color: #ea580c;
 }
 
+/* Current page */
+.navLinkActive,
+.navLinkActive:hover {
+  color: #ea580c;
+  text-decoration: underline;
+}
+
 /* Desktop login link (hidden on mobile) */
 .loginLink {
   display: none;

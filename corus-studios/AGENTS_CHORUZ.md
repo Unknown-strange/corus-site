@@ -212,6 +212,141 @@ screen's y 172.
 alike. What's missing is frontend plumbing, not a backend change: the API
 client, `NEXT_PUBLIC_API_URL`, and the token-storage decision.
 
+### 2026-07-28 — Rentals page (studio space request)
+
+`app/rentals/page.tsx`, `components/StudioRequest.tsx`,
+`components/StudioRequest.module.css`. Linked from the navbar's Rentals tab,
+which now points at `/rentals` instead of `#rentals` and highlights when
+current (`aria-current="page"` + orange underline).
+
+**Naming.** The navbar calls it Rentals, but the page is a *studio space
+request*, which the backend calls **reservations** (`POST /reservations`,
+approval-gated). `/rentals/*` in the API is **equipment rental** — a different,
+instant-checkout flow with no screen yet. The component is named
+`StudioRequest` rather than `Rentals` so the two don't get confused later.
+
+No design coordinates were given and the page scrolls, so it is a fluid centred
+column rather than a fixed design stage like the auth cards.
+
+**Calendar** is hand-rolled: month/year selects, real weekday offsets, previous
+and next month spill-over days muted, past dates disabled. Verified against the
+design's July 2026 — five rows, first row `28 29 30 1 2 3 4`, last row
+`26 27 28 29 30 31 1`.
+
+Today is read via `useSyncExternalStore` with a `null` server snapshot rather
+than `useState` + `useEffect`. Reading the clock during SSR risks a hydration
+mismatch when server and visitor are on different dates, and the newer
+`react-hooks/set-state-in-effect` rule rejects the effect-based version.
+
+Verified at 1280px and 375px: multi-slot toggling, date selection, submit
+validation, no console errors, no horizontal overflow, slots reflow 3 → 2 → 1
+column.
+
+**Not built, deliberately:** the signed-in avatar ("F Me") in the design's
+navbar. There is no auth state yet, so the navbar still shows Log In.
+
+### 2026-07-29 — Rentals rebuilt as two flows; admin login removed
+
+**Admin login deleted.** `app/admin/login/`, `components/AdminLogIn.tsx` and its
+stylesheet are gone. One login form now serves everyone.
+
+Worth knowing: **no credentials need hardcoding in the frontend.** The backend
+already provisions the admin account outside of registration —
+`scripts/seed_admin.py` seeds it from `ADMIN_USERNAME` / `ADMIN_PASSWORD` env
+vars. The admin types those into the normal form, `/auth/login` returns a
+token, and `/auth/me` reports `role: "admin"`, which is what should route them
+to the dashboard. Putting a password in frontend source would ship it to every
+visitor in the JS bundle — anyone could read it in DevTools.
+
+**Rentals is now two flows,** matching the two things the business rents:
+
+```
+/rentals                     catalogue — studio banner + gadget grid
+/rentals/studio              studio request form (posts to /reservations)
+/rentals/gadgets/[id]        gadget detail (posts to /rentals/checkout)
+```
+
+**Components**
+
+| File | Role |
+|------|------|
+| `RentalsToolbar` | Grey band: heading, search, category filters, cart. Shared by the catalogue and the detail screen |
+| `StudioHero` | "Rent a Studio for your Shoots" banner → `/rentals/studio` |
+| `GadgetCard` | Card template — photo, name, price/day, Rent Now |
+| `RentalsScreen` | Composes toolbar + hero + grid + View More; owns search state |
+| `GadgetDetail` | Photo, price panel, dates/times, quantity, Add to Cart, Checkout |
+| `StudioRequest` | Unchanged, now reached from the studio banner |
+
+`GadgetCard` props mirror `RentEquipmentPublicResponse` exactly — `name`,
+`slug`, `daily_rate_ghs`, `stock`, `image_url` — so swapping placeholder data
+for `GET /rentals/equipment` is a substitution, not a rewrite. `stock === 0`
+renders the design's "Not Available" state.
+
+`lib/gadgets.ts` holds six placeholder gadgets, all using `gallery/gadget1.png`
+(the only gadget photo in the repo). Names and prices are taken from the
+mockup. The file is marked for deletion once the catalogue is live.
+
+Verified at 1280px: 4-column grid reflowing 4 → 3 → 2 → 1, six cards linking to
+their detail pages, studio banner linking to the request form, quantity stepper
+capping at stock, no console errors, no horizontal overflow.
+
+**Not built:** the signed-in avatar ("F Me") in the mockup's navbar — still no
+auth state.
+
+### 2026-07-29 — Three rentals fixes
+
+**Back links** to `/rentals` added to the studio request screen (top-left of
+the banner, in flow below 40rem so it can't overlap the heading) and the gadget
+detail screen (above the title).
+
+**Studio banner image was invisible.** `.image` had `z-index: -1` while `.hero`
+was positioned but established no stacking context of its own, so the image
+painted behind the *page* background rather than behind its own section.
+Removed the negative z-index and lifted the title and CTA with `z-index: 1`
+instead. Verified: hit-testing the title and button centres returns the text,
+not the image.
+
+**Calendar was blank until you touched something else.** `useSyncExternalStore`
+was given a `subscribe` that never called `onStoreChange`, so after hydration
+React had no reason to re-read the snapshot and the server's `null` stuck. The
+component was hydrated the whole time — clicking any time slot forced a
+re-render and the calendar appeared, which is what made it look intermittent.
+
+Fixed once by making `subscribe` fire a one-shot notification. **That was still
+wrong**: it left the calendar dependent on a re-render *after* hydration, so
+anything slowing hydration showed an empty grid with dead dropdowns. See the
+follow-up below for the real fix.
+
+### 2026-07-29 — Calendar rendered on the server; banner overlay
+
+**The calendar now comes from the server.** `StudioRequest` takes `todayIso` as
+a prop; `app/rentals/studio/page.tsx` resolves it with
+
+```ts
+new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Accra" }).format(new Date())
+```
+
+`Africa/Accra` matches the backend's `STUDIO_TIMEZONE`, so what the UI treats
+as a past date is what the API will reject. The page is `force-dynamic` —
+without it "today" would be frozen to build time.
+
+This removes the whole failure mode rather than patching it. Both earlier
+attempts read the clock on the client, which meant the grid could only appear
+on a re-render after hydration. Confirmed with `curl`: the raw HTML now
+contains all 35 day buttons and no disabled selects, so the calendar is there
+before any JavaScript runs. `calendarPlaceholder` and its CSS are gone.
+
+**Lesson for the next date-dependent screen:** if a server component can
+resolve the value, pass it as a prop. Client-only clock reads buy nothing here
+and cost a render cycle you then have to defend.
+
+**Studio banner:** source updated to `studio.jpg`, plus a
+`rgba(0, 0, 0, 0.45)` wash via `.hero::after` so the heading and button read
+clearly. It needs no z-index — it follows the image in tree order, and the text
+sits above both on `z-index: 1`.
+
+**Back links** shortened to "Back" on both screens.
+
 ---
 
 ## Blockers
@@ -240,12 +375,61 @@ surface as a 409 they can't act on.
 `RegisterRequest`, and make `username` optional (or confirm the design should
 gain a username field instead).
 
-### 🔴 Log In cannot submit — same root cause
+### 🔴 Log In cannot submit — same root cause, and it now covers admin too
 
 `POST /auth/login` takes `{ username, password }`. The design collects an
 **email**, and the API does not authenticate on email. Resolving the register
 blocker settles this too: whatever customers register with is what they log in
 with.
+
+### 🔴 Studio request cannot submit — multiple time slots
+
+`POST /reservations` takes `{ requested_start, requested_end, purpose, notes }`
+— **one contiguous datetime range**. The design lets the customer pick several
+non-adjacent slots (10–11am, 2–3pm, 6–7pm in the mockup).
+
+Neither workaround is the frontend's call to make:
+
+- collapsing them into a single 10am–7pm range would reserve the studio for
+  nine hours including the gaps, and be priced that way;
+- firing one POST per slot creates several independent reservations, each
+  approved or rejected separately, each with its own deposit.
+
+**Needed from the backend team:** either accept a list of ranges on one
+reservation, or confirm that one-request-per-slot is the intended behaviour.
+
+Two smaller gaps on the same screen:
+
+- **First/last name have nowhere to go.** The reservation attaches to the
+  authenticated account and the API reads the name from there. The fields are
+  in the design, so they render, but they are not part of the contract.
+- **No availability source.** The design greys out unavailable slots.
+  `/sessions/availability` covers session slots; reservations are free-form
+  ranges with no slot table behind them. Nothing is faked as unavailable — all
+  slots render selectable until an endpoint exists.
+
+### 🔴 Gadget rental checkout — three fields with no contract
+
+`POST /rentals/checkout` takes `{ equipment_id, start_date, end_date }` and
+charges daily rate × days immediately. The detail screen adds:
+
+- **Pickup / dropoff times** — the API takes plain dates, no time of day.
+- **Quantity** — one request rents one unit; there is no quantity field.
+- **Add to Cart** — `/cart` is products-only (`POST /cart/items { product_id }`).
+  Rentals check out directly; there is no rental cart, and no cart screen
+  exists for the toolbar icon to open either.
+
+**Needed from the backend team:** confirm whether times and quantity are in
+scope, or whether the design should drop them.
+
+### 🔴 Rentals category filter has nothing to filter on
+
+`EquipmentForRent` has no category column and `GET /rentals/equipment` takes no
+filter parameters. Categories exist for shop products only. The Cameras /
+Lenses / Lights buttons keep their selected state so the interaction is
+visible, but they do not filter — inferring a category from the product name
+would invent data. Search filters on name client-side, which works against
+placeholder data and will need a server-side query once the catalogue is real.
 
 ### 🔴 "Continue with Google" has no backend
 

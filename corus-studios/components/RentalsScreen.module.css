@@ -1,0 +1,86 @@
+/* Rentals catalogue: studio banner above, gadget grid below. */
+
+.page {
+  min-height: 100dvh;
+  background: #d9d9d9;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.heroWrap {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 0;
+}
+
+@media (max-width: 64rem) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 48rem) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 26rem) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.empty {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem;
+  color: #555555;
+  text-align: center;
+}
+
+.notice {
+  max-width: 40rem;
+  margin: 1.5rem auto 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ffc7ad;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.moreRow {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1.25rem 3.5rem;
+}
+
+.more {
+  min-width: 8rem;
+  height: 2.75rem;
+  padding: 0 1.75rem;
+  border: none;
+  background: #ff5100;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+
+.more:hover {
+  background: #e64900;
+}
+
+.more:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 2px;
+}

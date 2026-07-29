@@ -573,6 +573,9 @@ Track these with the backend team; update as they resolve.
 | 5 | Are money fields serialised as JSON strings or numbers? Verify against a live response and record it. | Open |
 | 6 | **Blocks Sign Up and Log In submit.** The Sign Up design collects a phone number, but `User` has no phone column and `RegisterRequest` has no phone field — it would be silently discarded. The design also omits `username`, which `POST /auth/register` requires. The Log In design collects an **email**, but `POST /auth/login` authenticates on `username` only. Backend needs to add `phone` and relax `username` (or the designs need a username field). | **Open — blocking** |
 | 7 | **Blocks Google sign-in.** The Log In design has a "Continue with Google" button, but the backend has no OAuth routes, no provider config, and no social-account columns on `User`. The feature needs scoping before the button can do anything. | **Open — blocking** |
+| 8 | **Blocks the studio request submit.** `POST /reservations` takes one contiguous `requested_start`/`requested_end` range, but the design lets customers pick several non-adjacent slots. Backend needs to accept a list of ranges, or confirm that one reservation per slot is intended. The same screen's first/last name fields have no home in the contract (the API reads the name from the account), and there is no availability endpoint for reservation slots. | **Open — blocking** |
+| 9 | **Blocks gadget rental checkout.** `POST /rentals/checkout` takes `{ equipment_id, start_date, end_date }`. The design adds **pickup/dropoff times** (the API takes plain dates), a **quantity** stepper (one request rents one unit), and an **Add to Cart** button (`/cart` is products-only — rentals check out directly, there is no rental cart). Backend needs to add time-of-day and quantity, or the design drops them. | **Open — blocking** |
+| 10 | **Blocks the rentals category filter.** The design filters by Cameras / Lenses / Lights, but `EquipmentForRent` has no category column and `GET /rentals/equipment` takes no filter parameters. Categories exist for shop products only. | **Open — blocking** |
 
 ---
 
@@ -594,8 +597,10 @@ Mirrors the backend's phase structure so progress is comparable.
 
 - [x] Sign Up screen — UI only, submit not wired (blocked by open question 6)
 - [x] Log In screen — UI only, submit not wired (blocked by open questions 6, 7)
-- [x] Admin Log In screen (`/admin/login`) — UI only. **Not blocked by the API**;
-      needs the client, `NEXT_PUBLIC_API_URL`, and token storage
+- [ ] One login form serves customers **and** admin/staff. Admin does not
+      register — the account is seeded by the backend
+      (`scripts/seed_admin.py`). After login, read `role` from `/auth/me` and
+      route admins to the dashboard
 - [ ] Sign Up wired to `POST /auth/register`
 - [ ] Log In wired to `POST /auth/login`
 - [ ] Forgot password / reset password screens (`/forgot-password` is linked
@@ -606,10 +611,16 @@ Mirrors the backend's phase structure so progress is comparable.
 
 ### Phase 3 — Public site
 
+- [x] Rentals catalogue at `/rentals` — studio banner + gadget grid, UI only
+- [x] Studio request form at `/rentals/studio` — UI only (open question 8).
+      Posts to **`/reservations`**, not `/rentals`
+- [x] Gadget detail at `/rentals/gadgets/[id]` — UI only (open question 9)
+- [ ] Replace `lib/gadgets.ts` placeholder data with `GET /rentals/equipment`
 - [ ] Homepage from `/catalog/content/homepage`
 - [ ] Gallery from `/catalog/content/gallery` (replace the hardcoded array)
 - [ ] Shop catalogue + product detail
-- [ ] Rental catalogue + equipment detail
+- [ ] Cart screen — no route exists; the cart icon in the rentals toolbar has
+      nowhere to go
 
 ### Phase 4 — Customer transactions
 
