@@ -1,0 +1,159 @@
+/* Footer.module.css */
+
+.footer {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 3rem 1.5rem 0;
+  width: 100%;
+  max-width: 1540px;
+  margin: 0 auto;
+  /* border-radius: 0.5rem 0.5rem 0 0; */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #333333;
+}
+
+/* ─── LEFT: Brand + Social ─── */
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.brandName {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.socialLink {
+  color: #cccccc;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.socialLink:hover {
+  color: #ea580c; /* orange accent */
+}
+
+/* ─── CENTER: Nav Links (column) ─── */
+.footerLinks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.footerLink {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #cccccc;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footerLink:hover {
+  color: #ea580c;
+}
+
+/* ─── RIGHT: Studio Logo ─── */
+.right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.logoWrapper {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.studioLogo {
+  object-fit: contain;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+/* ─── BOTTOM: Copyright (full width) ─── */
+.copyrightWrapper {
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.copyright {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  color: #888888;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+/* ─── TABLET / MOBILE ADJUSTMENTS ─── */
+@media (max-width: 768px) {
+  .footer {
+    padding: 2rem 1rem 0;
+    border-radius: 0;
+  }
+
+  .container {
+    grid-template-columns: 1fr;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .left {
+    align-items: center;
+  }
+
+  .socialIcons {
+    justify-content: center;
+  }
+
+  .footerLinks {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .right {
+    justify-content: center;
+  }
+
+  .brandName {
+    font-size: 1.5rem;
+  }
+
+  .footerLink {
+    font-size: 0.9rem;
+  }
+
+  .copyright {
+    font-size: 0.75rem;
+  }
+}

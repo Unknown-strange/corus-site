@@ -2,7 +2,7 @@
     width: 100%;
     padding: 70px 8%;
     background: #efefef00;
-    margin: 1rem 0 auto;
+    margin: 0 auto;
 }
 
 /* ===========================
@@ -14,7 +14,8 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 35px;
+    margin-bottom: 25px;
+    color: black;
 }
 
 .filterButton {
@@ -42,7 +43,7 @@
 =========================== */
 
 .galleryGrid {
-    column-count: 4;
+    column-count: 8;
     column-gap: 18px;
 }
 
