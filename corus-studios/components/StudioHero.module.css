@@ -1,0 +1,76 @@
+/* "Rent a Studio for your Shoots" banner that opens the studio request form. */
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  overflow: hidden;
+  aspect-ratio: 24 / 7;
+  min-height: 12rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+/*
+ * No negative z-index here. `.hero` is positioned but has no stacking context
+ * of its own, so a `z-index: -1` image paints behind the *page* background and
+ * disappears. The image stays at the default level and the text is lifted
+ * above it instead.
+ */
+.image {
+  object-fit: cover;
+}
+
+/*
+ * Dark wash so the heading and button stay legible over the photo. No z-index
+ * needed: it comes after the image in tree order so it paints on top of it,
+ * and the text sits above both on z-index 1.
+ */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: clamp(1.4rem, 3.4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+.cta {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8.5rem;
+  height: 2.25rem;
+  padding: 0 1.25rem;
+  background: #ff5100;
+  color: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.cta:hover {
+  background: #e64900;
+}
+
+.cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}

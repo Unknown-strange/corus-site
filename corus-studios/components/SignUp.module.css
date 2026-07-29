@@ -1,0 +1,206 @@
+/*
+ * Sign Up panel contents. The card around it lives in AuthShell.module.css,
+ * which also supplies the colour variables and the `--s` design-pixel unit.
+ *
+ * From 1024px up every element sits at its design coordinate, relative to the
+ * 730-wide panel: the 580-wide form starts at x 75.
+ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.title {
+  margin: 0;
+  color: var(--orange);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.subtitle {
+  margin: 0.75rem 0 0;
+  color: #000000;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 32rem;
+  margin: 2rem auto 0;
+}
+
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.phoneRow {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 0.5rem;
+}
+
+.field {
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.field::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+/* Everything below the name row is left aligned in the design; only First and
+   Last Name stay centred. */
+.fieldLeft {
+  padding-left: 1rem;
+  text-align: left;
+}
+
+.field:focus-visible,
+.submit:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.phonePrefix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--placeholder);
+  font-size: 1.125rem;
+}
+
+.submit {
+  height: 4rem;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--orange);
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: #e64900;
+}
+
+.notice {
+  width: 100%;
+  max-width: 32rem;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffc7ad;
+  border-radius: 4px;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ── Design layout ───────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .header {
+    position: absolute;
+    top: calc(145 * var(--s));
+    left: calc(280 * var(--s));
+    height: calc(51 * var(--s));
+    gap: 0;
+  }
+
+  .icon {
+    width: calc(51 * var(--s));
+    height: calc(51 * var(--s));
+  }
+
+  .title {
+    font-size: calc(36 * var(--s));
+  }
+
+  .subtitle {
+    position: absolute;
+    top: calc(208 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    margin: 0;
+    font-size: calc(24 * var(--s));
+  }
+
+  .form {
+    position: absolute;
+    top: calc(250 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+    gap: calc(30 * var(--s));
+  }
+
+  .nameRow {
+    grid-template-columns: calc(276 * var(--s)) calc(276 * var(--s));
+    gap: calc(28 * var(--s));
+  }
+
+  .phoneRow {
+    grid-template-columns: calc(103 * var(--s)) 1fr;
+    gap: calc(7 * var(--s));
+  }
+
+  .field,
+  .phonePrefix {
+    height: calc(74 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  .fieldLeft {
+    padding-left: calc(45 * var(--s));
+  }
+
+  .submit {
+    /* Stage y 787: 47px below the last field, 30px of which is the form gap. */
+    height: calc(80 * var(--s));
+    margin-top: calc(17 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  .notice {
+    position: absolute;
+    top: calc(880 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+  }
+}

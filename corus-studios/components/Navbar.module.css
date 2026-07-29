@@ -62,6 +62,10 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  /* Without this the shrink-to-fit width is capped at the space to the right
+     of the 50% offset, which squeezes the group and wraps "Our Gallery" and
+     "Log In" onto two lines. */
+  width: max-content;
 }
 
 /* Desktop menu */
@@ -87,10 +91,18 @@
   color: black;
   font-family: Helvetica, Arial, sans-serif;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .navLink:hover {
   color: #ea580c;
+}
+
+/* Current page */
+.navLinkActive,
+.navLinkActive:hover {
+  color: #ea580c;
+  text-decoration: underline;
 }
 
 /* Desktop login link (hidden on mobile) */
@@ -98,6 +110,7 @@
   display: none;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
   color: #ea580c;
   font-weight: 600;
   text-decoration: none;
@@ -292,3 +305,4 @@
 .mobileNavLink:hover {
   color: #ea580c;
 }
+

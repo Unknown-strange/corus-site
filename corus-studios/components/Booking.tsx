@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import styles from "./Booking.module.css";
@@ -24,6 +25,20 @@ const packages = [
 
 export default function Booking() {
   const [selectedPackage, setSelectedPackage] = useState(1);
+  const router = useRouter();
+
+  /**
+   * Booking a session needs an account — POST /sessions/holds and
+   * /sessions/bookings/checkout are both customer-only.
+   *
+   * The app has no auth state yet, so every visitor is sent to sign up. Once
+   * the session context exists, check it here and only redirect when signed
+   * out; a signed-in customer should go on to the real booking flow instead.
+   */
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    router.push("/signup");
+  }
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -77,7 +92,8 @@ export default function Booking() {
 
       <h2>Book a Session Today</h2>
 
-      <form className={styles.form}>
+      <form className={styles.form} onSubmit={handleSubmit}>
+
         {/* Full Name */}
         <input type="text" placeholder="Full Name" required />
 
