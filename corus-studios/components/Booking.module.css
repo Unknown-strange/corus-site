@@ -100,10 +100,35 @@
     font-size:18px;
     font-weight:bold;
     transition:.3s;
+    border-radius:4px;
 }
 
 .form button:hover{
     background:#e14d00;
+}
+
+/* Style the placeholder option */
+.form select option[value=""] {
+  color: #888888;
+}
+
+/* Style the select itself when placeholder is showing */
+.form select:invalid {
+  color: #888888;
+}
+
+/* When a valid option is selected, change color back to black */
+.form select:valid {
+  color: #000000;
+}
+
+/* ─── Style the date input placeholder ─── */
+.form input[type="date"]:invalid {
+  color: #888888; /* gray when empty */
+}
+
+.form input[type="date"]:valid {
+  color: #000000; /* black when a date is selected */
 }
 
 @media(max-width:768px){
@@ -116,4 +141,62 @@
         grid-template-columns:1fr;
     }
 
+}
+
+/* ─── Scroll‑triggered animation ─── */
+.bookingSection {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+  position: relative;        /* for absolute positioning of images */
+  overflow: hidden;          /* keep images inside the section */
+}
+
+.bookingSection.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Left & Right decorative images ─── */
+.imageLeft,
+.imageRight {
+  position: absolute;
+  top: 50%;
+  width: 250px;
+  height: 370px;
+  opacity: 0;
+  transition: opacity 0.9s ease, transform 0.9s ease;
+  transform: translateY(-50%) translateX(-20px);
+  z-index: 0;               /* behind the form */
+}
+
+.imageLeft {
+  left: 70px;
+  transform: translateY(-50%) translateX(-30px);
+  top: 55%;
+}
+
+.imageRight {
+  right: -40px;
+  transform: translateY(-50%) translateX(70px);
+  width: 350px;
+  height: 400px;
+}
+
+.imageLeft.imageVisible,
+.imageRight.imageVisible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.image {
+  object-fit: cover;
+}
+
+/* ─── Hide images on smaller screens ─── */
+@media (max-width: 1200px) {
+  .imageLeft,
+  .imageRight {
+    display: none;
+  }
 }

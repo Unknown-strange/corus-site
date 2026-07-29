@@ -240,6 +240,8 @@ def receipt_document_to_pdf(doc: ReceiptDocument) -> bytes | None:
         customer = doc.customer_name or "Customer"
         if doc.customer_email:
             customer += f"<br/><font color='{INK_MUTED}' size='{int(11 * PX)}'>{doc.customer_email}</font>"
+        if doc.customer_phone:
+            customer += f"<br/><font color='{INK_MUTED}' size='{int(11 * PX)}'>{doc.customer_phone}</font>"
 
         addresses = Table(
             [

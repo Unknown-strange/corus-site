@@ -36,5 +36,6 @@ class ReceiptDetailResponse(BaseModel):
     payment_reference: str | None = None
     customer_name: str | None = None
     customer_email: str | None = None
+    customer_phone: str | None = None
 
     model_config = {"from_attributes": True}

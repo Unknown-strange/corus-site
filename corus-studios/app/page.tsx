@@ -4,6 +4,8 @@ import Gallery from "@/components/Gallery";
 import GalleryCard from "@/components/GalleryCard";
 import Booking from "@/components/Booking";
 import styles from "./page.module.css";
+import Map from "@/components/Map";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
@@ -15,6 +17,8 @@ export default function Home() {
       <Gallery />
       <GalleryCard />
       <Booking />
+      /<Map/>
+      <Footer />
     </section>
   );
 }

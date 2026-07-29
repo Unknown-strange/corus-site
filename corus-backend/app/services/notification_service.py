@@ -44,6 +44,9 @@ def dispatch_email(
     force_send: bool = False,
     pdf_attachment: tuple[str, bytes] | None = None,
     send_admin_copy: bool = False,
+    admin_subject: str | None = None,
+    admin_plain_text: str | None = None,
+    admin_html: str | None = None,
 ) -> bool:
     success = send_email(
         to_email,
@@ -65,15 +68,17 @@ def dispatch_email(
     )
 
     if send_admin_copy and settings.admin_email_copy:
-        admin_subject = f"[Admin copy] {subject}"
         for admin_email in _admin_recipients(db):
             if admin_email == to_email:
                 continue
+            copy_subject = admin_subject or f"[Admin copy] {subject}"
+            copy_plain = admin_plain_text if admin_plain_text is not None else plain_text
+            copy_html = admin_html if admin_html is not None else html
             admin_ok = send_email(
                 admin_email,
-                admin_subject,
-                plain_text,
-                html,
+                copy_subject,
+                copy_plain,
+                copy_html,
                 force_send=force_send,
                 pdf_attachment=pdf_attachment,
             )
@@ -82,7 +87,7 @@ def dispatch_email(
                 user_id=None,
                 event_type=f"{event_type}_admin_copy",
                 recipient=admin_email,
-                subject=admin_subject,
+                subject=copy_subject,
                 status=NotificationStatus.sent if admin_ok else NotificationStatus.failed,
                 reference_type=reference_type,
                 reference_id=reference_id,
