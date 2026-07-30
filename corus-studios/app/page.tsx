@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   const todayIso = new Date().toISOString().split("T")[0];
-  
+
   return (
     <section className={styles.bodyMain}>
       <div className="heroWrapper">
@@ -19,7 +19,7 @@ export default function Home() {
       <Gallery />
       <GalleryCard />
       <Booking todayIso={todayIso}/>
-      /<Map/>
+      <Map/>
       <Footer />
     </section>
   );

@@ -15,7 +15,7 @@
 .nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;  /* desktop: logo left, center group centered, hamburger hidden */
+  justify-content: space-between;
   height: 4rem;
   padding: 0 1.5rem;
 }
@@ -44,7 +44,7 @@
 
 /* ─── Mobile‑only login (hidden on desktop) ─── */
 .mobileLogin {
-  display: none;                 /* hidden by default */
+  display: none;
   align-items: center;
   gap: 0.25rem;
   color: #ea580c;
@@ -52,6 +52,11 @@
   font-size: 0.9rem;
   text-decoration: none;
   font-family: Helvetica, Arial, sans-serif;
+}
+
+/* ─── NEW: hide mobile user on desktop ─── */
+.mobileUser {
+  display: none;
 }
 
 /* ─── Center group: menu + desktop login ─── */
@@ -62,9 +67,6 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  /* Without this the shrink-to-fit width is capped at the space to the right
-     of the 50% offset, which squeezes the group and wraps "Our Gallery" and
-     "Log In" onto two lines. */
   width: max-content;
 }
 
@@ -98,7 +100,6 @@
   color: #ea580c;
 }
 
-/* Current page */
 .navLinkActive,
 .navLinkActive:hover {
   color: #ea580c;
@@ -126,77 +127,7 @@
   }
 }
 
-/* Hamburger button */
-.mobileButton {
-  display: block;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-@media (min-width: 768px) {
-  .mobileButton {
-    display: none;
-  }
-}
-
-.hamburgerIcon {
-  width: 1.75rem;
-  height: 1.75rem;
-}
-
-/* ─── MOBILE OVERRIDES (max-width: 767px) ─── */
-@media (max-width: 767px) {
-  .header {
-    margin: 0.5rem auto 0 auto;
-    border-radius: 0;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .nav {
-    justify-content: flex-start;   /* allow left‑alignment for logo, then push login right */
-    height: 3.5rem;
-    padding: 0 1rem;
-  }
-
-  .logo {
-    font-size: 1rem;
-    gap: 0.25rem;
-  }
-
-  .logoIcon {
-    width: 24px;
-    height: 24px;
-  }
-
-  /* Show mobile login, push it to the right */
-  .mobileLogin {
-    display: flex;
-    margin-left: auto;             /* pushes to the right */
-    margin-right: 0.75rem;         /* spacing before hamburger */
-  }
-
-  /* Hide the desktop login (inside navCenter) on mobile */
-  .loginLink {
-    display: none !important;
-  }
-
-  /* Hide the entire navCenter on mobile (it contains desktop menu + desktop login) */
-  .navCenter {
-    display: none;
-  }
-
-  .hamburgerIcon {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: black;
-  }
-}
-
-/* ─── Hamburger → X animation ─── */
+/* ─── Hamburger button ─── */
 .mobileButton {
   display: block;
   background: none;
@@ -236,7 +167,6 @@
   transform-origin: center;
 }
 
-/* When open, transform lines into an X */
 .hamburgerWrapper.open .line:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
@@ -250,7 +180,7 @@
 
 /* ─── Mobile Menu (slide‑down) ─── */
 .mobileMenu {
-  display: none; /* hidden on desktop */
+  display: none;
   background: white;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   padding: 1rem 1.5rem;
@@ -263,9 +193,9 @@
   opacity: 0;
   transition: all 0.3s ease;
   pointer-events: none;
-  border-bottom-left-radius: 0.5rem;   /* or any value you prefer */
+  border-bottom-left-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
-  overflow: hidden;   
+  overflow: hidden;
 }
 
 .mobileMenu.open {
@@ -306,3 +236,227 @@
   color: #ea580c;
 }
 
+/* ─── MOBILE OVERRIDES ─── */
+@media (max-width: 767px) {
+  .header {
+    margin: 0.5rem auto 0 auto;
+    border-radius: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .nav {
+    justify-content: flex-start;
+    height: 3.5rem;
+    padding: 0 1rem;
+  }
+
+  .logo {
+    font-size: 1rem;
+    gap: 0.25rem;
+  }
+
+  .logoIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Show mobile login or user avatar */
+  .mobileLogin {
+    display: flex;
+    margin-left: auto;
+    margin-right: 0.75rem;
+  }
+
+  .mobileUser {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+    position: relative;
+  }
+
+  .mobileUserAvatar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    transition: background 0.2s;
+  }
+  .mobileUserAvatar:hover {
+    background: #f0f0f0;
+  }
+
+  .mobileDropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: auto;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    min-width: 220px;
+    padding: 0.5rem 0;
+    z-index: 200;
+    border: 1px solid #eee;
+    animation: slideDown 0.2s ease;
+  }
+
+  .loginLink {
+    display: none !important;
+  }
+
+  .navCenter {
+    display: none;
+  }
+
+  .hamburgerIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: black;
+  }
+}
+
+/* ─── Shared User / Dropdown Styles ─── */
+.desktopUser {
+  position: relative;
+  cursor: pointer;
+}
+
+.userAvatar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  transition: background 0.2s;
+}
+.userAvatar:hover {
+  background: #f0f0f0;
+}
+
+.avatarCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ea580c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.userName {
+  font-weight: 600;
+  color: black;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+/* Dropdown (desktop & mobile) */
+.dropdown,
+.mobileDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  padding: 0.5rem 0;
+  z-index: 100;
+  border: 1px solid #eee;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.dropdownIcon {
+  color: #ea580c;
+}
+
+.dropdownUsername {
+  padding: 0 1rem 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: black;
+}
+
+.dropdownSignOut {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  font-weight: 600;
+  color: #dc3545;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+}
+.dropdownSignOut:hover {
+  background: #fff5f5;
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: #eee;
+  margin: 0.25rem 0;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+}
+.dropdownItem:hover {
+  background: #f7f7f7;
+  color: #ea580c;
+}
+
+/* Adjust mobile avatar size on very small screens */
+@media (max-width: 480px) {
+  .userName {
+    font-size: 0.85rem;
+  }
+  .avatarCircle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+  .mobileDropdown {
+    min-width: 180px;
+    right: -10px;
+  }
+}
