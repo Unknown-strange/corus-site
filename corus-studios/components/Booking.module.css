@@ -1,7 +1,7 @@
 .bookingSection{
     width:100%;
     padding:80px 8%;
-    background:#f2f2f2;
+    background:#fafafa;
 }
 
 .bookingSection h2{
@@ -91,7 +91,8 @@
     border-color:#ff5b00;
 }
 
-.form button{
+
+.submit {
     height:55px;
     border:none;
     cursor:pointer;
@@ -199,4 +200,88 @@
   .imageRight {
     display: none;
   }
+}
+
+/* ── Calendar ────────────────────────────────────────────────── */
+
+.calendar {
+  padding: 1.25rem;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+}
+
+.calendarHead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.select {
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.weekdays,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.weekdays {
+  margin-top: 1.25rem;
+}
+
+.weekday {
+  padding: 0.5rem 0;
+  color: #000000;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  padding: 0;
+  width: 2rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: #000000;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.day:hover:not(:disabled) {
+  border-color: var(--border);
+}
+
+/* Days spilling in from the neighbouring month */
+.dayOutside {
+  color: var(--muted);
+}
+
+.day:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.daySelected,
+.daySelected:hover {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #000000;
+  font-weight: 700;
 }
