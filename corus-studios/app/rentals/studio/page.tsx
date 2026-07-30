@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import StudioRequest from "@/components/StudioRequest";
+import Map from "@/components/Map";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Request a Studio Space | Corus Studios",
@@ -29,6 +31,8 @@ export default function StudioRequestPage() {
     <>
       <Navbar />
       <StudioRequest todayIso={studioToday()} />
+      <Map />
+      <Footer />
     </>
   );
 }
