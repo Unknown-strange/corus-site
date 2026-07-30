@@ -1,0 +1,7 @@
+{
+  "headers": {
+    "/_next/static/**/*": {
+      "Content-Type": "application/javascript"
+    }
+  }
+}
