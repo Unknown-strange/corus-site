@@ -1,0 +1,211 @@
+/* Single product: photo, pricing panel, quantity, cart and checkout actions. */
+
+.page {
+  min-height: 100dvh;
+  background: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.body {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.75rem;
+  color: #000000;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: #ff5100;
+}
+
+.back:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 3px;
+}
+
+.title {
+  margin: 0;
+  color: #000000;
+  font-size: clamp(1.7rem, 4vw, 3rem);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: #000000;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+}
+
+.overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 2.5rem;
+}
+
+@media (max-width: 52rem) {
+  .overview {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.image {
+  object-fit: contain;
+}
+
+.facts {
+  padding: 2rem;
+  background: #efefef;
+}
+
+.price {
+  margin: 0;
+  color: #ff5100;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+}
+
+.fact {
+  margin: 2rem 0 0;
+  color: #000000;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.factValue {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.stockNote {
+  margin: 0.75rem 0 0;
+  color: #6f6f6f;
+  font-size: 0.9rem;
+}
+
+/* ── Actions ─────────────────────────────────────────────────── */
+
+.controls {
+  margin-top: 3.5rem;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 52rem) {
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stepper {
+  display: flex;
+  align-items: stretch;
+  height: 4.5rem;
+}
+
+.stepperButton {
+  width: 3rem;
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.stepperButton:disabled {
+  color: #b0b0b0;
+  cursor: default;
+}
+
+.quantity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6rem;
+  border-top: 1px solid #d9d9d9;
+  border-bottom: 1px solid #d9d9d9;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.secondary,
+.primary {
+  height: 4.5rem;
+  border: none;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary {
+  border: 1px solid #ff5100;
+  background: #ffffff;
+  color: #000000;
+}
+
+.secondary:hover {
+  background: #fff3ee;
+}
+
+.primary {
+  background: #ff5100;
+  color: #000000;
+}
+
+.primary:hover {
+  background: #e64900;
+}
+
+.stepperButton:focus-visible,
+.secondary:focus-visible,
+.primary:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 2px;
+}
+
+.notice {
+  max-width: 40rem;
+  margin: 1.5rem 0 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ffc7ad;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+}
+
+/* ── Unknown product ─────────────────────────────────────────── */
+
+.missing {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.missingLink {
+  color: #ff5100;
+  font-weight: 700;
+}

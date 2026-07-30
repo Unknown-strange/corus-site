@@ -408,6 +408,13 @@ Cart requires auth. Out-of-stock products must not be addable. After checkout,
 the order is unpaid for 15 minutes before being voided and stock restored —
 communicate that on the payment screen.
 
+**Every purchase goes through the cart** (team decision, 2026-07-29). There is
+no single-product purchase endpoint and none is planned. The "Checkout" button
+on a product screen therefore means two calls in order — `POST /cart/items`
+then `POST /orders/checkout` — and the second one converts the **whole cart**,
+not just the product being viewed. A customer with other items queued will pay
+for all of them, so say so on the screen before sending them to Paystack.
+
 ### E — Receipts
 
 `GET /receipts/me`, `/receipts/{id}`, `/receipts/{id}/download` (PDF). Available
@@ -576,6 +583,7 @@ Track these with the backend team; update as they resolve.
 | 8 | **Blocks the studio request submit.** `POST /reservations` takes one contiguous `requested_start`/`requested_end` range, but the design lets customers pick several non-adjacent slots. Backend needs to accept a list of ranges, or confirm that one reservation per slot is intended. The same screen's first/last name fields have no home in the contract (the API reads the name from the account), and there is no availability endpoint for reservation slots. | **Open — blocking** |
 | 9 | **Blocks gadget rental checkout.** `POST /rentals/checkout` takes `{ equipment_id, start_date, end_date }`. The design adds **pickup/dropoff times** (the API takes plain dates), a **quantity** stepper (one request rents one unit), and an **Add to Cart** button (`/cart` is products-only — rentals check out directly, there is no rental cart). Backend needs to add time-of-day and quantity, or the design drops them. | **Open — blocking** |
 | 10 | **Blocks the rentals category filter.** The design filters by Cameras / Lenses / Lights, but `EquipmentForRent` has no category column and `GET /rentals/equipment` takes no filter parameters. Categories exist for shop products only. | **Open — blocking** |
+| 11 | **Store card condition label.** The design labels cards "Brand New" / "UK Used", but `Product` has no such column and `ProductPublicResponse` never returns it. Backend team notified 2026-07-29 and a label field is being added — until it lands, `condition` lives in `lib/store-products.ts` placeholder data only, and must not be folded into `description`. | Open — backend in progress |
 
 ---
 
