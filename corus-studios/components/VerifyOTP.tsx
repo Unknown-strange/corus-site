@@ -32,47 +32,49 @@ export default function VerifyOTP() {
   }, [otpFromUrl]);
 
   const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp) {
-      setMessage({ type: "error", text: "Please enter the OTP." });
-      return;
-    }
-    setLoading(true);
-    setMessage(null);
+  e.preventDefault();
+  if (!otp) {
+    setMessage({ type: "error", text: "Please enter the OTP." });
+    return;
+  }
+  setLoading(true);
+  setMessage(null);
 
-    try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const response = await fetch(`${apiBase}/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
+  try {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const response = await fetch(`${apiBase}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        let errorMsg = "Verification failed.";
-        if (data.detail) {
-          if (Array.isArray(data.detail)) {
-            errorMsg = data.detail.map((err: any) => err.msg).join(", ");
-          } else {
-            errorMsg = data.detail;
-          }
+    if (!response.ok) {
+      let errorMsg = "Verification failed.";
+      if (data.detail) {
+        if (Array.isArray(data.detail)) {
+          errorMsg = data.detail.map((err: any) => err.msg).join(", ");
+        } else {
+          errorMsg = data.detail;
         }
-        throw new Error(errorMsg);
       }
-
-      localStorage.setItem("access_token", data.access_token);
-      setMessage({ type: "success", text: "Verification successful! Redirecting..." });
-      setTimeout(() => {
-        router.push("/Login/page.tsx");
-      }, 1500);
-    } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Verification failed." });
-    } finally {
-      setLoading(false);
+      throw new Error(errorMsg);
     }
-  };
+
+    // DO NOT store the token –
+    // localStorage.setItem("access_token", data.access_token);
+
+    setMessage({ type: "success", text: "Verification successful! Redirecting to login..." });
+    setTimeout(() => {
+      router.push("/login");  // correct route
+    }, 1500);
+  } catch (err: any) {
+    setMessage({ type: "error", text: err.message || "Verification failed." });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleResend = async () => {
     if (!email) return;
@@ -166,7 +168,7 @@ export default function VerifyOTP() {
 
         {devOtp && process.env.NODE_ENV === "development" && (
           <p className={styles.devOtp}>
-            🔑 Dev OTP: <strong>{devOtp}</strong> (copy and paste)
+            Dev OTP: <strong>{devOtp}</strong> (copy and paste)
           </p>
         )}
       </div>
