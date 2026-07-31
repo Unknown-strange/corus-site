@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation"; // ← import router
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import styles from "./Hero.module.css";
@@ -32,6 +33,12 @@ const slides = [
 ];
 
 export default function Hero() {
+  const router = useRouter(); // ← use router
+
+  const handleBookNow = () => {
+    router.push("/#booking");
+  };
+
   return (
     <section className={styles.heroSection}>
       <Swiper
@@ -46,7 +53,6 @@ export default function Hero() {
         {slides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div className={styles.slideContainer}>
-              {/* Background image – fills the whole container */}
               <Image
                 src={slide.image}
                 alt={slide.title}
@@ -55,22 +61,22 @@ export default function Hero() {
                 className={styles.backgroundImage}
               />
 
-              {/* Content on top – now with dynamic color */}
               <div className={styles.content}>
                 <div 
                   className={styles.title}
-                  style={{ color: slide.textColor || "black" }}  // ← apply custom color
+                  style={{ color: slide.textColor || "black" }}
                 >
                   {slide.title}
                 </div>
                 <p 
                   className={styles.description}
-                  style={{ color: slide.textColor || "white" }}  // ← apply custom color
+                  style={{ color: slide.textColor || "white" }}
                 >
                   {slide.description}
                 </p>
-                <button 
+                <button  // ← back to <button>
                   className={styles.button}
+                  onClick={handleBookNow}  // ← click handler
                   style={{ 
                     backgroundColor: slide.textColor ? "#ea580c" : "#ea580c",
                     color: slide.textColor || "white"
