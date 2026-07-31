@@ -11,12 +11,20 @@ export const metadata: Metadata = {
   description: "Rent studio space and photography gadgets from Corus Studios.",
 };
 
-export default function CartsPage() {
-  return (  
+type Props = {
+  searchParams: Promise<{ category?: string }>;
+};
+
+export default async function CartsPage({ searchParams }: Props) {
+  const { category } = await searchParams;
+  const selectedCategory = category || "store";
+  const displayName = selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
+
+  return (
     <section className={styles.section}>
       <Navbar />
-      <CartFilter />
-      <Cart />
+      <CartFilter cartLabel={displayName} />
+      <Cart category={selectedCategory} />
       <Map />
       <Footer />
     </section>

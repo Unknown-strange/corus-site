@@ -21,8 +21,8 @@ export default function CartPage() {
           <p className={styles.subheading}>Select a category to view your items</p>
 
           <div className={styles.grid}>
-            {/* Rentals Card */}
-            <Link href="/cart/carts" className={styles.card}>
+            {/* Rentals Card - passes category=rentals */}
+            <Link href="/cart/carts?category=rentals" className={styles.card}>
               <div className={styles.cardContent}>
                 <h2 className={styles.cardTitle}>Rentals</h2>
                 <p className={styles.cardDesc}>View your rented gadgets and equipment</p>
@@ -30,8 +30,8 @@ export default function CartPage() {
               </div>
             </Link>
 
-            {/* Store Card */}
-            <Link href="/cart/carts" className={styles.card}>
+            {/* Store Card - passes category=store */}
+            <Link href="/cart/carts?category=store" className={styles.card}>
               <div className={styles.cardContent}>
                 <h2 className={styles.cardTitle}>Store</h2>
                 <p className={styles.cardDesc}>View your store purchases and merchandise</p>

@@ -191,6 +191,27 @@
     background: #e14d00;
 }
 
+.loading {
+  text-align: center;
+  padding: 3rem 0;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.error {
+  text-align: center;
+  padding: 3rem 0;
+  color: #dc3545;
+  font-size: 1.1rem;
+}
+
+.emptyCart {
+  text-align: center;
+  padding: 3rem 0;
+  color: #888;
+  font-size: 1.1rem;
+}
+
 /* ===========================
     RESPONSIVE
 =========================== */

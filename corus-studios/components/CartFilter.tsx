@@ -14,21 +14,17 @@ type Props = {
   category?: Category | null;
   onCategoryChange?: (value: Category | null) => void;
   onCartClick?: () => void;
+  /** If provided, displays this label instead of the filter buttons (used on cart page) */
+  cartLabel?: string;
 };
 
-/**
- * Shared header band for the rentals screens.
- *
- * On the catalogue the handlers are supplied and filtering happens in place.
- * On the gadget detail screen they are omitted, and interacting with the bar
- * sends the visitor back to the catalogue instead.
- */
 export default function CartFilter({
   search,
   onSearchChange,
   category,
   onCategoryChange,
   onCartClick,
+  cartLabel,
 }: Props) {
   const router = useRouter();
 
@@ -58,37 +54,49 @@ export default function CartFilter({
         </div>
 
         <div className={styles.filters}>
-          <div className={styles.filterGroup}>
-            <span className={styles.filterCaption}>Filter</span>
-            <div className={styles.filterButtons}>
-              {CATEGORIES.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  className={`${styles.filter} ${category === name ? styles.filterActive : ""}`}
-                  aria-pressed={category === name}
-                  onClick={() => handleCategory(name)}
-                >
-                  {name}
-                </button>
-              ))}
+          {/* If cartLabel is provided, show it as a label; otherwise show the filter buttons */}
+          {cartLabel ? (
+            <div className={styles.filterGroup}>
+              <span className={styles.filterCaption}>{cartLabel}</span>
             </div>
-          </div>
+          ) : (
+            <div className={styles.filterGroup}>
+              <span className={styles.filterCaption}>Filter</span>
+              <div className={styles.filterButtons}>
+                {CATEGORIES.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className={`${styles.filter} ${
+                      category === name ? styles.filterActive : ""
+                    }`}
+                    aria-pressed={category === name}
+                    onClick={() => handleCategory(name)}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-          <button
-            type="button"
-            className={styles.cart}
-            aria-label="Cart"
-            onClick={onCartClick}
-          >
-            <Image
-              src="/icons/Cart.png"
-              alt=""
-              width={30}
-              height={30}
-              className={styles.cartIcon}
-            />
-          </button>
+          {/* Hide cart button on cart page (since it's already on the navbar) */}
+          {!cartLabel && (
+            <button
+              type="button"
+              className={styles.cart}
+              aria-label="Cart"
+              onClick={onCartClick}
+            >
+              <Image
+                src="/icons/Cart.png"
+                alt=""
+                width={30}
+                height={30}
+                className={styles.cartIcon}
+              />
+            </button>
+          )}
         </div>
       </div>
     </div>
