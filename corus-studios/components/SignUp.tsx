@@ -5,6 +5,7 @@ import { useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff, Phone } from "lucide-react";
 import styles from "./SignUp.module.css";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignUp() {
   const [loading, setLoading] = useState(false);
@@ -219,6 +220,14 @@ export default function SignUp() {
         </button>
       </form>
 
+            {/* ─── Footer: Already have an account? ─── */}
+      <p className={styles.footer}>
+        Already have an account?{" "}
+        <Link href="/login" className={styles.footerLink}>
+          Login
+        </Link>
+      </p>
+      
       {notice && (
         <p
           className={`${styles.notice} ${

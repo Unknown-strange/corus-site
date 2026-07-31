@@ -1,23 +1,9 @@
-/*
- * Shared chrome for the auth screens (Sign Up, Log In, and whatever follows).
- *
- * The card is two rectangles: photos on the left, form panel on the right.
- * Mobile-first — below 1024px the mosaic is dropped and the panel goes
- * full-bleed. From 1024px up the design layout takes over on a 1289 x 1030
- * stage, where `--s` is one design pixel, so screen stylesheets can write
- * `calc(283 * var(--s))` and mean "283px at the design width".
- *
- * This file owns the card only. Everything inside the panel is styled by the
- * individual screen's stylesheet.
- */
-
 .screen {
   --orange: #ff5100;
-  --panel: #f0f0f0;
+  --panel: #ffffff;
   --page: #f4f5f6;
   --card-border: #efefef;
   --seam: #f4f5f6;
-  /* Tune here if the left rectangle needs to read lighter or darker. */
   --photo-scrim: rgba(0, 0, 0, 0.4);
   --border: #d9d9d9;
   --placeholder: #888888;
@@ -37,37 +23,56 @@
 .frame {
   position: relative;
   width: 100%;
-  /* Shows only in the seams between mosaic photos. */
   background: var(--seam);
 }
 
-/* ── Photo mosaic (desktop only) ─────────────────────────────── */
+/* ─── Mobile mosaic (fixed grid, no scroll) ────────────────── */
 
-.mosaic {
-  display: none;
+.mobileMosaic {
+  position: relative; /* for overlay pseudo */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr;
+  gap: 0;
+  height: 160px;
+  background: var(--seam);
 }
 
-.shot {
+/* Dark overlay on mobile */
+.mobileMosaic::after {
+  content: "";
   position: absolute;
+  inset: 0;
+  background: var(--photo-scrim);
+  pointer-events: none;
+}
+
+.mobileShot {
+  position: relative;
   overflow: hidden;
 }
 
-.shotImage {
+.mobileShotImage {
   object-fit: cover;
 }
 
-/* ── Form panel ──────────────────────────────────────────────── */
+/* ─── Desktop mosaic (hidden on mobile) ──────────────────────── */
+
+.desktopMosaic {
+  display: none;
+}
+
+/* ─── Form panel ──────────────────────────────────────────────── */
 
 .panel {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 100dvh;
-  padding: 3rem 1.25rem 4rem;
+  padding: 2rem 1.25rem 3rem;
   background: var(--panel);
 }
 
-/* ── Design layout ───────────────────────────────────────────── */
+/* ─── Design layout (desktop) ───────────────────────────────── */
 
 @media (min-width: 1024px) {
   .screen {
@@ -75,32 +80,27 @@
   }
 
   .frame {
-    /*
-     * One design pixel. The card is 1289 x 1030 — the design's 1396 width
-     * minus the 107px of empty canvas left of the photos. Scaled to fit
-     * whichever of width or height runs out first, never past 1:1.
-     */
     --s: calc(
       min(1289px, 100cqw, (100dvh - 2 * var(--gutter)) * 1289 / 1030) / 1289
     );
 
     width: calc(1289 * var(--s));
     height: calc(1030 * var(--s));
-    /* A ring rather than a border: it draws outside the box, so it can't
-       shift the absolutely positioned children by the border width. */
     box-shadow: 0 0 0 1px var(--card-border);
     overflow: hidden;
   }
 
-  .mosaic {
+  .mobileMosaic {
+    display: none;
+  }
+
+  .desktopMosaic {
     display: block;
     position: absolute;
     inset: 0;
   }
 
-  /* The dark wash is a single sheet over the left rectangle — it covers the
-     seams between photos too, not just the photos themselves. */
-  .mosaic::after {
+  .desktopMosaic::after {
     content: "";
     position: absolute;
     top: 0;
@@ -111,15 +111,19 @@
     pointer-events: none;
   }
 
-  .shot {
+  .desktopShot {
+    position: absolute;
     left: calc(var(--l) * var(--s));
     top: calc(var(--t) * var(--s));
     width: calc(var(--w) * var(--s));
     height: calc(var(--h) * var(--s));
+    overflow: hidden;
   }
 
-  /* Panel spans x 559–1289 of the card: the 580-wide form with a matching
-     75px gutter either side. */
+  .desktopShotImage {
+    object-fit: cover;
+  }
+
   .panel {
     position: absolute;
     top: 0;
@@ -129,5 +133,37 @@
     height: 100%;
     min-height: 0;
     padding: 0;
+  }
+}
+
+/* ─── Mobile adjustments ────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .frame {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  .mobileMosaic {
+    flex: 0 0 160px;
+    margin-bottom: 1rem; /* ← ADDED bottom margin */
+  }
+
+  .panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem 1rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobileMosaic {
+    height: 120px;
+    margin-bottom: 0.75rem; /* slightly less on very small screens */
+  }
+
+  .panel {
+    padding: 1rem 0.75rem 1.5rem;
   }
 }
