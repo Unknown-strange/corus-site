@@ -20,7 +20,7 @@ const links = [
   { name: "Home", href: "/" },
   { name: "Our Gallery", href: "#gallery" },
   { name: "Rentals", href: "/rentals" },
-  { name: "Store", href: "#store" },
+  { name: "Store", href: "/store" },
 ];
 
 const dropdownItems = [
