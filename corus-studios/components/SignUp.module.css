@@ -6,6 +6,78 @@
  * 730-wide panel: the 580-wide form starts at x 75.
  */
 
+ /* ─── Input wrapper (for icons) ─── */
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888888;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Input with left padding for icon */
+.fieldWithIcon {
+  padding-left: 2.75rem !important;
+}
+
+/* Password field – extra right padding for toggle button */
+.passwordField {
+  padding-right: 2.75rem !important;
+}
+
+/* Toggle password visibility button */
+.togglePassword {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888888;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.togglePassword:hover {
+  color: #333333;
+}
+
+/* ─── Desktop adjustments (inside @media) ─── */
+@media (min-width: 1024px) {
+  .inputIcon {
+    left: calc(20 * var(--s));
+  }
+
+  .fieldWithIcon {
+    padding-left: calc(70 * var(--s)) !important;
+  }
+
+  .passwordField {
+    padding-right: calc(70 * var(--s)) !important;
+  }
+
+  .togglePassword {
+    right: calc(20 * var(--s));
+  }
+
+  .inputIcon,
+  .togglePassword svg {
+    width: calc(30 * var(--s));
+    height: calc(30 * var(--s));
+  }
+}
+
 .header {
   display: flex;
   align-items: center;
