@@ -19,6 +19,7 @@ export default function SignUp() {
 
     const first_name = formData.get("first_name") as string;
     const last_name = formData.get("last_name") as string;
+    const username = formData.get("username") as string; // ← added
     const email = formData.get("email") as string;
     const phone_number = formData.get("phone") as string;
     const password = formData.get("password") as string;
@@ -30,14 +31,11 @@ export default function SignUp() {
       return;
     }
 
-    // Derive username from email (e.g., "john@doe.com" → "john")
-    const username = email.split("@")[0];
-
-    // Build the payload
+    // Build the payload – now using the user-provided username
     const payload = {
       first_name,
       last_name,
-      username,
+      username,      // ← use the field directly
       email,
       phone_number,
       password,
@@ -46,7 +44,7 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"; // adjust if needed
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const response = await fetch(`${apiBase}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,7 +55,6 @@ export default function SignUp() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle validation errors (422)
         let errorMsg = "Registration failed. Please check your input.";
         if (data.detail) {
           if (Array.isArray(data.detail)) {
@@ -69,17 +66,17 @@ export default function SignUp() {
         throw new Error(errorMsg);
       }
 
-      // Success
       setNotice({
         type: "success",
         text: `Account created for ${email}. Redirecting to verify...`,
       });
-      // Redirect after a short delay
       setTimeout(() => {
         router.push(`/verify-otp?email=${encodeURIComponent(email)}&otp=${data.dev_otp}`);
       }, 1500);
     } catch (err: any) {
       setNotice({ type: "error", text: err.message || "Registration failed." });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -127,6 +124,17 @@ export default function SignUp() {
           placeholder="Email"
           aria-label="Email"
           autoComplete="email"
+          required
+        />
+
+        {/* ─── NEW: Username field ─── */}
+        <input
+          className={`${styles.field} ${styles.fieldLeft}`}
+          type="text"
+          name="username"
+          placeholder="Username"
+          aria-label="Username"
+          autoComplete="username"
           required
         />
 
