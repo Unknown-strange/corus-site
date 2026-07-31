@@ -1,0 +1,136 @@
+.page {
+  width: 100%;
+  padding: 80px 8%;
+  background: #D9D9D9;
+}
+
+.container {
+  text-align: center;
+}
+
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, sans-serif;
+  margin-bottom: 0.5rem;
+}
+
+.subheading {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 3rem;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;          /* reduced gap between cards */
+  max-width: auto;     /* narrower to prevent stretching */
+  margin: 0 auto;
+  /* height removed – was causing layout issues */
+}
+
+.card {
+  display: block;
+  background: white;
+  padding: 2.5rem 2rem; /* reduced vertical padding for a rectangular shape */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 2px solid #f0f0f0;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px); /* subtle lift */
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+  border-color: #ea580c;
+}
+
+.cardContent {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;          /* horizontal layout for icon + text */
+  text-align: left;     /* left-aligned text */
+}
+
+
+.cardText {
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 1.25rem;   /* smaller title */
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, sans-serif;
+  margin: 0;
+}
+
+.cardDesc {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.25rem 0 0 0;
+}
+
+.cardArrow {
+  flex-shrink: 0;
+  font-size: 2rem;          /* bigger arrow */
+  font-weight: 300;
+  color: #ccc;              /* subtle grey */
+  transition: all 0.2s ease;
+  line-height: 1;
+  margin-left: auto;        /* pushes arrow to the right */
+  padding-left: 0.5rem;
+}
+
+.card:hover .cardArrow {
+  color: #ea580c;           /* turn orange on hover */
+  transform: translateX(4px); /* subtle slide */
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 40px 5%;
+  }
+
+  .heading {
+    font-size: 2rem;
+  }
+
+  .grid {
+    max-width: 100%;
+  }
+
+  .card {
+    padding: 1.25rem 1.25rem;
+  }
+
+  .cardContent {
+    gap: 1rem;
+  }
+
+  .iconWrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .cardTitle {
+    font-size: 1.1rem;
+  }
+
+  .cardDesc {
+    font-size: 0.8rem;
+  }
+
+  .cardBtn {
+    font-size: 0.75rem;
+    padding: 0.3rem 1rem;
+  }
+}
