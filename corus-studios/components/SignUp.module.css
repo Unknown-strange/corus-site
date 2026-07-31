@@ -276,3 +276,105 @@
     margin: 0;
   }
 }
+
+
+/* ─── Footer ─── */
+.footer {
+  width: 100%;
+  max-width: 32rem;
+  margin: 1.5rem auto 0;
+  color: #000000;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.footerLink {
+  color: var(--orange);
+  font-style: italic;
+  text-decoration: underline;
+}
+
+/* ─── Desktop adjustments ─── */
+@media (min-width: 1024px) {
+  .header {
+    position: absolute;
+    top: calc(145 * var(--s));
+    left: calc(280 * var(--s));
+    height: calc(51 * var(--s));
+    gap: 0;
+  }
+
+  .icon {
+    width: calc(51 * var(--s));
+    height: calc(51 * var(--s));
+  }
+
+  .title {
+    font-size: calc(36 * var(--s));
+  }
+
+  .subtitle {
+    position: absolute;
+    top: calc(208 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    margin: 0;
+    font-size: calc(24 * var(--s));
+  }
+
+  .form {
+    position: absolute;
+    top: calc(250 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+    gap: calc(30 * var(--s));
+  }
+
+  .nameRow {
+    grid-template-columns: calc(276 * var(--s)) calc(276 * var(--s));
+    gap: calc(28 * var(--s));
+  }
+
+  .phoneRow {
+    grid-template-columns: calc(103 * var(--s)) 1fr;
+    gap: calc(7 * var(--s));
+  }
+
+  .field,
+  .phonePrefix {
+    height: calc(74 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  .fieldLeft {
+    padding-left: calc(45 * var(--s));
+  }
+
+  .submit {
+    height: calc(80 * var(--s));
+    margin-top: calc(17 * var(--s));
+    font-size: calc(30 * var(--s));
+  }
+
+  /* ─── Footer: below the submit button ─── */
+  .footer {
+    position: absolute;
+    top: calc(990 * var(--s));  /* moved down from 887 to be below submit */
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+    font-size: calc(24 * var(--s));
+  }
+
+  .notice {
+    position: absolute;
+    top: calc(880 * var(--s));
+    left: calc(75 * var(--s));
+    width: calc(580 * var(--s));
+    max-width: none;
+    margin: 0;
+  }
+}

@@ -90,7 +90,7 @@ export default function LogIn() {
   }
 
   return (
-    <>
+    <div className={styles.loginContainer}> {/* ← new wrapper */}
       <div className={styles.header}>
         <Image
           src="/icons/Profile.png"
@@ -119,7 +119,7 @@ export default function LogIn() {
           />
         </div>
 
-        {/* Password field – wrapper gets the margin */}
+        {/* Password field */}
         <div className={`${styles.inputWrapper} ${styles.passwordWrapper}`}>
           <Lock className={styles.inputIcon} size={20} />
           <input
@@ -167,6 +167,6 @@ export default function LogIn() {
           {notice.text}
         </p>
       )}
-    </>
+    </div>
   );
 }
