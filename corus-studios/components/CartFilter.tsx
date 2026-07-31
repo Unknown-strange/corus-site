@@ -36,6 +36,10 @@ export default function CartFilter({
     router.push("/rentals");
   }
 
+  const handleCartClick = () => {
+    router.push("/cart");
+  };
+
   return (
     <div className={styles.band}>
       <div className={styles.bar}>

@@ -13,22 +13,13 @@ type Props = {
   onSearchChange?: (value: string) => void;
   category?: Category | null;
   onCategoryChange?: (value: Category | null) => void;
-  onCartClick?: () => void;
 };
 
-/**
- * Shared header band for the rentals screens.
- *
- * On the catalogue the handlers are supplied and filtering happens in place.
- * On the gadget detail screen they are omitted, and interacting with the bar
- * sends the visitor back to the catalogue instead.
- */
 export default function RentalsToolbar({
   search,
   onSearchChange,
   category,
   onCategoryChange,
-  onCartClick,
 }: Props) {
   const router = useRouter();
 
@@ -39,6 +30,10 @@ export default function RentalsToolbar({
     }
     router.push("/rentals");
   }
+
+  const handleCartClick = () => {
+    router.push("/cart");
+  };
 
   return (
     <div className={styles.band}>
@@ -81,7 +76,7 @@ export default function RentalsToolbar({
             type="button"
             className={styles.cart}
             aria-label="Cart"
-            onClick={onCartClick}
+            onClick={handleCartClick}
           >
             <Image
               src="/icons/Cart.png"
