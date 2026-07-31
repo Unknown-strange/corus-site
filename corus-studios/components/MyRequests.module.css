@@ -1,0 +1,154 @@
+/* "My Requests" — the customer's studio reservation requests and their status. */
+
+.page {
+  min-height: 100dvh;
+  background: #d9d9d9;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.band {
+  padding: 2rem 1.25rem 1.5rem;
+}
+
+.heading {
+  margin: 0;
+  color: #000000;
+  font-size: clamp(1.6rem, 4.5vw, 3rem);
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 66rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3.5rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: #ffffff;
+}
+
+.details {
+  min-width: 0;
+}
+
+.purpose {
+  margin: 0;
+  color: #000000;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.when {
+  margin: 0.25rem 0 0;
+  color: #000000;
+  font-size: 1rem;
+}
+
+/* Times are italic in the design, the date is not */
+.time {
+  font-style: italic;
+}
+
+.reason {
+  margin: 0.4rem 0 0;
+  color: #6f6f6f;
+  font-size: 0.9rem;
+}
+
+.badge {
+  flex: 0 0 auto;
+  min-width: 9.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.positive {
+  background: #ff5100;
+  color: #000000;
+}
+
+.negative {
+  background: #000000;
+  color: #ffffff;
+}
+
+.waiting {
+  background: #8a8a8a;
+  color: #ffffff;
+}
+
+/* ── Empty, checking and signed-out states ───────────────────── */
+
+.message {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+  color: #333333;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.messageTitle {
+  margin: 0 0 0.75rem;
+  color: #000000;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.messageLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8rem;
+  height: 2.75rem;
+  margin-top: 1.5rem;
+  padding: 0 1.75rem;
+  background: #ff5100;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.messageLink:hover {
+  background: #e64900;
+}
+
+.messageLink:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 3px;
+}
+
+.notice {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ffc7ad;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+@media (max-width: 34rem) {
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .badge {
+    width: 100%;
+  }
+}
