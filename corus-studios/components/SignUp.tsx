@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { User, Mail, Lock, Eye, EyeOff, Phone } from "lucide-react";
 import styles from "./SignUp.module.css";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +10,9 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const router = useRouter();
+  // Toggle states for password and confirm password
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,6 +100,7 @@ export default function SignUp() {
       <p className={styles.subtitle}>Create an account to continue.</p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
+        {/* Name row – no icons to keep grid clean */}
         <div className={styles.nameRow}>
           <input
             className={styles.field}
@@ -117,62 +122,97 @@ export default function SignUp() {
           />
         </div>
 
-        <input
-          className={`${styles.field} ${styles.fieldLeft}`}
-          type="email"
-          name="email"
-          placeholder="Email"
-          aria-label="Email"
-          autoComplete="email"
-          required
-        />
-
-        {/* ─── NEW: Username field ─── */}
-        <input
-          className={`${styles.field} ${styles.fieldLeft}`}
-          type="text"
-          name="username"
-          placeholder="Username"
-          aria-label="Username"
-          autoComplete="username"
-          required
-        />
-
-        <div className={styles.phoneRow}>
-          <span className={styles.phonePrefix}>+233</span>
+        {/* Email with envelope icon */}
+        <div className={styles.inputWrapper}>
+          <Mail className={styles.inputIcon} size={20} />
           <input
-            className={`${styles.field} ${styles.fieldLeft}`}
-            type="tel"
-            name="phone"
-            placeholder="Phone Number"
-            aria-label="Phone number"
-            autoComplete="tel-national"
-            inputMode="numeric"
+            className={`${styles.field} ${styles.fieldLeft} ${styles.fieldWithIcon}`}
+            type="email"
+            name="email"
+            placeholder="Email"
+            aria-label="Email"
+            autoComplete="email"
             required
           />
         </div>
 
-        <input
-          className={`${styles.field} ${styles.fieldLeft}`}
-          type="password"
-          name="password"
-          placeholder="Password"
-          aria-label="Password"
-          autoComplete="new-password"
-          minLength={8}
-          required
-        />
+        {/* Username with user icon */}
+        <div className={styles.inputWrapper}>
+          <User className={styles.inputIcon} size={20} />
+          <input
+            className={`${styles.field} ${styles.fieldLeft} ${styles.fieldWithIcon}`}
+            type="text"
+            name="username"
+            placeholder="Username"
+            aria-label="Username"
+            autoComplete="username"
+            required
+          />
+        </div>
 
-        <input
-          className={`${styles.field} ${styles.fieldLeft}`}
-          type="password"
-          name="confirm_password"
-          placeholder="Confirm Password"
-          aria-label="Confirm password"
-          autoComplete="new-password"
-          minLength={8}
-          required
-        />
+        {/* Phone row – keep prefix and input without icon (or add phone icon inside the input if wanted) */}
+        <div className={styles.phoneRow}>
+          <span className={styles.phonePrefix}>+233</span>
+          <div className={styles.inputWrapper}>
+            <Phone className={styles.inputIcon} size={20} />
+            <input
+              className={`${styles.field} ${styles.fieldLeft} ${styles.fieldWithIcon}`}
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              aria-label="Phone number"
+              autoComplete="tel-national"
+              inputMode="numeric"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Password with lock + eye toggle */}
+        <div className={`${styles.inputWrapper}`}>
+          <Lock className={styles.inputIcon} size={20} />
+          <input
+            className={`${styles.field} ${styles.fieldLeft} ${styles.fieldWithIcon} ${styles.passwordField}`}
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            aria-label="Password"
+            autoComplete="new-password"
+            minLength={8}
+            required
+          />
+          <button
+            type="button"
+            className={styles.togglePassword}
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
+
+        {/* Confirm Password with lock + eye toggle */}
+        <div className={`${styles.inputWrapper}`}>
+          <Lock className={styles.inputIcon} size={20} />
+          <input
+            className={`${styles.field} ${styles.fieldLeft} ${styles.fieldWithIcon} ${styles.passwordField}`}
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirm_password"
+            placeholder="Confirm Password"
+            aria-label="Confirm password"
+            autoComplete="new-password"
+            minLength={8}
+            required
+          />
+          <button
+            type="button"
+            className={styles.togglePassword}
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+          >
+            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
 
         <button className={styles.submit} type="submit" disabled={loading}>
           {loading ? "Signing up..." : "Sign Up"}
