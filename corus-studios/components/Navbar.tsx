@@ -26,9 +26,7 @@ const links = [
 const dropdownItems = [
   { icon: ShoppingCart, label: "My Cart", href: "/cart" },
   { icon: FileText, label: "My Requests", href: "/requests" },
-  { icon: Calendar, label: "My Bookings", href: "/bookings" },
-  { icon: Settings, label: "Settings", href: "/settings" },
-  { icon: HelpCircle, label: "Help", href: "/help" },
+  { icon: Calendar, label: "My Bookings", href: "/booking" },
   { icon: LifeBuoy, label: "Contact Support", href: "/support" },
 ];
 

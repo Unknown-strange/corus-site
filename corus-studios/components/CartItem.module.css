@@ -1,0 +1,217 @@
+.cartItem {
+    display: grid;
+    grid-template-columns: 30px 140px 1fr 70px;
+    align-items: center;
+    gap: 25px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+    /* Force left alignment */
+    justify-items: start;
+    text-align: left;
+}
+
+.imageBox {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border: 1.5px solid #ff5b00;
+    border-radius: 5px;
+    overflow: hidden;
+    background: white;
+}
+
+.image {
+    object-fit: contain;
+    padding: 10px;
+}
+
+.name {
+    font-size: 18px;
+    margin-bottom: 2px;
+    color: black;
+    font-weight: 700;
+    text-align: left;
+}
+
+.price {
+    font-size: 16px;
+    margin-bottom: 2px;
+    color: #ff5b00;
+    font-weight: 600;
+    text-align: left;
+}
+
+.info p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.2;
+    width: 60%;
+    font-style: italic;
+    text-align: left;
+}
+
+.quantity {
+    display: flex;
+    align-items: center;
+    color: black;
+    justify-self: start;
+}
+
+.quantity button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.quantity button:hover {
+    background: #f5f5f5;
+}
+
+.quantity span {
+    width: 50px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.deleteButton {
+    width: 35px;
+    height: 35px;
+    border: 2px solid black;
+    border-radius: 50%;
+    background: rgb(0, 0, 0);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+    color: white;
+    justify-self: start;
+}
+
+.deleteButton:hover {
+    background: #ff5b00;
+    color: white;
+    border-color: #ff5b00;
+}
+
+/* ─── MOBILE – SCALED DOWN, LEFT-ALIGNED ─── */
+@media (max-width: 768px) {
+    .cartItem {
+        grid-template-columns: 16px 60px 1fr 36px;  /* much smaller */
+        gap: 8px;
+        padding: 0.4rem 0.1rem;
+        justify-items: start;  /* force left alignment */
+        text-align: left;
+    }
+
+    .imageBox {
+        width: 70px;
+        height: 70px;
+        border-width: 1px;
+    }
+
+    .image {
+        padding: 4px;
+    }
+
+    .name {
+        font-size: 11px;
+        margin-bottom: 0px;
+    }
+
+    .price {
+        font-size: 10px;
+        margin-bottom: 0px;
+    }
+
+    .info p {
+        width: 100%;
+        font-size: 9px;
+        margin: 0;
+    }
+
+    .quantity button {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .quantity span {
+        width: 26px;
+        height: 22px;
+        font-size: 10px;
+    }
+
+    .deleteButton {
+        width: 22px;
+        height: 22px;
+        border-width: 1.5px;
+    }
+
+    .deleteButton svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+/* ─── EXTRA SMALL (under 480px) ─── */
+@media (max-width: 480px) {
+    .cartItem {
+        grid-template-columns: 12px 50px 1fr 30px;
+        gap: 6px;
+        padding: 0.3rem 0.05rem;
+    }
+
+    .imageBox {
+        width: 60px;
+        height: 60px;
+    }
+
+    .image {
+        padding: 3px;
+    }
+
+    .name {
+        font-size: 10px;
+    }
+
+    .price {
+        font-size: 9px;
+    }
+
+    .info p {
+        font-size: 8px;
+    }
+
+    .quantity button {
+        width: 18px;
+        height: 18px;
+        font-size: 8px;
+    }
+
+    .quantity span {
+        width: 22px;
+        height: 18px;
+        font-size: 9px;
+    }
+
+    .deleteButton {
+        width: 18px;
+        height: 18px;
+    }
+
+    .deleteButton svg {
+        width: 10px;
+        height: 10px;
+    }
+}
