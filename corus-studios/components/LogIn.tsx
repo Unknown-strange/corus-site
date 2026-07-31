@@ -4,11 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { User, Lock, Eye, EyeOff } from "lucide-react";
 import styles from "./LogIn.module.css";
 
 export default function LogIn() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -31,7 +33,6 @@ export default function LogIn() {
     try {
       const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-      // 1. Login
       const loginResponse = await fetch(`${apiBase}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,10 +53,8 @@ export default function LogIn() {
         throw new Error(errorMsg);
       }
 
-      // Store access token
       localStorage.setItem("access_token", loginData.access_token);
 
-      // 2. Fetch user details from /auth/me
       const meResponse = await fetch(`${apiBase}/auth/me`, {
         headers: {
           Authorization: `Bearer ${loginData.access_token}`,
@@ -68,7 +67,6 @@ export default function LogIn() {
 
       const userData = await meResponse.json();
 
-      // Store user data (for navbar)
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -107,25 +105,41 @@ export default function LogIn() {
       <p className={styles.subtitle}>Log in to continue.</p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        <input
-          className={styles.field}
-          type="text"
-          name="username"
-          placeholder="Username"
-          aria-label="Username"
-          autoComplete="username"
-          required
-        />
+        {/* Username field */}
+        <div className={styles.inputWrapper}>
+          <User className={styles.inputIcon} size={20} />
+          <input
+            className={`${styles.field} ${styles.fieldWithIcon}`}
+            type="text"
+            name="username"
+            placeholder="Username"
+            aria-label="Username"
+            autoComplete="username"
+            required
+          />
+        </div>
 
-        <input
-          className={`${styles.field} ${styles.password}`}
-          type="password"
-          name="password"
-          placeholder="Password"
-          aria-label="Password"
-          autoComplete="current-password"
-          required
-        />
+        {/* Password field – wrapper gets the margin */}
+        <div className={`${styles.inputWrapper} ${styles.passwordWrapper}`}>
+          <Lock className={styles.inputIcon} size={20} />
+          <input
+            className={`${styles.field} ${styles.fieldWithIcon} ${styles.passwordField}`}
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            aria-label="Password"
+            autoComplete="current-password"
+            required
+          />
+          <button
+            type="button"
+            className={styles.togglePassword}
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
 
         <Link href="/forgot-password" className={styles.forgot}>
           Forgot Password?
