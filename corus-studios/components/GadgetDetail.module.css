@@ -46,10 +46,18 @@
   font-size: clamp(1rem, 2vw, 1.5rem);
 }
 
+/*
+ * `center` rather than the grid default of `stretch`: the grey panel is much
+ * shorter than the photo, so centring the two columns against each other is
+ * what reads as aligned. `stretch` made the panel span the photo's full
+ * height; top-aligning left it stranded against a photo that has its own
+ * internal whitespace.
+ */
 .overview {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
+  align-items: center;
   margin-top: 2.5rem;
 }
 
@@ -60,8 +68,16 @@
   }
 }
 
+/*
+ * Capped rather than filling the column. The placeholder gadget photo is only
+ * 201x184, so stretching it across half a 74rem row upscaled it about 2.7x —
+ * soft, and far taller than the panel beside it.
+ */
 .imageWrap {
   position: relative;
+  width: 100%;
+  max-width: 24rem;
+  margin: 0 auto;
   aspect-ratio: 1 / 1;
 }
 
@@ -70,7 +86,6 @@
 }
 
 .facts {
-  align-self: start;
   padding: 2rem;
   background: #f0f0f0;
 }

@@ -1,0 +1,215 @@
+/* Checkout: cart thumbnails, cost summary, payment button. */
+
+.page {
+  min-height: 100dvh;
+  background: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.band {
+  padding: 2.5rem 1.25rem;
+  background: #d9d9d9;
+}
+
+.heading {
+  margin: 0;
+  color: #000000;
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.body {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+/* ── Item thumbnails ─────────────────────────────────────────── */
+
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.thumb {
+  position: relative;
+  width: 10.5rem;
+  height: 10.5rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.thumbImage {
+  object-fit: contain;
+  padding: 0.75rem;
+}
+
+/* Only shown when someone bought more than one of something */
+.thumbQuantity {
+  position: absolute;
+  right: -0.5rem;
+  bottom: -0.5rem;
+  min-width: 1.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #ff5100;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ── Summary ─────────────────────────────────────────────────── */
+
+.summary {
+  max-width: 42rem;
+  margin: 3rem auto 0;
+}
+
+.summaryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #000000;
+}
+
+.summaryTitle,
+.summaryCurrency {
+  margin: 0;
+  color: #000000;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.lines {
+  padding: 0.9rem 0 1.1rem;
+  border-bottom: 1px solid #000000;
+}
+
+.line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0 0.25rem 0.75rem;
+  color: #000000;
+  font-size: 1.1rem;
+}
+
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0 0 0.75rem;
+}
+
+.totalLabel {
+  margin: 0;
+  color: #000000;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.totalValue {
+  margin: 0;
+  color: #ff5100;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* ── Actions ─────────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 2.5rem;
+}
+
+.pay {
+  min-width: 22rem;
+  height: 4.5rem;
+  padding: 0 2rem;
+  border: none;
+  background: #ff5100;
+  color: #000000;
+  font-family: inherit;
+  font-size: 1.35rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pay:hover {
+  background: #e64900;
+}
+
+.pay:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 3px;
+}
+
+@media (max-width: 34rem) {
+  .pay {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+.notice {
+  max-width: 42rem;
+  margin: 1.5rem auto 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ffc7ad;
+  background: #ffe9de;
+  color: #7a2e00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ── Empty, checking and signed-out states ───────────────────── */
+
+.message {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 4rem 1.25rem;
+  color: #333333;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.messageTitle {
+  margin: 0 0 0.75rem;
+  color: #000000;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.messageLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8rem;
+  height: 2.75rem;
+  margin-top: 1.5rem;
+  padding: 0 1.75rem;
+  background: #ff5100;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.messageLink:hover {
+  background: #e64900;
+}
+
+.messageLink:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 3px;
+}
