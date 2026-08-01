@@ -6,11 +6,17 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import StoreToolbar from "./StoreToolbar";
 import { formatGhs, type Product } from "@/lib/store-products";
+import { useRouter } from "next/navigation";
 import styles from "./ProductCheckout.module.css";
 
 export default function ProductCheckout({ product }: { product: Product | null }) {
   const [quantity, setQuantity] = useState(1);
   const [notice, setNotice] = useState("");
+    const router = useRouter();
+
+  const handleCheckout = () => {
+    router.push("/checkout");
+  };
 
   if (!product) {
     return (
@@ -28,29 +34,11 @@ export default function ProductCheckout({ product }: { product: Product | null }
     );
   }
 
-  /**
-   * NOT WIRED TO THE API — needs auth and the client first. The *shape* of the
-   * flow is settled though (team decision, 2026-07-29): every purchase goes
-   * through the cart. There is no single-product purchase endpoint.
-   *
-   * When wiring this up, Checkout is two calls, in order:
-   *
-   *   POST /cart/items { product_id, quantity }  → add this product
-   *   POST /orders/checkout                      → converts the WHOLE cart and
-   *                                                returns authorization_url
-   *
-   * Two consequences worth surfacing in the UI at that point:
-   *
-   *   - checkout takes the entire cart, not just this product, so a customer
-   *     with other items queued will pay for all of them here;
-   *   - stock is reduced at checkout and the order is voided after
-   *     ORDER_PAYMENT_MINUTES (15) if payment does not complete.
-   */
-  function handleCheckout() {
-    setNotice(
-      "Not connected yet — checkout adds this item to the cart, then converts the whole cart (POST /cart/items → /orders/checkout). Needs sign-in."
-    );
-  }
+  // function handleCheckout() {
+  //   setNotice(
+  //     "Not connected yet — checkout adds this item to the cart, then converts the whole cart (POST /cart/items → /orders/checkout). Needs sign-in."
+  //   );
+  // }
 
   function handleAddToCart() {
     setNotice("The cart isn't connected yet — adding items needs sign-in and the API client.");
@@ -132,10 +120,9 @@ export default function ProductCheckout({ product }: { product: Product | null }
             <button type="button" className={styles.secondary} onClick={handleAddToCart}>
               Add to Cart
             </button>
-
-            <button type="button" className={styles.primary} onClick={handleCheckout}>
-              Checkout
-            </button>
+    <button type="button" className={styles.primary} onClick={handleCheckout}>
+      Checkout
+    </button>
           </div>
 
           {notice ? (
