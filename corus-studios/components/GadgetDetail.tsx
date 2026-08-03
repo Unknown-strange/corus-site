@@ -52,7 +52,7 @@ export default function GadgetDetail({ gadget }: { gadget: Gadget | null }) {
 
   return (
     <div className={styles.page}>
-      <RentalsToolbar onCartClick={handleAddToCart} />
+      <RentalsToolbar />
 
       <div className={styles.body}>
         <Link href="/rentals" className={styles.back}>
