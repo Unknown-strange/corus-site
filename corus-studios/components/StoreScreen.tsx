@@ -50,7 +50,6 @@ export default function StoreScreen() {
         onSearchChange={setSearch}
         category={category}
         onCategoryChange={handleCategory}
-        onCartClick={handleAddToCart}
       />
 
       {notice ? (

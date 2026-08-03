@@ -38,14 +38,11 @@ export default function RentalsScreen() {
   return (
     <div className={styles.page}>
       <RentalsToolbar
-        search={search}
-        onSearchChange={setSearch}
-        category={category}
-        onCategoryChange={handleCategory}
-        onCartClick={() =>
-          setNotice("There's no cart yet — the cart API covers shop products, not rentals.")
-        }
-      />
+  search={search}
+  onSearchChange={setSearch}
+  category={category}
+  onCategoryChange={handleCategory}
+/>
 
       <div className={styles.heroWrap}>
         <StudioHero />
