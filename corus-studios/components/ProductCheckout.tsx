@@ -46,7 +46,7 @@ export default function ProductCheckout({ product }: { product: Product | null }
 
   return (
     <div className={styles.page}>
-      <StoreToolbar onCartClick={handleAddToCart} />
+      <StoreToolbar />
 
       <div className={styles.body}>
         <Link href="/store" className={styles.back}>
