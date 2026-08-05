@@ -1,0 +1,80 @@
+/* One headline figure on the admin homepage: label, value, today's delta. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+  background: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Light tint of the brand orange behind the orange Overlay icon */
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 6px;
+  background: #ffe0d2;
+}
+
+.icon {
+  width: auto;
+  height: 1.4rem;
+  object-fit: contain;
+}
+
+.delta {
+  margin: 0;
+  color: #4ade80;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: right;
+}
+
+.deltaPeriod {
+  display: block;
+  color: #4ade80;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/*
+ * Two fixed lines, "TOTAL" above the rest. Each line is its own block so the
+ * break never depends on the card's width.
+ */
+.label {
+  margin: 0;
+  color: #5d5f5f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.labelLine {
+  display: block;
+  white-space: nowrap;
+}
+
+.value {
+  margin: 0;
+  color: #0b1c30;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: left;
+}

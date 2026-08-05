@@ -1,0 +1,146 @@
+/* One trend card: title, range selector, bar chart, footer stats. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  color: #0b1c30;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/*
+ * `appearance: none` is what makes the rounded corners appear at all — a
+ * native <select> is drawn by the OS on most platforms and ignores
+ * border-radius until its default appearance is switched off. Doing that also
+ * removes the built-in arrow, so one is drawn back in as a background image.
+ */
+.range {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0.45rem 1.9rem 0.45rem 0.7rem;
+  border: 1px solid #ff5100;
+  border-radius: 8px;
+  background-color: #eff4ff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%230B1C30' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M1 1.5 6 6.5 11 1.5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 0.7rem;
+  color: #0b1c30;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.range:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 2px;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 1rem 0 0;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.legendDot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: #ff5100;
+}
+
+.chart {
+  margin-top: 0.75rem;
+}
+
+/* Recharts renders an SVG that fills this box; height drives the bar height */
+.chartBox {
+  width: 100%;
+  height: 17rem;
+}
+
+.tooltip {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 0.8rem;
+}
+
+.tooltipValue {
+  font-weight: 700;
+}
+
+.footer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid #ff5100;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  /* Wider than the text needs, so "Peak Day" and "Avg. Daily" hold a steady
+     column position as their values change length */
+  min-width: 7.5rem;
+}
+
+.statLabel {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.statValue {
+  color: #0b1c30;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.report {
+  margin-left: auto;
+  color: #ff5100;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.report:hover {
+  text-decoration: underline;
+}
+
+.report:focus-visible {
+  outline: 2px solid #ff5100;
+  outline-offset: 3px;
+}
+
+@media (max-width: 30rem) {
+  .footer {
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+
+  .report {
+    margin-left: 0;
+  }
+}
