@@ -5,6 +5,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.api.routes import auth, cart, catalog, health, orders, payments, receipts, rentals, reservations, sessions, webhooks
 from app.api.routes.admin import (
+    analytics,
     audit,
     categories,
     customers,
@@ -68,6 +69,7 @@ app.include_router(dashboard.router)
 app.include_router(admin_payments.router)
 app.include_router(customers.router)
 app.include_router(finance.router)
+app.include_router(analytics.router)
 app.include_router(audit.router)
 app.include_router(admin_sessions.router)
 app.include_router(admin_orders.router)

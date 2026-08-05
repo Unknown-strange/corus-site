@@ -462,6 +462,20 @@ corus-backend/
 
 ---
 
+### Phase 10 — Admin analytics trends — **Completed (2026-08-05)**
+
+**Goal:** Chartable trend data for the admin dashboard.
+
+- [x] `GET /admin/analytics/bookings` — confirmed bookings over time, top session types
+- [x] `GET /admin/analytics/rentals` — paid/active/returned rentals over time, most-rented equipment
+- [x] `GET /admin/analytics/products` — units sold over time, best-selling products
+- [x] `GET /admin/analytics/overview` — all three in one call for a single dashboard fetch
+- [x] `day` / `week` / `month` bucketing in studio timezone, with empty periods filled so charts stay continuous
+
+Gated by the existing `dashboard.view` permission. Read-only aggregations over existing tables — no migration.
+
+---
+
 ## API modules (planned)
 
 | Prefix | Purpose |
@@ -481,6 +495,7 @@ corus-backend/
 | `/admin/customers` | Customer list and profile |
 | `/admin/audit-logs` | Admin audit trail |
 | `/admin/finance/*` | Ledger, summary, CSV/PDF export |
+| `/admin/analytics/*` | Booking, rental, and product sales trends |
 | `/admin/*` | Staff, inventory, slots, CMS, approvals (permission-gated) |
 
 Interactive docs: `/docs` (Swagger), `/redoc` (ReDoc).
