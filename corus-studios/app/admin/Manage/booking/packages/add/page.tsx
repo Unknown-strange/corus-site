@@ -1,18 +1,27 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation"; // ← added
+import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Upload } from "lucide-react";
-import { ArrowLeft } from "lucide-react";
+import { Upload, ArrowLeft } from "lucide-react";
 import NavbarAdmin from "@/components/NavbarAdmin";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
+// ─── Force dynamic rendering ───
+export const dynamic = "force-dynamic";
+
 export default function AddRentalPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const type = searchParams.get("type") || "rental"; // default to rental
+  const [type, setType] = useState("rental");
+
+  // ─── Get type from URL on client side ───
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setType(params.get("type") || "rental");
+    }
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,65 +46,40 @@ export default function AddRentalPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Build payload with type
     const payload = {
       name,
       description,
       price,
       tag,
-      image: preview, // in reality, you'd send a File object as FormData
-      type, // ← includes "rental" or "store"
+      image: preview,
+      type,
     };
 
     console.log("Submitting gadget:", payload);
 
-    // TODO: Replace with actual API call
-    // const response = await fetch("/api/admin/gadgets", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(payload),
-    // });
-
-    // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      router.push(`/admin/${type === "rental" ? "rentals" : "store"}`);
+      router.push(`/admin/Manage/booking/packages`);
     }, 1000);
   };
-
-  const typeLabel = type === "rental" ? "Rentals" : "Store";
 
   return (
     <>
       <NavbarAdmin />
 
       <main className={styles.page}>
-
-        {/* HEADER */}
-
         <section className={styles.header}>
-              <button
-                className={styles.backButton}
-                onClick={() => router.push(`/admin/Manage/booking/packages`)}
-            >
-                <ArrowLeft size={24} />
-            </button>
-
+          <button
+            className={styles.backButton}
+            onClick={() => router.push(`/admin/Manage/booking/packages`)}
+          >
+            <ArrowLeft size={24} />
+          </button>
           <h1>ADD PACKAGES</h1>
-
         </section>
 
-        {/* BODY */}
-
         <section className={styles.body}>
-
-          <form
-            className={styles.form}
-            onSubmit={handleSubmit}
-          >
-
-            {/* Price */}
-
+          <form className={styles.form} onSubmit={handleSubmit}>
             <input
               type="number"
               placeholder="Price (GH₵)"
@@ -103,37 +87,21 @@ export default function AddRentalPage() {
               onChange={(e) => setPrice(e.target.value)}
               className={styles.input}
             />
-
-
-            {/* Description */}
-
             <textarea
               placeholder={`Description of Package (${description.length}/300)`}
               maxLength={300}
               value={description}
-              onChange={(e) =>
-                setDescription(e.target.value)
-              }
+              onChange={(e) => setDescription(e.target.value)}
               className={styles.textarea}
             />
-
-            {/* Save */}
-
-            <button
-              type="submit"
-              className={styles.saveButton}
-            >
-              Save
+            <button type="submit" className={styles.saveButton} disabled={loading}>
+              {loading ? "Saving..." : "Save"}
             </button>
-
           </form>
-
         </section>
-
       </main>
 
       <Footer />
-
     </>
   );
 }
