@@ -1,0 +1,108 @@
+.page {
+  width: 100%;
+  padding: 60px 8%;
+  background: #D9D9D9;
+  min-height: 10vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: #000;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  transition: color 0.2s;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.backButton:hover {
+  color: #ea580c;
+}
+
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, sans-serif;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.loading,
+.notFound {
+  text-align: center;
+  padding: 3rem 0;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+.detailsCard {
+  background: white;
+  padding: 2.5rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8e8e8;
+}
+
+.detailRow {
+  display: flex;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+.detailLabel {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1.05rem;
+  min-width: 160px;
+}
+
+.detailValue {
+  color: #333;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 40px 5%;
+  }
+
+  .heading {
+    font-size: 2rem;
+  }
+
+  .detailsCard {
+    padding: 1.5rem 1rem;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.6rem 0;
+  }
+
+  .detailLabel {
+    font-size: 0.9rem;
+    min-width: auto;
+  }
+
+  .detailValue {
+    font-size: 1rem;
+  }
+}

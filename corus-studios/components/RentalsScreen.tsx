@@ -1,31 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GadgetCard from "./GadgetCard";
 import RentalsToolbar, { type Category } from "./RentalsToolbar";
 import StudioHero from "./StudioHero";
-import { DUMMY_GADGETS } from "@/lib/gadgets";
+import { RentEquipment } from "@/lib/types";
+import api from "@/lib/api";
 import styles from "./RentalsScreen.module.css";
 
 export default function RentalsScreen() {
+  const [equipment, setEquipment] = useState<RentEquipment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category | null>(null);
   const [notice, setNotice] = useState("");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  // Fetch initial data
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const res = await api.rentals.equipment();
+        if (!res.ok) throw new Error("Failed to load equipment");
+        const data = await res.json();
+        setEquipment(data);
+        // If the API returned all items at once, there is no pagination
+        setHasMore(false); // since /rentals/equipment returns all, we disable "View More"
+        setLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error loading equipment");
+        setLoading(false);
+      }
+    };
+    fetchEquipment();
+  }, []);
+
+  // Filter logic (client‑side)
   const query = search.trim().toLowerCase();
-  const gadgets = query
-    ? DUMMY_GADGETS.filter((gadget) => gadget.name.toLowerCase().includes(query))
-    : DUMMY_GADGETS;
+  const filtered = equipment.filter((item) => {
+    const matchName = item.name.toLowerCase().includes(query);
+    // Category filtering: if we had category on the item, we'd filter here.
+    // Since the API doesn't provide category, we skip category filter.
+    return matchName;
+  });
 
-  /**
-   * Category filtering is deliberately not implemented.
-   *
-   * `EquipmentForRent` has no category column and `GET /rentals/equipment`
-   * takes no filter parameters, so there is nothing to filter on. Guessing a
-   * category from the product name would invent data. The buttons keep their
-   * selected state so the interaction is visible; wire them up once the
-   * backend adds categories to rent equipment.
-   */
+  // Handle category change (UI only – no backend support)
   function handleCategory(next: Category | null) {
     setCategory(next);
     setNotice(
@@ -35,14 +57,47 @@ export default function RentalsScreen() {
     );
   }
 
+  // "View More" handler (pagination not supported by /rentals/equipment)
+  const handleViewMore = () => {
+    setNotice("All equipment is already loaded – no more items to show.");
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <RentalsToolbar
+          search={search}
+          onSearchChange={setSearch}
+          category={category}
+          onCategoryChange={handleCategory}
+        />
+        <div className={styles.loading}>Loading equipment...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <RentalsToolbar
+          search={search}
+          onSearchChange={setSearch}
+          category={category}
+          onCategoryChange={handleCategory}
+        />
+        <div className={styles.error}>Error: {error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <RentalsToolbar
-  search={search}
-  onSearchChange={setSearch}
-  category={category}
-  onCategoryChange={handleCategory}
-/>
+        search={search}
+        onSearchChange={setSearch}
+        category={category}
+        onCategoryChange={handleCategory}
+      />
 
       <div className={styles.heroWrap}>
         <StudioHero />
@@ -54,23 +109,23 @@ export default function RentalsScreen() {
         </p>
       ) : null}
 
-      {gadgets.length > 0 ? (
+      {filtered.length > 0 ? (
         <div className={styles.grid}>
-          {gadgets.map((gadget) => (
-            <GadgetCard key={gadget.id} gadget={gadget} />
+          {filtered.map((item) => (
+            <GadgetCard key={item.id} gadget={item} />
           ))}
         </div>
       ) : (
-        <p className={styles.empty}>No gadgets match “{search}”.</p>
+        <p className={styles.empty}>No equipment matches “{search}”.</p>
       )}
 
+      {/* View More – disabled since all items are already loaded */}
       <div className={styles.moreRow}>
         <button
           type="button"
           className={styles.more}
-          onClick={() =>
-            setNotice("Nothing more to load — the catalogue is placeholder data until the API is wired up.")
-          }
+          onClick={handleViewMore}
+          disabled={!hasMore}
         >
           View More
         </button>

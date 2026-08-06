@@ -317,3 +317,13 @@
   font-size: 0.95rem;
   text-align: center;
 }
+
+.success {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 4px;
+  background: #d4edda;
+  color: #155724;
+  font-size: 0.95rem;
+  text-align: center;
+}

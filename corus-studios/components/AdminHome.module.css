@@ -42,3 +42,19 @@
     padding: 1.5rem 1rem 2.5rem;
   }
 }
+
+/* AdminHome.module.css – add these */
+
+.loading {
+  text-align: center;
+  padding: 3rem 0;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+.error {
+  text-align: center;
+  padding: 3rem 0;
+  color: #dc3545;
+  font-size: 1.2rem;
+}
