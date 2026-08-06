@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import styles from "./Cart.module.css";
 import CartItem, {
   CartItemType,
 } from "./CartItem";
+import api from "@/lib/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -38,6 +40,7 @@ export default function Cart({ category = "store" }: Props) {
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // Format category name for display
   const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
@@ -189,6 +192,11 @@ export default function Cart({ category = "store" }: Props) {
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+    // ─── Checkout handler ──────────────────────────────────────────
+  const handleCheckout = () => {
+    router.push("/checkout");
+  };
+
   if (loading) {
     return (
       <section className={styles.cartContainer}>
@@ -246,7 +254,9 @@ export default function Cart({ category = "store" }: Props) {
 
       {/* Footer */}
       <div className={styles.footer}>
-        <button className={styles.checkout}>Checkout</button>
+          <button className={styles.checkout} onClick={handleCheckout}>
+    Checkout
+  </button>
       </div>
     </section>
   );

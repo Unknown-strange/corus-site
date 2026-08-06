@@ -168,6 +168,26 @@ export const api = {
         }),
     },
 
+    orders: {
+  // Checkout: converts the whole cart to an order and returns payment info
+  checkout: (token: string) =>
+    fetch(`${API_BASE}/orders/checkout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  myOrders: (token: string) =>
+    fetch(`${API_BASE}/orders/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  getOrder: (order_id: string, token: string) =>
+    fetch(`${API_BASE}/orders/${order_id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+},
+
   // ─── Admin ─────────────────────────────────────────────────
   admin: {
     dashboard: {

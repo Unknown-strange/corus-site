@@ -79,3 +79,54 @@ export type Slot = {
   ends_at: string;   // ISO datetime
 };
 
+// lib/types.ts
+
+export type CartItem = {
+  product_id: string;
+  product_name: string;
+  product_slug: string;
+  unit_price_ghs: number;
+  quantity: number;
+  line_total_ghs: number;
+  image_url: string;
+  stock: number;
+};
+
+export type CartResponse = {
+  id: string;
+  items: CartItem[];
+  total_ghs: string;
+  item_count: number;
+  updated_at: string;
+};
+
+export type OrderCheckoutResponse = {
+  order_id: string;
+  authorization_url: string;
+  reference: string;
+  public_key: string;
+  amount_ghs: string;
+};
+
+export type Order = {
+  id: string;
+  status: string;
+  total_ghs: string;
+  paystack_reference: string;
+  payment_expires_at: string;
+  paid_at: string | null;
+  created_at: string;
+  updated_at: string;
+  items: Array<{
+    product_id: string;
+    product_name: string;
+    unit_price_ghs: string;
+    quantity: number;
+    line_total_ghs: string;
+  }>;
+  receipt: {
+    receipt_number: string;
+    amount_ghs: string;
+    issued_at: string;
+  } | null;
+};

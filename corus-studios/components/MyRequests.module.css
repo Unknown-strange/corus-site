@@ -1,7 +1,7 @@
 /* "My Requests" — the customer's studio reservation requests and their status. */
 
 .page {
-  min-height: 100dvh;
+  min-height: 10dvh;
   background: #d9d9d9;
   font-family: Helvetica, Arial, sans-serif;
 }
@@ -151,4 +151,19 @@
   .badge {
     width: 100%;
   }
+}
+
+.messageLink {
+  color: var(--orange, #ffffff);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.messageLink:hover {
+  color: #c2410c;
+}
+
+.rejectionReason {
+  color: #dc3545;
+  font-weight: 500;
 }
