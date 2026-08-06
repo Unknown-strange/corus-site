@@ -1,146 +1,292 @@
-/* One trend card: title, range selector, bar chart, footer stats. */
-
 .card {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  background: #ffffff;
-  font-family: Helvetica, Arial, sans-serif;
+
+background:#ffffff;
+
+border-radius:24px;
+
+padding:28px;
+
+border:1px solid #f2f4f7;
+
+
+box-shadow:
+0 4px 12px rgba(16,24,40,.04),
+0 12px 35px rgba(16,24,40,.06);
+
+
+transition:.25s ease;
+
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+
+.card:hover{
+
+transform:translateY(-5px);
+
+
+box-shadow:
+0 15px 40px rgba(16,24,40,.10);
+
 }
 
-.title {
-  margin: 0;
-  color: #0b1c30;
-  font-size: 1.15rem;
-  font-weight: 700;
+
+
+
+.head{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:flex-start;
+
+gap:20px;
+
 }
 
-/*
- * `appearance: none` is what makes the rounded corners appear at all — a
- * native <select> is drawn by the OS on most platforms and ignores
- * border-radius until its default appearance is switched off. Doing that also
- * removes the built-in arrow, so one is drawn back in as a background image.
- */
-.range {
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0.45rem 1.9rem 0.45rem 0.7rem;
-  border: 1px solid #ff5100;
-  border-radius: 8px;
-  background-color: #eff4ff;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%230B1C30' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M1 1.5 6 6.5 11 1.5'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 0.65rem center;
-  background-size: 0.7rem;
-  color: #0b1c30;
-  font-family: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
+
+
+.title{
+
+margin:0;
+
+font-size:22px;
+
+font-weight:750;
+
+color:#101828;
+
+letter-spacing:-.3px;
+
 }
 
-.range:focus-visible {
-  outline: 2px solid #ff5100;
-  outline-offset: 2px;
+
+
+.subtitle{
+
+margin-top:6px;
+
+font-size:14px;
+
+color:#98a2b3;
+
 }
 
-.legend {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 1rem 0 0;
-  color: #6b7280;
-  font-size: 0.8rem;
+
+
+
+.range{
+
+appearance:none;
+
+padding:10px 38px 10px 16px;
+
+border-radius:12px;
+
+border:1px solid #ff5b00;
+
+background:#fff7f2;
+
+color:#101828;
+
+font-weight:600;
+
+font-size:14px;
+
+cursor:pointer;
+
 }
 
-.legendDot {
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 50%;
-  background: #ff5100;
+
+
+.range:hover{
+
+background:#ff5b00;
+
+color:white;
+
 }
 
-.chart {
-  margin-top: 0.75rem;
+
+
+
+.legend{
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+margin-top:22px;
+
+font-size:14px;
+
+color:#667085;
+
 }
 
-/* Recharts renders an SVG that fills this box; height drives the bar height */
-.chartBox {
-  width: 100%;
-  height: 17rem;
+
+
+.legendDot{
+
+height:10px;
+
+width:10px;
+
+border-radius:50%;
+
+background:#ff5b00;
+
 }
 
-.tooltip {
-  padding: 0.4rem 0.6rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background: #ffffff;
-  color: #111827;
-  font-size: 0.8rem;
+
+
+.chartBox{
+
+height:310px;
+
+width:100%;
+
+margin-top:25px;
+
 }
 
-.tooltipValue {
-  font-weight: 700;
+
+
+
+.tooltip{
+
+background:white;
+
+border-radius:14px;
+
+padding:14px 18px;
+
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.12);
+
+
+border:1px solid #eee;
+
 }
 
-.footer {
-  display: flex;
-  align-items: flex-end;
-  gap: 2.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid #ff5100;
+
+
+.tooltipValue{
+
+font-size:16px;
+
+font-weight:700;
+
+color:#101828;
+
 }
 
-.stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  /* Wider than the text needs, so "Peak Day" and "Avg. Daily" hold a steady
-     column position as their values change length */
-  min-width: 7.5rem;
+
+
+
+.footer{
+
+display:flex;
+
+align-items:center;
+
+gap:45px;
+
+margin-top:24px;
+
+padding-top:22px;
+
+border-top:1px solid #f2f4f7;
+
 }
 
-.statLabel {
-  color: #6b7280;
-  font-size: 0.75rem;
+
+
+.stat{
+
+display:flex;
+
+flex-direction:column;
+
+gap:5px;
+
 }
 
-.statValue {
-  color: #0b1c30;
-  font-size: 0.95rem;
-  font-weight: 700;
+
+
+.statLabel{
+
+font-size:13px;
+
+color:#98a2b3;
+
 }
 
-.report {
-  margin-left: auto;
-  color: #ff5100;
-  font-size: 0.9rem;
-  text-decoration: none;
+
+
+.statValue{
+
+font-size:18px;
+
+font-weight:750;
+
+color:#101828;
+
 }
 
-.report:hover {
-  text-decoration: underline;
+
+
+.report{
+
+margin-left:auto;
+
+color:#ff5b00;
+
+font-size:14px;
+
+font-weight:700;
+
+text-decoration:none;
+
+transition:.2s;
+
 }
 
-.report:focus-visible {
-  outline: 2px solid #ff5100;
-  outline-offset: 3px;
+
+
+.report:hover{
+
+transform:translateX(5px);
+
 }
 
-@media (max-width: 30rem) {
-  .footer {
-    flex-wrap: wrap;
-    gap: 1.25rem;
-  }
 
-  .report {
-    margin-left: 0;
-  }
+
+@media(max-width:700px){
+
+.head{
+
+flex-direction:column;
+
+}
+
+
+.footer{
+
+flex-wrap:wrap;
+
+gap:20px;
+
+}
+
+
+.report{
+
+margin-left:0;
+
+}
+
 }
