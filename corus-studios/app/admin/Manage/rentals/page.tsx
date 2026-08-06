@@ -13,9 +13,9 @@ type RentalItem = {
   name: string;
   available: boolean;
   image: string;
-  description: string; // ← added
-  price: string;       // ← added
-  tag: string;         // ← added
+  description: string;
+  price: string;
+  tag: string;
 };
 
 const mockRentals: RentalItem[] = [
@@ -49,33 +49,64 @@ const mockRentals: RentalItem[] = [
 ];
 
 export default function RentalsAdmin() {
+
   const [rentals, setRentals] = useState<RentalItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
-    setTimeout(() => {
+
+    const timer = setTimeout(() => {
       setRentals(mockRentals);
       setLoading(false);
     }, 600);
+
+    return () => clearTimeout(timer);
+
   }, []);
+
+
 
   return (
     <>
       <NavbarAdmin />
+
       <div className={styles.page}>
+
         <div className={styles.container}>
-          <h1 className={styles.heading}>MANAGE YOUR RENTALS</h1>
+
+          <h1 className={styles.heading}>
+            MANAGE YOUR RENTALS
+          </h1>
+
 
           {loading ? (
-            <div className={styles.loading}>Loading rentals...</div>
+
+            <div className={styles.loading}>
+              Loading rentals...
+            </div>
+
           ) : (
+
             <>
+
               <div className={styles.grid}>
+
                 {rentals.map((item) => (
-                  <div key={item.id} className={styles.card}>
+
+                  <div
+                    key={item.id}
+                    className={styles.card}
+                  >
+
+                    <div className={styles.accent}></div>
+
+
                     <div className={styles.cardContent}>
-                      {/* Left: Image */}
+
+
                       <div className={styles.imageWrapper}>
+
                         <Image
                           src={item.image}
                           alt={item.name}
@@ -83,45 +114,86 @@ export default function RentalsAdmin() {
                           height={80}
                           className={styles.cardImage}
                         />
+
                       </div>
 
-                      {/* Middle: Name + Availability */}
+
+
                       <div className={styles.info}>
-                        <h3 className={styles.cardTitle}>{item.name}</h3>
+
+                        <h3 className={styles.cardTitle}>
+                          {item.name}
+                        </h3>
+
+
                         <span
                           className={`${styles.availability} ${
-                            item.available ? styles.available : styles.unavailable
+                            item.available
+                              ? styles.available
+                              : styles.unavailable
                           }`}
                         >
-                          {item.available ? "Available" : "Not Available"}
+                          {item.available
+                            ? "Available"
+                            : "Not Available"}
                         </span>
+
+
                       </div>
 
-                      {/* Right: Edit icon */}
+
+
                       <Link
                         href={`/admin/Manage/edit?id=${item.id}&name=${encodeURIComponent(item.name)}&description=${encodeURIComponent(item.description)}&price=${encodeURIComponent(item.price)}&tag=${encodeURIComponent(item.tag)}&image=${encodeURIComponent(item.image)}&available=${item.available}&type=rental`}
                         className={styles.editLink}
                         aria-label="Edit rental"
                       >
-                        <Edit size={22} className={styles.editIcon} />
+
+                        <Edit
+                          size={22}
+                          className={styles.editIcon}
+                        />
+
                       </Link>
+
+
                     </div>
+
                   </div>
+
                 ))}
+
               </div>
 
-              {/* Add button */}
+
+
               <div className={styles.addButtonWrapper}>
-                <Link href="/admin/Manage/add?type=rental" className={styles.addButton}>
-                  <Plus size={20} />
+
+                <Link
+                  href="/admin/Manage/add?type=rental"
+                  className={styles.addButton}
+                >
+
+                  <Plus size={20}/>
+
                   Add Gadget
+
                 </Link>
+
               </div>
+
+
             </>
+
           )}
+
         </div>
+
       </div>
+
+
       <Footer />
+
     </>
   );
 }

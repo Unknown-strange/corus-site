@@ -1,19 +1,21 @@
 "use client";
-
+import type { Metadata } from "next";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import NavbarAdmin from "@/components/NavbarAdmin";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
+
 type BookingItem = {
   id: string;
   customerName: string;
   bookingType: string;
-  phoneNumber: string;   // ← added
-  date: string;          // ← added
-  time: string;          // ← added
+  phoneNumber: string;
+  date: string;
+  time: string;
 };
+
 
 const mockBookings: BookingItem[] = [
   {
@@ -47,42 +49,79 @@ export default function BookingsAdmin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setBookings(mockBookings);
       setLoading(false);
     }, 600);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <>
       <NavbarAdmin />
+
       <div className={styles.page}>
         <div className={styles.container}>
-          <h1 className={styles.heading}>MANAGE YOUR BOOKINGS</h1>
+
+          <h1 className={styles.heading}>
+            MANAGE YOUR BOOKINGS
+          </h1>
+
+          <p className={styles.subheading}>
+            View and manage all customer bookings
+          </p>
 
           {loading ? (
-            <div className={styles.loading}>Loading bookings...</div>
+            <div className={styles.loading}>
+              Loading bookings...
+            </div>
           ) : (
+
             <div className={styles.grid}>
+
               {bookings.map((booking) => (
+
                 <Link
                   key={booking.id}
                   href={`/admin/Bookings/${booking.id}`}
                   className={styles.card}
                 >
+
+                  <div className={styles.accent}></div>
+
                   <div className={styles.cardContent}>
+
                     <div className={styles.info}>
-                      <h3 className={styles.cardTitle}>{booking.customerName}</h3>
-                      <span className={styles.bookingType}>{booking.bookingType}</span>
+
+                      <h3 className={styles.cardTitle}>
+                        {booking.customerName}
+                      </h3>
+
+                      <span className={styles.bookingType}>
+                        {booking.bookingType}
+                      </span>
+
                     </div>
-                    <span className={styles.cardArrow}>›</span>
+
+
+                    <span className={styles.cardArrow}>
+                      ›
+                    </span>
+
                   </div>
+
                 </Link>
+
               ))}
+
             </div>
+
           )}
+
         </div>
       </div>
+
       <Footer />
     </>
   );

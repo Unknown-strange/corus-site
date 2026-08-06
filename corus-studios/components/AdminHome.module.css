@@ -8,250 +8,145 @@
 .inner {
   max-width:1400px;
   margin:auto;
+  align-items:center;
+  color:#667085;
+  text-align:center;
 }
-
 
 
 .hero {
-
 background:white;
-
 border-radius:28px;
-
 padding:35px;
-
 margin-bottom:30px;
-
 border:1px solid #f2f4f7;
-
 box-shadow:
 0 10px 30px rgba(16,24,40,.05);
-
 }
-
-
 
 .badge {
-
 display:inline-flex;
-
 padding:8px 14px;
-
 border-radius:999px;
-
 background:#fff1e8;
-
 color:#ff5b00;
-
 font-size:13px;
-
 font-weight:700;
-
 }
 
-
-
-.hero h1 {
-
-margin:18px 0 8px;
-
-font-size:36px;
-
-color:#101828;
-
+.welcome {
+  margin:18px 0 8px;
+  font-size:36px;
+  color:#101828;
+  font-weight:500;
+  font-style:bold;
 }
-
-
 
 .hero p {
-
 color:#667085;
-
 font-size:16px;
-
 }
-
-
-
 
 .stats {
-
 display:grid;
-
 grid-template-columns:
 repeat(3,1fr);
-
 gap:24px;
-
 margin-bottom:35px;
-
 }
-
-
-
 
 .actions {
-
 margin-bottom:35px;
-
 }
-
-
 
 .actions h2 {
-
 font-size:22px;
-
 color:#101828;
-
 margin-bottom:18px;
-
 }
-
-
 
 .actionGrid {
-
 display:flex;
-
 gap:16px;
-
 flex-wrap:wrap;
-
 }
-
-
 
 .actionButton {
-
 display:flex;
-
 align-items:center;
-
 gap:10px;
-
 padding:14px 22px;
-
 border-radius:14px;
-
 border:none;
-
 background:white;
-
 color:#344054;
-
 font-weight:600;
-
 cursor:pointer;
-
 box-shadow:
 0 8px 25px rgba(0,0,0,.05);
-
 transition:.25s;
-
 }
-
-
 
 .actionButton:hover {
-
 background:#ff5b00;
-
 color:white;
-
 transform:translateY(-3px);
-
 }
-
-
-
-
 
 .charts {
-
 display:grid;
-
 grid-template-columns:
 repeat(2,1fr);
-
 gap:25px;
-
 }
-
-
-
-
 
 .skeletonCard,
 .skeletonChart {
-
 background:#eaeef5;
-
 border-radius:24px;
-
 animation:pulse 1.5s infinite;
-
 }
-
-
 
 .skeletonCard {
-
 height:220px;
-
 }
-
-
 
 .skeletonChart {
-
 height:400px;
-
 }
 
-
-
 @keyframes pulse {
-
 50%{
 opacity:.5;
 }
-
 }
-
-
-
 
 .errorCard {
-
 background:white;
-
 padding:40px;
-
 border-radius:20px;
-
 text-align:center;
-
 }
 
+.errorCard h2 {
+  font-size:24px;
+  color:#101828;
+  margin-bottom:12px;
+  font-weight:600;
+}
 
-
-
-
+.errorCard p {
+  font-size:16px;
+  color:#667085;
+  margin-bottom:20px;
+}
 @media(max-width:900px){
-
-.stats,
-.charts{
-
+.stats, .charts{
 grid-template-columns:1fr;
-
 }
-
 
 .page{
-
 padding:20px;
-
 }
 
 }

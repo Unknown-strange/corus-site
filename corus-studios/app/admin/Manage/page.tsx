@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "My Cart | Corus Studios",
-  description: "View your cart items at Corus Studios.",
+  title: "Manage | Corus Studios",
+  description: "Manage your rentals, store, bookings, and gallery.",
 };
 
 export default function CartPage() {

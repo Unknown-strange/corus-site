@@ -1,0 +1,502 @@
+/* Navbar.module.css */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 1540px;
+  margin: 0 auto;
+  /* border-radius: 0.5rem; */
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4rem;
+  padding: 0 1.5rem;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.logoIcon {
+  color: #ea580c;
+}
+
+.logoText {
+  color: black;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
+/* ─── Mobile‑only login (hidden on desktop) ─── */
+.mobileLogin {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ea580c;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+/* ─── NEW: hide mobile user on desktop ─── */
+.mobileUser {
+  display: none;
+}
+
+/* ─── Center group: menu + desktop login ─── */
+.navCenter {
+  display: flex;
+  align-items: center;
+  gap: 8rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+}
+
+/* Desktop menu */
+.desktopMenu {
+  display: none;
+  align-items: center;
+  gap: 5rem;
+  font-weight: 500;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .desktopMenu {
+    display: flex;
+  }
+}
+
+.navLink {
+  transition: color 0.2s;
+  text-decoration: none;
+  color: black;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: #ea580c;
+}
+
+.navLinkActive,
+.navLinkActive:hover {
+  color: #ea580c;
+  text-decoration: underline;
+}
+
+/* Desktop login link (hidden on mobile) */
+.loginLink {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  color: #ea580c;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  color: #c2410c;
+}
+
+@media (min-width: 768px) {
+  .loginLink {
+    display: flex;
+  }
+}
+
+/* ─── Hamburger button ─── */
+.mobileButton {
+  display: block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .mobileButton {
+    display: none;
+  }
+}
+
+.hamburgerWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+
+.line {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: black;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburgerWrapper.open .line:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburgerWrapper.open .line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburgerWrapper.open .line:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ─── Mobile Menu (slide‑down) ─── */
+.mobileMenu {
+  display: none;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 1rem 1.5rem;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.mobileMenu.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+  .mobileMenu {
+    display: block;
+  }
+}
+
+.mobileMenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mobileMenu ul li {
+  text-align: center;
+}
+
+.mobileNavLink {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: black;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.mobileNavLink:hover {
+  color: #ea580c;
+}
+
+/* ─── MOBILE OVERRIDES ─── */
+@media (max-width: 767px) {
+  .header {
+    margin: 0.5rem auto 0 auto;
+    border-radius: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .nav {
+    justify-content: flex-start;
+    height: 3.5rem;
+    padding: 0 1rem;
+  }
+
+  .logo {
+    font-size: 1rem;
+    gap: 0.25rem;
+  }
+
+  .logoIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Show mobile login or user avatar */
+  .mobileLogin {
+    display: flex;
+    margin-left: auto;
+    margin-right: 0.75rem;
+  }
+
+  .mobileUser {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+    position: relative;
+  }
+
+  .mobileUserAvatar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    transition: background 0.2s;
+  }
+  .mobileUserAvatar:hover {
+    background: #f0f0f0;
+  }
+
+  .mobileDropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: auto;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    min-width: 220px;
+    padding: 0.5rem 0;
+    z-index: 200;
+    border: 1px solid #eee;
+    animation: slideDown 0.2s ease;
+  }
+
+  .loginLink {
+    display: none !important;
+  }
+
+  .navCenter {
+    display: none;
+  }
+
+  .hamburgerIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: black;
+  }
+}
+
+/* ─── Shared User / Dropdown Styles ─── */
+.desktopUser {
+  position: relative;
+  cursor: pointer;
+}
+
+.userAvatar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  transition: background 0.2s;
+}
+.userAvatar:hover {
+  background: #f0f0f0;
+}
+
+.avatarCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ea580c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.userName {
+  font-weight: 600;
+  color: black;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+/* Dropdown (desktop & mobile) */
+.dropdown,
+.mobileDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  padding: 0.5rem 0;
+  z-index: 100;
+  border: 1px solid #eee;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.dropdownIcon {
+  color: #ea580c;
+}
+
+.dropdownUsername {
+  padding: 0 1rem 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: black;
+}
+
+.dropdownSignOut {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  font-weight: 600;
+  color: #dc3545;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+}
+.dropdownSignOut:hover {
+  background: #fff5f5;
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: #eee;
+  margin: 0.25rem 0;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+}
+.dropdownItem:hover {
+  background: #f7f7f7;
+  color: #ea580c;
+}
+
+/* Adjust mobile avatar size on very small screens */
+@media (max-width: 480px) {
+  .userName {
+    font-size: 0.85rem;
+  }
+  .avatarCircle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+  .mobileDropdown {
+    min-width: 180px;
+    right: -10px;
+  }
+}
+
+.mobileLogout,
+.desktopLogout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileLogout:hover,
+.desktopLogout:hover {
+  color: #dc3545;
+}
+
+.desktopUser {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobileUser {
+  display: none; /* hidden by default – show on mobile via media query */
+}
+
+@media (max-width: 767px) {
+  .mobileUser {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+  }
+  .desktopUser {
+    display: none;
+  }
+}
