@@ -90,6 +90,8 @@ export const api = {
       }),
   },
 
+  
+
   // ─── Rentals (public + authenticated) ─────────────────────
   rentals: {
     equipment: () => fetch(`${API_BASE}/rentals/equipment`),
@@ -140,11 +142,31 @@ export const api = {
   },
 
   // ─── Sessions (bookings) ──────────────────────────────────
-  sessions: {
+// lib/api.ts – add inside the `api` object
+
+    sessions: {
     types: () => fetch(`${API_BASE}/sessions/types`),
     availability: (start: string, end: string) =>
-      fetch(`${API_BASE}/sessions/availability?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`),
-  },
+        fetch(`${API_BASE}/sessions/availability?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`),
+    createHold: (data: { slot_id: string; session_type_id: string }, token: string) =>
+        fetch(`${API_BASE}/sessions/holds`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+        }),
+    checkoutBooking: (data: { hold_id: string }, token: string) =>
+        fetch(`${API_BASE}/sessions/bookings/checkout`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+        }),
+    },
 
   // ─── Admin ─────────────────────────────────────────────────
   admin: {

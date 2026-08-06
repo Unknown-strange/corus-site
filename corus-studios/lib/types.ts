@@ -9,12 +9,13 @@ export type RentEquipment = {
   image_url: string;
 };
 
+
 export type CatalogProduct = {
   id: string;
   name: string;
   slug: string;
   description: string;
-  price: string;
+  price: string; // decimal string from API
   stock: number;
   image_url: string;
   category: {
@@ -23,7 +24,7 @@ export type CatalogProduct = {
     slug: string;
     description: string;
     sort_order: number;
-  };
+  } | null;
 };
 
 export type Reservation = {
@@ -62,3 +63,19 @@ export type Booking = {
     issued_at: string;
   } | null;
 };
+
+export type SessionType = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price_ghs: string;  // decimal string
+  duration_minutes: number;
+};
+
+export type Slot = {
+  id: string;
+  starts_at: string; // ISO datetime
+  ends_at: string;   // ISO datetime
+};
+

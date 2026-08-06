@@ -4,20 +4,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import StoreToolbar from "./StoreToolbar";
-import { formatGhs, type Product } from "@/lib/store-products";
 import { useRouter } from "next/navigation";
+import StoreToolbar from "./StoreToolbar";
+import { CatalogProduct } from "@/lib/types";
+import api from "@/lib/api";
 import styles from "./ProductCheckout.module.css";
 
-export default function ProductCheckout({ product }: { product: Product | null }) {
+type Props = {
+  product: CatalogProduct | null;
+};
+
+export default function ProductCheckout({ product }: Props) {
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [notice, setNotice] = useState("");
-    const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const handleCheckout = () => {
-    router.push("/checkout");
-  };
-
+  // If product not found, show error state
   if (!product) {
     return (
       <div className={styles.page}>
@@ -34,15 +37,50 @@ export default function ProductCheckout({ product }: { product: Product | null }
     );
   }
 
-  // function handleCheckout() {
-  //   setNotice(
-  //     "Not connected yet — checkout adds this item to the cart, then converts the whole cart (POST /cart/items → /orders/checkout). Needs sign-in."
-  //   );
-  // }
+  const available = product.stock > 0;
+  const price = parseFloat(product.price);
+  const total = price * quantity;
 
-  function handleAddToCart() {
-    setNotice("The cart isn't connected yet — adding items needs sign-in and the API client.");
-  }
+  // ─── Add to Cart ──────────────────────────────────────────────
+  const handleAddToCart = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setNotice("⚠️ Please log in to add items to your cart.");
+      return;
+    }
+
+    setLoading(true);
+    setNotice("");
+
+    try {
+      const response = await api.cart.addItem(
+        {
+          product_id: product.id,
+          quantity,
+        },
+        token
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        const msg = data.detail || "Failed to add to cart.";
+        throw new Error(msg);
+      }
+
+      setNotice(`✅ Added ${quantity} × "${product.name}" to your cart!`);
+      // Clear notice after a few seconds
+      setTimeout(() => setNotice(""), 3000);
+    } catch (err: any) {
+      setNotice(`❌ ${err.message || "Something went wrong."}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── Checkout ──────────────────────────────────────────────────
+  const handleCheckout = () => {
+    router.push("/checkout");
+  };
 
   return (
     <div className={styles.page}>
@@ -62,7 +100,7 @@ export default function ProductCheckout({ product }: { product: Product | null }
         <div className={styles.overview}>
           <div className={styles.imageWrap}>
             <Image
-              src={product.image_url}
+              src={product.image_url || "/images/placeholder.png"}
               alt={product.name}
               fill
               sizes="(max-width: 52rem) 100vw, 50vw"
@@ -72,21 +110,24 @@ export default function ProductCheckout({ product }: { product: Product | null }
           </div>
 
           <div className={styles.facts}>
-            <p className={styles.price}>{formatGhs(product.price)}</p>
+            <p className={styles.price}>GH₵{price.toFixed(2)}</p>
 
             <p className={styles.fact}>
               Description:{" "}
               <span className={styles.factValue}>
-                {product.description
-                  ? `${product.condition ? `${product.condition} ` : ""}${product.name} ${product.description}`
-                  : "None"}
+                {product.description || "No description available"}
               </span>
             </p>
 
-            <p className={styles.fact}>Disclaimer:</p>
+            {product.category && (
+              <p className={styles.fact}>
+                Category:{" "}
+                <span className={styles.factValue}>{product.category.name}</span>
+              </p>
+            )}
 
             <p className={styles.stockNote}>
-              {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+              {available ? `${product.stock} in stock` : "Out of stock"}
             </p>
           </div>
         </div>
@@ -110,23 +151,34 @@ export default function ProductCheckout({ product }: { product: Product | null }
                 type="button"
                 className={styles.stepperButton}
                 aria-label="Increase quantity"
-                disabled={quantity >= product.stock}
+                disabled={!available || quantity >= product.stock}
                 onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
               >
                 +
               </button>
             </div>
 
-            <button type="button" className={styles.secondary} onClick={handleAddToCart}>
-              Add to Cart
+            <button
+              type="button"
+              className={styles.secondary}
+              onClick={handleAddToCart}
+              disabled={loading || !available}
+            >
+              {loading ? "Adding..." : "Add to Cart"}
             </button>
-    <button type="button" className={styles.primary} onClick={handleCheckout}>
-      Checkout
-    </button>
+
+            <button
+              type="button"
+              className={styles.primary}
+              onClick={handleCheckout}
+              disabled={!available}
+            >
+              Checkout
+            </button>
           </div>
 
           {notice ? (
-            <p className={styles.notice} role="status">
+            <p className={`${styles.notice} ${notice.startsWith("✅") ? styles.success : styles.error}`}>
               {notice}
             </p>
           ) : null}
