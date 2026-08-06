@@ -7,6 +7,8 @@ import NavbarAdmin from "@/components/NavbarAdmin";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
+export const dynamic = "force-dynamic";
+
 export default function AddUnavailableDatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
