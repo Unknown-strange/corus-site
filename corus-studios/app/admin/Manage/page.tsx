@@ -44,6 +44,15 @@ export default function CartPage() {
               </div>
             </Link>
 
+
+                                    {/* Store Card - passes category=store */}
+            <Link href="Manage/gallery" className={styles.card}>
+              <div className={styles.cardContent}>
+                <h2 className={styles.cardTitle}>Manage your Gallery</h2>
+                <span className={styles.cardArrow}>›</span>
+              </div>
+            </Link>
+
             
           </div>
         </div>
