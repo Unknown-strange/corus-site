@@ -1,17 +1,17 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import type { Gadget } from "@/lib/gadgets";
+import { RentEquipment } from "@/lib/types";
 import styles from "./GadgetCard.module.css";
 
-/**
- * Template card for one rentable gadget.
- *
- * Props mirror `RentEquipmentPublicResponse` from `GET /rentals/equipment`, so
- * feeding it live admin-uploaded stock later needs no changes here. Out of
- * stock (`stock === 0`) renders the design's "Not Available" state.
- */
-export default function GadgetCard({ gadget }: { gadget: Gadget }) {
+type Props = {
+  gadget: RentEquipment;
+};
+
+export default function GadgetCard({ gadget }: Props) {
   const available = gadget.stock > 0;
+  const dailyRate = parseFloat(gadget.daily_rate_ghs);
 
   return (
     <article className={`${styles.card} ${available ? "" : styles.cardUnavailable}`}>
@@ -19,7 +19,7 @@ export default function GadgetCard({ gadget }: { gadget: Gadget }) {
 
       <div className={styles.imageWrap}>
         <Image
-          src={gadget.image_url}
+          src={gadget.image_url || "/images/placeholder.png"}
           alt={gadget.name}
           fill
           sizes="(max-width: 40rem) 50vw, (max-width: 64rem) 33vw, 25vw"
@@ -28,10 +28,10 @@ export default function GadgetCard({ gadget }: { gadget: Gadget }) {
       </div>
 
       <h3 className={styles.name}>{gadget.name}</h3>
-      <p className={styles.price}>GH₵{gadget.daily_rate_ghs}/day</p>
+      <p className={styles.price}>GH₵{dailyRate.toFixed(2)}/day</p>
 
       {available ? (
-        <Link href={`/rentals/gadgets/${gadget.id}`} className={styles.cta}>
+        <Link href={`/rentals/${gadget.slug}`} className={styles.cta}>
           Rent Now
         </Link>
       ) : (

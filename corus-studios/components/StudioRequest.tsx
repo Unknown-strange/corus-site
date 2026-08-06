@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import api from "@/lib/api";
 import styles from "./StudioRequest.module.css";
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -77,20 +78,15 @@ function buildWeeks(year: number, month: number, todayIso: string): Cell[][] {
 /**
  * `todayIso` is resolved on the server, in the studio's timezone, and passed
  * in as a prop.
- *
- * Earlier versions read the clock on the client, which meant the calendar
- * could only appear on a re-render *after* hydration — leaving it blank and
- * its dropdowns disabled until then. Taking the date as a prop puts the whole
- * calendar in the server HTML, so it is there before any JavaScript runs and
- * there is no hydration mismatch to design around.
  */
 export default function StudioRequest({ todayIso }: { todayIso: string }) {
   const [viewOverride, setViewOverride] = useState<{ year: number; month: number } | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  // The month on show: whatever the visitor picked, otherwise the current one.
   const view = viewOverride ?? {
     year: Number(todayIso.slice(0, 4)),
     month: Number(todayIso.slice(5, 7)) - 1,
@@ -102,37 +98,96 @@ export default function StudioRequest({ todayIso }: { todayIso: string }) {
     );
   }
 
-  /**
-   * NOT WIRED TO THE API — see docs/FRONTEND.md "Open questions".
-   *
-   * POST /reservations accepts { requested_start, requested_end, purpose,
-   * notes } and identifies the customer from their JWT. Three gaps:
-   *
-   *   - it takes ONE contiguous datetime range, but this form lets the
-   *     customer pick several non-adjacent slots (10-11am, 2-3pm, 6-7pm).
-   *     Neither collapsing them into 10am–7pm nor silently firing one POST
-   *     per slot is a decision the frontend should make on its own;
-   *   - first/last name have nowhere to go — the reservation is attached to
-   *     the authenticated account, and the API reads the name from there;
-   *   - the endpoint is customer-only, and the app has no auth state yet.
-   *
-   * "Kind of Shoot" maps to `purpose` and "Reason for the request" to `notes`.
-   */
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setNotice("");
+    setSuccess(false);
+    setLoading(false);
 
+    // 1. Validate date and slots
     if (!selectedDate) {
-      setNotice("Choose a date for your request.");
+      setNotice("Please select a date.");
       return;
     }
     if (selectedSlots.length === 0) {
-      setNotice("Choose at least one time slot.");
+      setNotice("Please select at least one time slot.");
       return;
     }
 
-    setNotice(
-      "Not connected yet — the reservations API takes a single time range, and this form allows several separate slots."
-    );
+    // 2. Get token
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setNotice("You must be logged in to request a studio space.");
+      return;
+    }
+
+    // 3. Gather form data (purpose + notes)
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const purpose = formData.get("purpose") as string;
+    const notes = formData.get("notes") as string;
+
+    if (!purpose) {
+      setNotice("Please enter the purpose of your shoot.");
+      return;
+    }
+
+    // 4. Combine slots into a single contiguous range
+    // Sort the selected slot IDs (they are like "10:00", "11:00", ...)
+    const sortedSlots = selectedSlots.slice().sort();
+    const earliest = sortedSlots[0];
+    const latest = sortedSlots[sortedSlots.length - 1];
+
+    const startDateTime = new Date(`${selectedDate}T${earliest}:00`);
+    const endDateTime = new Date(`${selectedDate}T${latest}:00`);
+    // Add 1 hour to the latest slot because each slot represents an hour (e.g., "10:00" means 10am-11am)
+    endDateTime.setHours(endDateTime.getHours() + 1);
+
+    if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime()) || endDateTime <= startDateTime) {
+      setNotice("Invalid time range. Please check your selection.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await api.reservations.create(
+        {
+          requested_start: startDateTime.toISOString(),
+          requested_end: endDateTime.toISOString(),
+          purpose,
+          notes: notes || undefined,
+        },
+        token
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        let msg = "Failed to submit request.";
+        if (data.detail) {
+          if (Array.isArray(data.detail)) {
+            msg = data.detail.map((err: any) => err.msg).join(", ");
+          } else {
+            msg = data.detail;
+          }
+        }
+        throw new Error(msg);
+      }
+
+      // Success
+      setSuccess(true);
+      setNotice("");
+      // Optionally reset the form
+      setSelectedDate(null);
+      setSelectedSlots([]);
+      // Maybe redirect after a delay
+      // router.push("/reservations/me");
+    } catch (err: any) {
+      setNotice(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const weeks = buildWeeks(view.year, view.month, todayIso);
@@ -150,26 +205,7 @@ export default function StudioRequest({ todayIso }: { todayIso: string }) {
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        <div className={styles.nameRow}>
-          <input
-            className={styles.field}
-            type="text"
-            name="first_name"
-            placeholder="First Name"
-            aria-label="First name"
-            autoComplete="given-name"
-            required
-          />
-          <input
-            className={styles.field}
-            type="text"
-            name="last_name"
-            placeholder="Last Name"
-            aria-label="Last name"
-            autoComplete="family-name"
-            required
-          />
-        </div>
+        {/* ─── Removed first_name & last_name fields ─── */}
 
         <input
           className={styles.field}
@@ -276,15 +312,21 @@ export default function StudioRequest({ todayIso }: { todayIso: string }) {
           })}
         </div>
 
-        {notice ? (
+        {notice && (
           <p className={styles.notice} role="status">
             {notice}
           </p>
-        ) : null}
+        )}
+
+        {success && (
+          <p className={styles.success} role="status">
+            ✅ Your request has been submitted! We'll review it and get back to you.
+          </p>
+        )}
 
         <div className={styles.submitRow}>
-          <button className={styles.submit} type="submit">
-            Send Request
+          <button className={styles.submit} type="submit" disabled={loading}>
+            {loading ? "Submitting..." : "Send Request"}
           </button>
         </div>
       </form>

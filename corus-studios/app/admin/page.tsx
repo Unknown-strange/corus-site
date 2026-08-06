@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import AdminHome from "@/components/AdminHome";
+import NavbarAdmin from "@/components/NavbarAdmin";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Admin | Corus Studios",
@@ -11,5 +13,12 @@ export const metadata: Metadata = {
  * owned by someone else and slots in above <AdminHome />.
  */
 export default function AdminHomePage() {
-  return <AdminHome />;
+  return (
+    <>
+      <NavbarAdmin /> {/* ← add the admin navbar */}
+      <AdminHome />
+      <Footer />
+
+    </>
+  );
 }

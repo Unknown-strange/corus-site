@@ -1,153 +1,128 @@
-/**
- * PLACEHOLDER DATA for the admin homepage — delete once the API is wired up.
- *
- * ⚠️ THE TREND CHARTS HAVE NO ENDPOINT BEHIND THEM.
- *
- * `GET /admin/dashboard/summary` returns `DashboardSummaryResponse`, which is
- * point-in-time counts only:
- *
- *   { pending_reservation_approvals, pending_reservations_top[],
- *     low_stock_products[], low_stock_count, todays_bookings[],
- *     todays_bookings_count, active_rentals, pending_orders,
- *     payments_today_ghs, financial_summary{...}, studio_timezone }
- *
- * Nothing in /admin/dashboard or /admin/finance groups records by day, so
- * there is no source for "last 7 days" buckets, "Peak Day" or "Avg. Daily".
- *
- * What the backend needs to add, roughly:
- *   GET /admin/dashboard/trends?metric=bookings|rentals&days=7
- *     → [{ date: "2026-07-29", value: 12 }, ...]
- *
- * `TrendPoint` below is deliberately that shape, so swapping the source is a
- * straight substitution. Peak day and average are DERIVED from the points
- * rather than stored, so they stay correct whatever data arrives.
- */
+// lib/admin-dashboard.ts
 
-export type TrendPoint = {
-  /** ISO date, as the API would return it */
-  date: string;
-  value: number;
+// ─── Types from API ──────────────────────────────────────
+
+export type DashboardSummary = {
+  pending_reservation_approvals: number;
+  pending_reservations_top: Array<{
+    id: string;
+    customer_email: string;
+    customer_name: string;
+    requested_start: string;
+    requested_end: string;
+    purpose: string;
+    created_at: string;
+  }>;
+  low_stock_products: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    stock: number;
+    low_stock_threshold: number;
+  }>;
+  low_stock_count: number;
+  todays_bookings: Array<{
+    id: string;
+    user_id: string;
+    session_type_name: string;
+    slot_starts_at: string;
+    slot_ends_at: string;
+    status: string;
+  }>;
+  todays_bookings_count: number;
+  active_rentals: number;
+  pending_orders: number;
+  payments_today_ghs: string;
+  financial_summary: {
+    total_income_ghs: string;
+    total_expenses_ghs: string;
+    profit_ghs: string;
+    period_start: string;
+    period_end: string;
+  };
+  studio_timezone: string;
 };
 
-export type TrendSeries = {
-  id: string;
-  title: string;
-  /** Legend label for the single series */
-  metricLabel: string;
-};
+// ─── Types for dashboard components ─────────────────────
 
 export type StatCard = {
   id: string;
-  /**
-   * Rendered one line per entry. The design always breaks after "Total", so
-   * the split is stated here rather than left to however the text happens to
-   * wrap at a given card width.
-   */
-  labelLines: [string, string];
-  /** Pre-formatted so currency and counts can share one card */
+  labelLines: string[];
   value: string;
   delta: string;
 };
 
-/**
- * Maps to the summary endpoint where it can:
- *   Total Revenue      → financial_summary.total_income_ghs / payments_today_ghs
- *   Total Bookings     → todays_bookings_count covers the delta only; there is
- *                        no lifetime total in the API
- *   Total Gadget Rentals → active_rentals is *active*, not a running total
- */
+// ─── Placeholder data (will be replaced by real data) ───
+
+// Pre-populate with the keys from the API response
 export const STAT_CARDS: StatCard[] = [
-  { id: "bookings", labelLines: ["Total", "Bookings"], value: "16", delta: "+18" },
-  { id: "rentals", labelLines: ["Total", "Gadget Rentals"], value: "74", delta: "+16" },
-  { id: "revenue", labelLines: ["Total", "Revenue"], value: "GH₵7,400", delta: "+GH₵16" },
+  {
+    id: "bookings",
+    labelLines: ["Today's", "Bookings"],
+    value: "0",
+    delta: "+0.0%",
+  },
+  {
+    id: "rentals",
+    labelLines: ["Active", "Rentals"],
+    value: "0",
+    delta: "+0.0%",
+  },
+  {
+    id: "orders",
+    labelLines: ["Pending", "Orders"],
+    value: "0",
+    delta: "+0.0%",
+  },
 ];
 
-export const TREND_SERIES: TrendSeries[] = [
-  { id: "bookings", title: "Booking Trends", metricLabel: "Bookings" },
-  { id: "rentals", title: "Gadget Rental Trends", metricLabel: "Rentals" },
-];
+// ─── Trend chart types and placeholder data ─────────────
 
-/**
- * 30 days of fixed values so the range selector has something real to filter,
- * and so server and client render identically — random data would produce a
- * hydration mismatch.
- *
- * Dates count back from a fixed anchor for the same reason: deriving them from
- * `new Date()` would differ between the server render and the browser.
- */
-const ANCHOR = "2026-07-29";
-
-const VALUES: Record<string, number[]> = {
-  bookings: [
-    64, 118, 92, 76, 131, 88, 104, 72, 96, 143, 81, 110, 67, 125, 94, 86, 138,
-    73, 101, 119, 90, 78, 134, 97, 112, 69, 128, 105, 149, 83,
-  ],
-  rentals: [
-    58, 97, 126, 71, 109, 84, 133, 66, 118, 90, 102, 75, 141, 88, 113, 79, 95,
-    122, 68, 106, 91, 130, 77, 114, 99, 85, 137, 70, 121, 93,
-  ],
-  orders: [
-    82, 74, 115, 93, 60, 128, 87, 105, 71, 136, 99, 80, 117, 65, 124, 96, 108,
-    73, 132, 89, 101, 76, 119, 94, 63, 127, 111, 84, 140, 98,
-  ],
+export type TrendSeries = {
+  id: string;
+  title: string;
+  metricLabel: string;
 };
 
-function shiftDate(iso: string, days: number) {
-  const d = new Date(`${iso}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-/** Oldest first, ending on the anchor — the order a chart reads left to right. */
-export function getTrendPoints(seriesId: string, days: number): TrendPoint[] {
-  const values = VALUES[seriesId] ?? VALUES.bookings;
-  const slice = values.slice(0, days);
-
-  return slice.map((value, index) => ({
-    date: shiftDate(ANCHOR, index - (slice.length - 1)),
-    value,
-  }));
-}
+export const TREND_SERIES: TrendSeries[] = [
+  { id: "bookings", title: "Bookings", metricLabel: "Booking" },
+  { id: "rentals", title: "Rentals", metricLabel: "Rental" },
+  { id: "orders", title: "Orders", metricLabel: "Order" },
+];
 
 export const RANGE_OPTIONS = [
-  { days: 7, label: "Last 7 Days" },
-  { days: 30, label: "Last 30 Days" },
+  { days: 7, label: "7 Days" },
+  { days: 30, label: "30 Days" },
+  { days: 90, label: "90 Days" },
 ];
 
-const WEEKDAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+// ─── Placeholder data generators ────────────────────────
 
-/*
- * Formatted from UTC parts on purpose: Ghana is GMT+0 all year, so UTC is the
- * studio's wall clock, and fixed parts render identically on server and client.
- */
-export function weekdayName(iso: string) {
-  return WEEKDAYS[new Date(`${iso}T00:00:00Z`).getUTCDay()];
-}
-
-export function shortDate(iso: string) {
-  const d = new Date(`${iso}T00:00:00Z`);
-  return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-}
-
-/** Peak day and average, derived so they can never disagree with the bars. */
-export function summarise(points: TrendPoint[]) {
-  if (points.length === 0) {
-    return { peakDay: "—", average: 0 };
+export function getTrendPoints(seriesId: string, days: number) {
+  // Generate random-ish data for placeholder
+  const data = [];
+  const now = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    data.push({
+      date: date.toISOString().split("T")[0],
+      value: Math.floor(Math.random() * 50) + 10,
+    });
   }
+  return data;
+}
 
-  const peak = points.reduce((best, p) => (p.value > best.value ? p : best), points[0]);
-  const total = points.reduce((sum, p) => sum + p.value, 0);
-
+export function summarise(points: { date: string; value: number }[]) {
+  if (!points.length) return { peakDay: "N/A", average: "0" };
+  const peak = points.reduce((a, b) => (a.value > b.value ? a : b));
+  const avg = points.reduce((sum, p) => sum + p.value, 0) / points.length;
   return {
-    peakDay: weekdayName(peak.date),
-    average: Math.round(total / points.length),
+    peakDay: new Date(peak.date).toLocaleDateString("en-US", { weekday: "short" }),
+    average: Math.round(avg).toString(),
   };
+}
+
+export function weekdayName(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("en-US", { weekday: "short" });
 }
