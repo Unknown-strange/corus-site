@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import NavbarAdmin from "@/components/NavbarAdmin";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
-export const dynamic = "force-dynamic";
-
-export default function AddUnavailableDatePage() {
+// ─── Component that uses useSearchParams ───
+function AddUnavailableDateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "rental";
@@ -25,8 +24,8 @@ export default function AddUnavailableDatePage() {
 
     const payload = {
       date,
-      startTime, // in 24‑hour format (HH:MM)
-      endTime,   // in 24‑hour format (HH:MM)
+      startTime,
+      endTime,
       type,
     };
 
@@ -39,63 +38,73 @@ export default function AddUnavailableDatePage() {
   };
 
   return (
-    <>
-      <NavbarAdmin />
+    <main className={styles.page}>
+      <section className={styles.header}>
+        <button
+          className={styles.backButton}
+          onClick={() => router.push("/admin/Manage/booking/date")}
+        >
+          <ArrowLeft size={24} />
+        </button>
+        <h1>ADD DATE</h1>
+      </section>
 
-      <main className={styles.page}>
-        <section className={styles.header}>
-          <button
-            className={styles.backButton}
-            onClick={() => router.push("/admin/Manage/booking/date")}
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h1>ADD DATE</h1>
-        </section>
+      <section className={styles.body}>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          {/* Date */}
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={styles.input}
+            required
+          />
 
-        <section className={styles.body}>
-          <form className={styles.form} onSubmit={handleSubmit}>
-            {/* Date */}
+          {/* Start Time */}
+          <div className={styles.timeWrapper}>
             <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
               className={styles.input}
               required
             />
+            <span className={styles.timeHint}>24‑hour format (e.g., 14:30 for 2:30 PM)</span>
+          </div>
 
-            {/* Start Time */}
-            <div className={styles.timeWrapper}>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className={styles.input}
-                required
-              />
-              <span className={styles.timeHint}>24‑hour format (e.g., 14:30 for 2:30 PM)</span>
-            </div>
+          {/* End Time */}
+          <div className={styles.timeWrapper}>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className={styles.input}
+              required
+            />
+            <span className={styles.timeHint}>24‑hour format (e.g., 16:45 for 4:45 PM)</span>
+          </div>
 
-            {/* End Time */}
-            <div className={styles.timeWrapper}>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className={styles.input}
-                required
-              />
-              <span className={styles.timeHint}>24‑hour format (e.g., 16:45 for 4:45 PM)</span>
-            </div>
+          <button type="submit" className={styles.saveButton} disabled={loading}>
+            {loading ? "Saving..." : "Save"}
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
 
-            <button type="submit" className={styles.saveButton} disabled={loading}>
-              {loading ? "Saving..." : "Save"}
-            </button>
-          </form>
-        </section>
-      </main>
-
+// ─── Main page component with Suspense boundary ───
+export default function AddUnavailableDatePage() {
+  return (
+    <>
+      <NavbarAdmin />
+      <Suspense fallback={<div>Loading...</div>}>
+        <AddUnavailableDateContent />
+      </Suspense>
       <Footer />
     </>
   );
 }
+
+// ─── Still useful to prevent static pre-rendering ───
+export const dynamic = "force-dynamic";
