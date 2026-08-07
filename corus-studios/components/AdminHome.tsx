@@ -279,118 +279,42 @@ export default function AdminHome() {
   return (
 
     <main className={styles.page}>
-
-
       <div className={styles.inner}>
-
-
         <section className={styles.hero}>
-
-
           <span className={styles.badge}>
             Admin Dashboard
           </span>
-
-
-          <h1>
+          <div className={styles.welcome}>
             Welcome back 👋
-          </h1>
-
-
+          </div>
           <p>
             Here's an overview of today's
             activity at Corus Studio.
           </p>
-
-
         </section>
 
-
-
-
-
         <section className={styles.stats}>
-
-
           {
             statCards.map((stat)=>(
-
               <AdminStatCard
                 key={stat.id}
                 stat={stat}
               />
-
             ))
           }
-
-
         </section>
-
-
-
-
-
-        <section className={styles.quickActions}>
-
-
-          <button>
-            <Plus size={18}/>
-            Add Gadget
-          </button>
-
-
-          <button>
-            <CalendarDays size={18}/>
-            New Booking
-          </button>
-
-
-          <button>
-            <Package size={18}/>
-            Manage Rentals
-          </button>
-
-
-          <button>
-            <ClipboardList size={18}/>
-            Orders
-          </button>
-
-
-          <button>
-            <BarChart3 size={18}/>
-            Reports
-          </button>
-
-
-        </section>
-
-
-
-
 
         <section className={styles.charts}>
-
-
           {
             TREND_SERIES.map(series=>(
-
               <AdminTrendChart
                 key={series.id}
                 series={series}
               />
-
             ))
           }
-
-
         </section>
-
-
-
       </div>
-
-
     </main>
 
   );

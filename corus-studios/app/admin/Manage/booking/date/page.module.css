@@ -1,14 +1,16 @@
 .page {
   width: 100%;
   padding: 60px 8%;
-  background: #D9D9D9;
+  background: #f8fafc;
   min-height: 10vh;
 }
+
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
 }
+
 
 .heading {
   font-size: 2.5rem;
@@ -19,6 +21,7 @@
   text-align: center;
 }
 
+
 .loading {
   text-align: center;
   padding: 3rem 0;
@@ -26,161 +29,435 @@
   font-size: 1.2rem;
 }
 
+
+
 /* ─── Grid ─── */
+
 .grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin: 0 auto;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:1.5rem;
+
+  margin:0 auto;
+
 }
+
+
+
+/* ─── Card ─── */
 
 .card {
-  display: block;
-  background: white;
-  padding: 1.25rem 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e8e8e8;
-  transition: all 0.3s ease;
-  height: 4.5rem;
+
+  position:relative;
+
+  display:block;
+
+  background:white;
+
+
+  padding:1.25rem 1.5rem;
+
+
+  border-radius:18px;
+
+
+  border:1px solid rgba(0,0,0,.05);
+
+
+  overflow:hidden;
+
+
+  height:4.5rem;
+
+
+  box-shadow:
+
+    0 8px 25px rgba(0,0,0,.06);
+
+
+  transition:
+
+    transform .35s ease,
+
+    box-shadow .35s ease;
+
 }
+
+
+
+/* Orange side animation */
+
+.card::before {
+
+  content:"";
+
+  position:absolute;
+
+  left:0;
+
+  top:0;
+
+  height:100%;
+
+  width:5px;
+
+  background:#ea580c;
+
+
+  transform:scaleY(0);
+
+  transform-origin:center;
+
+
+  transition:.35s ease;
+
+}
+
+
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  border-color: #ea580c;
+
+  transform:translateY(-6px);
+
+
+  box-shadow:
+
+    0 18px 40px rgba(0,0,0,.12);
+
 }
+
+
+
+.card:hover::before {
+
+  transform:scaleY(1);
+
+}
+
+
+
+
 
 .cardContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:1rem;
+
 }
 
-/* ─── Info: Date + Time in a row ─── */
+
+
+
+
+/* ─── Date + Time ─── */
+
 .info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem; /* space between date and time */
-  flex-wrap: wrap; /* allows wrapping on small screens */
+
+  flex:1;
+
+  min-width:0;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:1.5rem;
+
+  flex-wrap:wrap;
+
 }
+
+
 
 .date {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #ea580c; /* red/orange for date */
-  font-family: Helvetica, Arial, sans-serif;
+
+  font-size:1.5rem;
+
+  font-weight:700;
+
+  color:#ea580c;
+
+
+  font-family:Helvetica, Arial, sans-serif;
+
+
+  transition:.3s ease;
+
 }
+
+
+
+.card:hover .date {
+
+  transform:translateX(5px);
+
+}
+
+
 
 .time {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #1a1a1a;
-  font-family: Helvetica, Arial, sans-serif;
+
+  font-size:1.5rem;
+
+  font-weight:500;
+
+  color:#1a1a1a;
+
+  font-family:Helvetica, Arial, sans-serif;
+
 }
 
-/* ─── Actions (delete only) ─── */
+
+
+
+
+/* ─── Delete Action ─── */
+
 .actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-  flex-direction: row;
-  flex-wrap: nowrap;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:.5rem;
+
+  flex-shrink:0;
+
+  flex-direction:row;
+
+  flex-wrap:nowrap;
+
 }
+
+
 
 .deleteButton {
-  background: none;
-  border: none;
-  color: #dc3545;
-  cursor: pointer;
-  padding: 0.25rem;
-  transition: color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+
+  background:#fff5f5;
+
+  border:none;
+
+
+  color:#dc3545;
+
+
+  cursor:pointer;
+
+
+  padding:.45rem;
+
+
+  border-radius:10px;
+
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+
+  transition:
+
+    background .25s ease,
+
+    color .25s ease,
+
+    transform .25s ease;
+
 }
+
+
 
 .deleteButton:hover {
-  color: #b02a37;
+
+  background:#fee2e2;
+
+  color:#b02a37;
+
+  transform:scale(1.1);
+
 }
 
-/* ─── Add button ─── */
+
+
+
+
+/* ─── Add Button ─── */
+
 .addButtonWrapper {
-  margin-top: 2.5rem;
-  display: flex;
-  justify-content: center;
+
+  margin-top:2.5rem;
+
+  display:flex;
+
+  justify-content:center;
+
 }
+
+
 
 .addButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 2.2rem;
-  background: #ea580c;
-  color: white;
-  font-weight: 700;
-  font-size: 1.1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.2s, transform 0.2s;
-  font-family: Helvetica, Arial, sans-serif;
+
+  display:inline-flex;
+
+
+  align-items:center;
+
+
+  gap:.5rem;
+
+
+  padding:.85rem 2.2rem;
+
+
+  background:#ea580c;
+
+
+  color:white;
+
+
+  font-weight:700;
+
+
+  font-size:1.1rem;
+
+
+  border:none;
+
+
+  border-radius:14px;
+
+
+  cursor:pointer;
+
+
+  text-decoration:none;
+
+
+  font-family:Helvetica, Arial, sans-serif;
+
+
+  box-shadow:
+
+    0 8px 20px rgba(234,88,12,.25);
+
+
+  transition:
+
+    transform .25s ease,
+
+    box-shadow .25s ease,
+
+    background .25s ease;
+
 }
+
+
 
 .addButton:hover {
-  background: #c2410c;
-  transform: scale(1.02);
+
+  background:#c2410c;
+
+
+  transform:translateY(-3px);
+
+
+  box-shadow:
+
+    0 15px 30px rgba(234,88,12,.35);
+
 }
 
-/* ─── Mobile adjustments ─── */
-@media (max-width: 600px) {
+
+
+
+
+/* ─── Mobile ─── */
+
+@media(max-width:600px){
+
+
   .page {
-    padding: 40px 5%;
+
+    padding:40px 5%;
+
   }
+
 
   .heading {
-    font-size: 2rem;
+
+    font-size:2rem;
+
   }
+
 
   .card {
-    padding: 1rem;
+
+    height:auto;
+
+    min-height:4.5rem;
+
+    padding:1rem;
+
+    border-radius:15px;
+
   }
+
 
   .cardContent {
-    gap: 0.75rem;
-    flex-wrap: wrap;
+
+    gap:.75rem;
+
+    flex-wrap:wrap;
+
   }
+
 
   .info {
-    gap: 0.5rem;
-    flex-wrap: wrap;
+
+    gap:.5rem;
+
   }
+
 
   .date {
-    font-size: 1.1rem;
+
+    font-size:1.1rem;
+
   }
+
 
   .time {
-    font-size: 1rem;
+
+    font-size:1rem;
+
   }
 
-  .actions {
-    gap: 0.25rem;
-  }
 
   .deleteButton svg {
-    width: 18px;
-    height: 18px;
+
+    width:18px;
+
+    height:18px;
+
   }
 
+
   .addButton {
-    width: 100%;
-    justify-content: center;
+
+    width:100%;
+
+    justify-content:center;
+
   }
+
 }

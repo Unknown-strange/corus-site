@@ -15,7 +15,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import styles from "./Navbar.module.css";
+import styles from "./NavbarAdmin.module.css";
 
 const links = [
   { name: "Home", href: "/admin" },
