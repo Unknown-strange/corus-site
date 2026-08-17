@@ -1,0 +1,244 @@
+.page {
+  width: 100%;
+  padding: 80px 8%;
+  background: #f8fafc;
+  min-height: 10vh;
+}
+
+
+.container {
+  text-align: center;
+  margin-top: -1.5rem;
+}
+
+
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, sans-serif;
+  margin-bottom: 0.5rem;
+}
+
+
+.subheading {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 3rem;
+}
+
+
+.grid {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 1.5rem;
+
+  max-width: auto;
+
+  margin: 0 auto;
+
+}
+
+
+
+/* Main manage card */
+
+.card {
+
+  position: relative;
+
+  display: block;
+
+  background: white;
+
+  padding: 2.5rem 2rem;
+
+  border-radius: 18px;
+
+  border: 2px solid #f0f0f0;
+
+  text-decoration: none;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 5px 18px rgba(0,0,0,0.06);
+
+  transition:
+    transform .35s ease,
+    box-shadow .35s ease,
+    border-color .35s ease;
+
+}
+
+
+
+/* Orange animated left bar */
+
+.card::before {
+
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  top: 0;
+
+  width: 5px;
+
+  height: 100%;
+
+  background: #ea580c;
+
+  transform: scaleY(0);
+
+  transform-origin: bottom;
+
+  transition: transform .35s ease;
+
+}
+
+
+
+.card:hover::before {
+
+  transform: scaleY(1);
+
+}
+
+
+
+.card:hover {
+
+  transform: translateY(-5px);
+
+  border-color: #ea580c;
+
+  box-shadow:
+    0 15px 35px rgba(0,0,0,.12);
+
+}
+
+
+
+/* Card content */
+
+.cardContent {
+
+  display: flex;
+
+  align-items: center;
+
+  text-align: left;
+
+}
+
+
+
+/* Title */
+
+.cardTitle {
+
+  margin: 0;
+
+  font-size: 1.25rem;
+
+  font-weight: 700;
+
+  color: #1a1a1a;
+
+  font-family: Helvetica, Arial, sans-serif;
+
+  transition: color .3s ease;
+
+}
+
+
+
+.card:hover .cardTitle {
+
+  color: #ea580c;
+
+}
+
+
+
+/* Arrow */
+
+.cardArrow {
+
+  margin-left: auto;
+
+  flex-shrink: 0;
+
+  font-size: 2rem;
+
+  font-weight: 300;
+
+  color: #ccc;
+
+  line-height: 1;
+
+  transition:
+    transform .3s ease,
+    color .3s ease;
+
+}
+
+
+
+.card:hover .cardArrow {
+
+  color: #ea580c;
+
+  transform: translateX(8px);
+
+}
+
+
+
+/* Mobile */
+
+@media (max-width:600px) {
+
+  .page {
+
+    padding: 40px 5%;
+
+  }
+
+
+  .heading {
+
+    font-size: 2rem;
+
+  }
+
+
+  .card {
+
+    padding: 1.25rem;
+
+    border-radius: 14px;
+
+  }
+
+
+  .cardTitle {
+
+    font-size: 1.1rem;
+
+  }
+
+
+  .cardArrow {
+
+    font-size: 1.8rem;
+
+  }
+
+}

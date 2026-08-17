@@ -5,10 +5,14 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import RentalsToolbar from "./RentalsToolbar";
-import type { Gadget } from "@/lib/gadgets";
+import { RentEquipment } from "@/lib/types";
 import styles from "./GadgetDetail.module.css";
 
-export default function GadgetDetail({ gadget }: { gadget: Gadget | null }) {
+type Props = {
+  gadget: RentEquipment | null;
+};
+
+export default function GadgetDetail({ gadget }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [notice, setNotice] = useState("");
 
@@ -27,6 +31,9 @@ export default function GadgetDetail({ gadget }: { gadget: Gadget | null }) {
       </div>
     );
   }
+
+  const dailyRate = parseFloat(gadget.daily_rate_ghs);
+  const total = dailyRate * quantity;
 
   /**
    * NOT WIRED TO THE API — see docs/FRONTEND.md "Open questions".
@@ -68,7 +75,7 @@ export default function GadgetDetail({ gadget }: { gadget: Gadget | null }) {
         <div className={styles.overview}>
           <div className={styles.imageWrap}>
             <Image
-              src={gadget.image_url}
+              src={gadget.image_url || "/images/placeholder.png"}
               alt={gadget.name}
               fill
               sizes="(max-width: 52rem) 100vw, 50vw"
@@ -78,13 +85,15 @@ export default function GadgetDetail({ gadget }: { gadget: Gadget | null }) {
           </div>
 
           <div className={styles.facts}>
-            <p className={styles.price}>GH₵{gadget.daily_rate_ghs}</p>
+            <p className={styles.price}>GH₵{dailyRate.toFixed(2)}</p>
             <p className={styles.per}>per day</p>
 
             <p className={styles.fact}>
               Description:{" "}
               <span className={styles.factValue}>{gadget.description ?? "None"}</span>
             </p>
+
+            <p className={styles.fact}>Stock: {gadget.stock}</p>
 
             <p className={styles.fact}>Disclaimer:</p>
           </div>
@@ -166,6 +175,11 @@ export default function GadgetDetail({ gadget }: { gadget: Gadget | null }) {
             <button type="button" className={styles.primary} onClick={handleCheckout}>
               Checkout
             </button>
+          </div>
+
+          <div className={styles.totalRow}>
+            <span>Total:</span>
+            <span className={styles.totalPrice}>GH₵{total.toFixed(2)}</span>
           </div>
 
           {notice ? (

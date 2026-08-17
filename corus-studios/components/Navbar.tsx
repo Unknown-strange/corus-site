@@ -10,6 +10,7 @@ import {
   Calendar,
   Settings,
   HelpCircle,
+  Shield,
   LifeBuoy,
   LogOut,
 } from "lucide-react";
@@ -18,7 +19,7 @@ import styles from "./Navbar.module.css";
 
 const links = [
   { name: "Home", href: "/" },
-  { name: "Our Gallery", href: "/#gallery" },
+  { name: "Our Gallery", href: "/gallery" },
   { name: "Rentals", href: "/rentals" },
   { name: "Store", href: "/store" },
 ];
@@ -27,6 +28,7 @@ const dropdownItems = [
   { icon: ShoppingCart, label: "My Cart", href: "/cart" },
   { icon: FileText, label: "My Requests", href: "/requests" },
   { icon: Calendar, label: "My Bookings", href: "/booking" },
+  { icon: Shield, label: "Admin", href: "/admin" },
   { icon: LifeBuoy, label: "Contact Support", href: "/support" },
 ];
 

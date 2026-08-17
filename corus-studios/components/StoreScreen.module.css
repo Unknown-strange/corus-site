@@ -78,3 +78,13 @@
   outline: 2px solid #ff5100;
   outline-offset: 2px;
 }
+
+.loading, .error {
+  text-align: center;
+  padding: 3rem 0;
+  color: #666;
+}
+
+.error {
+  color: #dc3545;
+}

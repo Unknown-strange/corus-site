@@ -2,32 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import api from "@/lib/api";
+import { SessionType, Slot } from "@/lib/types";
 import styles from "./Booking.module.css";
 
-
-
-const packages = [
-  {
-    id: 1,
-    price: "GH₵100",
-    description: "2 retouched pictures",
-  },
-  {
-    id: 2,
-    price: "GH₵150",
-    description: "5 retouched pictures",
-  },
-  {
-    id: 3,
-    price: "GH₵250",
-    description: "10 retouched pictures",
-  },
-];
-
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
@@ -54,7 +34,6 @@ function buildWeeks(year: number, month: number, todayIso: string): Cell[][] {
     }
   };
 
-  // Trailing days of the previous month
   const prevMonthDays = new Date(year, month, 0).getDate();
   for (let i = firstWeekday - 1; i >= 0; i -= 1) {
     const d = prevMonthDays - i;
@@ -64,7 +43,6 @@ function buildWeeks(year: number, month: number, todayIso: string): Cell[][] {
 
   for (let d = 1; d <= daysInMonth; d += 1) push(year, month, d, false);
 
-  // Leading days of the next month, to finish the final row
   let d = 1;
   while (week.length > 0) {
     const m = month === 11 ? 0 : month + 1;
@@ -75,33 +53,94 @@ function buildWeeks(year: number, month: number, todayIso: string): Cell[][] {
   return weeks;
 }
 
+// ─── Fallback packages ──────────────────────────────────────────
+const FALLBACK_PACKAGES = [
+  { id: "1", price: "GH₵100", description: "2 retouched pictures" },
+  { id: "2", price: "GH₵150", description: "5 retouched pictures" },
+  { id: "3", price: "GH₵250", description: "10 retouched pictures" },
+];
+
 export default function Booking({ todayIso }: { todayIso: string }) {
-  const [selectedPackage, setSelectedPackage] = useState(1);
   const router = useRouter();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // ─── Calendar state ──────────────────────────────────────────
   const [viewOverride, setViewOverride] = useState<{ year: number; month: number } | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  
-    const view = viewOverride ?? {
+
+  const view = viewOverride ?? {
     year: Number(todayIso.slice(0, 4)),
     month: Number(todayIso.slice(5, 7)) - 1,
   };
 
+  // ─── Session types (packages) ──────────────────────────────
+  const [sessionTypes, setSessionTypes] = useState<SessionType[]>([]);
+  const [loadingPackages, setLoadingPackages] = useState(true);
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
 
-  /**
-   * Booking a session needs an account — POST /sessions/holds and
-   * /sessions/bookings/checkout are both customer-only.
-   *
-   * The app has no auth state yet, so every visitor is sent to sign up. Once
-   * the session context exists, check it here and only redirect when signed
-   * out; a signed-in customer should go on to the real booking flow instead.
-   */
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    router.push("/signup");
-  }
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  // ─── Available slots ──────────────────────────────────────
+  const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
+  // ─── UI state ──────────────────────────────────────────────
+  const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  // ─── Fetch session types ──────────────────────────────────
+  useEffect(() => {
+    const fetchSessionTypes = async () => {
+      try {
+        const res = await api.sessions.types();
+        if (!res.ok) throw new Error("Failed to load session types");
+        const data = await res.json();
+        setSessionTypes(data);
+        if (data.length > 0) {
+          setSelectedPackageId(data[0].id);
+        } else {
+          setSelectedPackageId(FALLBACK_PACKAGES[0]?.id || null);
+        }
+      } catch (err) {
+        console.error(err);
+        setNotice("Could not load packages. Using default packages.");
+        setSelectedPackageId(FALLBACK_PACKAGES[0]?.id || null);
+      } finally {
+        setLoadingPackages(false);
+      }
+    };
+    fetchSessionTypes();
+  }, []);
+
+  // ─── Fetch availability ──────────────────────────────────────
+  useEffect(() => {
+    if (!selectedDate) {
+      setAvailableSlots([]);
+      setSelectedSlotId(null);
+      return;
+    }
+    const fetchSlots = async () => {
+      try {
+        const start = `${selectedDate}T00:00:00`;
+        const end = `${selectedDate}T23:59:59`;
+        const res = await api.sessions.availability(start, end);
+        if (!res.ok) throw new Error("Failed to load availability");
+        const data = await res.json();
+        setAvailableSlots(data);
+        if (data.length > 0) {
+          setSelectedSlotId(data[0].id);
+        } else {
+          setSelectedSlotId(null);
+        }
+      } catch (err) {
+        console.error(err);
+        setNotice("Could not load available times.");
+      }
+    };
+    fetchSlots();
+  }, [selectedDate]);
+
+  // ─── Intersection Observer ──────────────────────────────────
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -110,23 +149,119 @@ export default function Booking({ todayIso }: { todayIso: string }) {
           observer.unobserve(entry.target);
         }
       },
-      { threshold: 0.2 } // trigger when 20% of section is visible
+      { threshold: 0.2 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      if (sectionRef.current) observer.unobserve(sectionRef.current);
     };
   }, []);
 
-    const weeks = buildWeeks(view.year, view.month, todayIso);
-    const baseYear = Number(todayIso.slice(0, 4));
-    const years = [baseYear, baseYear + 1, baseYear + 2];
+  // ─── Format price (only adds GH₵ if not already present) ──
+  const formatPrice = (price: string) => {
+    const num = parseFloat(price);
+    if (isNaN(num)) return price;
+    return `GH₵${num.toFixed(2)}`;
+  };
+
+  // ─── Build packages array ──────────────────────────────────
+  const packages = sessionTypes.length > 0
+    ? sessionTypes.map((st) => ({
+        id: st.id,
+        price: formatPrice(st.price_ghs),
+        description: st.description || st.name,
+      }))
+    : FALLBACK_PACKAGES;
+
+  // ─── Handle submit ──────────────────────────────────────────
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setNotice("");
+    setSuccess(false);
+
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setNotice("Please log in to book a session.");
+      return;
+    }
+
+    if (!selectedDate) {
+      setNotice("Please select a date.");
+      return;
+    }
+    if (!selectedSlotId) {
+      setNotice("Please select a time slot.");
+      return;
+    }
+    if (!selectedPackageId) {
+      setNotice("Please select a package.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const holdRes = await api.sessions.createHold(
+        {
+          slot_id: selectedSlotId,
+          session_type_id: selectedPackageId,
+        },
+        token
+      );
+      const holdData = await holdRes.json();
+      if (!holdRes.ok) {
+        let msg = "Failed to create hold.";
+        if (holdData.detail) {
+          if (Array.isArray(holdData.detail)) {
+            msg = holdData.detail.map((err: any) => err.msg).join(", ");
+          } else {
+            msg = holdData.detail;
+          }
+        }
+        throw new Error(msg);
+      }
+      const holdId = holdData.id;
+
+      const checkoutRes = await api.sessions.checkoutBooking(
+        { hold_id: holdId },
+        token
+      );
+      const checkoutData = await checkoutRes.json();
+      if (!checkoutRes.ok) {
+        let msg = "Checkout failed.";
+        if (checkoutData.detail) {
+          if (Array.isArray(checkoutData.detail)) {
+            msg = checkoutData.detail.map((err: any) => err.msg).join(", ");
+          } else {
+            msg = checkoutData.detail;
+          }
+        }
+        throw new Error(msg);
+      }
+
+      if (checkoutData.authorization_url) {
+        window.location.href = checkoutData.authorization_url;
+      } else {
+        setSuccess(true);
+        setNotice("✅ Booking confirmed! Thank you.");
+      }
+    } catch (err: any) {
+      setNotice(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── Build calendar ──────────────────────────────────────────
+  const weeks = buildWeeks(view.year, view.month, todayIso);
+  const baseYear = Number(todayIso.slice(0, 4));
+  const years = [baseYear, baseYear + 1, baseYear + 2];
+
+  const timeOptions = availableSlots.map((slot) => {
+    const start = new Date(slot.starts_at);
+    const end = new Date(slot.ends_at);
+    const label = `${start.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })} - ${end.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
+    return { id: slot.id, label };
+  });
 
   return (
     <section
@@ -134,34 +269,17 @@ export default function Booking({ todayIso }: { todayIso: string }) {
       className={`${styles.bookingSection} ${isVisible ? styles.visible : ""}`}
       id="booking"
     >
-      {/* Left decorative image */}
       <div className={`${styles.imageLeft} ${isVisible ? styles.imageVisible : ""}`}>
-        <Image
-          src="/images/booking-left.png"   // ← replace with your image path
-          alt="Decorative left"
-          fill
-          className={styles.image}
-        />
+        <Image src="/images/booking-left.png" alt="Decorative left" fill className={styles.image} />
       </div>
-
-      {/* Right decorative image */}
       <div className={`${styles.imageRight} ${isVisible ? styles.imageVisible : ""}`}>
-        <Image
-          src="/images/booking-right.png"  // ← replace with your image path
-          alt="Decorative right"
-          fill
-          className={styles.image}
-        />
+        <Image src="/images/booking-right.png" alt="Decorative right" fill className={styles.image} />
       </div>
 
       <h2>Book a Session Today</h2>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-
-        {/* Full Name */}
         <input type="text" placeholder="Full Name" required />
-
-        {/* Phone + Photoshoot */}
         <div className={styles.row}>
           <div className={styles.phoneGroup}>
             <span>+233</span>
@@ -179,7 +297,7 @@ export default function Booking({ todayIso }: { todayIso: string }) {
           </select>
         </div>
 
-        {/* Date */}
+        {/* Calendar */}
         <div className={styles.calendar} role="group" aria-labelledby="date-legend">
           <div className={styles.calendarHead}>
             <select
@@ -196,7 +314,6 @@ export default function Booking({ todayIso }: { todayIso: string }) {
                 </option>
               ))}
             </select>
-
             <select
               className={styles.select}
               aria-label="Year"
@@ -241,40 +358,48 @@ export default function Booking({ todayIso }: { todayIso: string }) {
           ))}
         </div>
 
-        {/* Time */}
-        <select required defaultValue="">
-          <option value="" disabled hidden>
-            Choose booking time
+        {/* Time dropdown */}
+        <select
+          required
+          value={selectedSlotId || ""}
+          onChange={(e) => setSelectedSlotId(e.target.value || null)}
+        >
+          <option value="" disabled>
+            {availableSlots.length === 0 ? "No slots available" : "Choose booking time"}
           </option>
-          <option>08:00 AM</option>
-          <option>09:00 AM</option>
-          <option>10:00 AM</option>
-          <option>11:00 AM</option>
-          <option>12:00 PM</option>
-          <option>01:00 PM</option>
-          <option>02:00 PM</option>
-          <option>03:00 PM</option>
-          <option>04:00 PM</option>
+          {timeOptions.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
+            </option>
+          ))}
         </select>
 
         {/* Packages */}
-        <div className={styles.packageContainer}>
-          {packages.map((pkg) => (
-            <div
-              key={pkg.id}
-              onClick={() => setSelectedPackage(pkg.id)}
-              className={`${styles.packageCard} ${
-                selectedPackage === pkg.id ? styles.active : ""
-              }`}
-            >
-              <h3>{pkg.price}</h3>
-              <p>{pkg.description}</p>
-            </div>
-          ))}
-        </div>
+        {loadingPackages ? (
+          <div className={styles.loadingPackages}>Loading packages...</div>
+        ) : (
+          <div className={styles.packageContainer}>
+            {packages.map((pkg) => (
+              <div
+                key={pkg.id}
+                onClick={() => setSelectedPackageId(pkg.id)}
+                className={`${styles.packageCard} ${
+                  selectedPackageId === pkg.id ? styles.active : ""
+                }`}
+              >
+                <h3>{pkg.price}</h3>
+                <p>{pkg.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
-        {/* Submit */}
-        <button className={styles.submit}type="submit">Book</button>
+        {notice && <div className={styles.notice}>{notice}</div>}
+        {success && <div className={styles.success}>✅ Booking confirmed! You will receive a confirmation email.</div>}
+
+        <button className={styles.submit} type="submit" disabled={loading}>
+          {loading ? "Processing..." : "Book"}
+        </button>
       </form>
     </section>
   );

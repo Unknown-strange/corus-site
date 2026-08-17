@@ -2,141 +2,220 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { useAuthState } from "@/lib/use-signed-in-user";
-import {
-  DUMMY_CART_ITEMS,
-  PLACEHOLDER_DELIVERY_FEE_GHS,
-  PLACEHOLDER_SERVICE_FEE_GHS,
-  cartSubtotal,
-  formatAmount,
-  formatGhsAmount,
-} from "@/lib/checkout-cart";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+import { CartItem, CartResponse } from "@/lib/types";
 import styles from "./Checkout.module.css";
 
-/**
- * Checkout: cart contents, cost summary, payment.
- *
- * The cart and order endpoints are customer-only, so this screen is gated on
- * being signed in.
- *
- * Service Fee and Delivery Fee have no backend behind them; see the warning at
- * the top of lib/checkout-cart.ts. The grand total shown here is therefore a
- * frontend calculation, and must be replaced by `amount_ghs` from the API when
- * this is wired — the frontend must never be the authority on what a customer
- * is charged.
- */
+// ─── Placeholder fees (no backend support yet) ──────────────
+const PLACEHOLDER_SERVICE_FEE_GHS = 250;
+const PLACEHOLDER_DELIVERY_FEE_GHS = 250;
+
 export default function Checkout() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState("");
-  const auth = useAuthState();
+  const [cart, setCart] = useState<CartResponse | null>(null);
+  const [fetching, setFetching] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const items = DUMMY_CART_ITEMS;
-  const subtotal = cartSubtotal(items);
-  const grandTotal = subtotal + PLACEHOLDER_SERVICE_FEE_GHS + PLACEHOLDER_DELIVERY_FEE_GHS;
+  // ─── Fetch cart on mount ────────────────────────────────────
+  useEffect(() => {
+    const fetchCart = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        setError("Please log in to view your cart.");
+        setFetching(false);
+        return;
+      }
 
-  /**
-   * NOT WIRED TO THE API.
-   *
-   * `POST /orders/checkout` converts the whole cart and returns
-   * `{ order_id, authorization_url, reference, public_key, amount_ghs }`.
-   * Paying means redirecting to `authorization_url`; Paystack then returns the
-   * customer to the callback route, which confirms with
-   * `GET /payments/verify/{reference}`.
-   *
-   * Stock is reduced at checkout, and the order is voided after
-   * ORDER_PAYMENT_MINUTES (15) if payment does not complete.
-   */
-  function handlePay() {
-    setNotice(
-      "Not connected yet — payment goes through POST /orders/checkout, which needs sign-in and the API client."
+      try {
+        const res = await api.cart.get(token);
+        if (!res.ok) {
+          if (res.status === 401) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user");
+            router.push("/login");
+            return;
+          }
+          throw new Error("Failed to fetch cart");
+        }
+        const data: CartResponse = await res.json();
+        setCart(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong.");
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchCart();
+  }, [router]);
+
+  // ─── Handle payment ─────────────────────────────────────────
+  const handlePay = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setNotice("Please log in to proceed.");
+      return;
+    }
+
+    setLoading(true);
+    setNotice("");
+    setError(null);
+
+    try {
+      const res = await api.orders.checkout(token);
+      const data = await res.json();
+
+      if (!res.ok) {
+        let msg = "Checkout failed.";
+        if (data.detail) {
+          if (Array.isArray(data.detail)) {
+            msg = data.detail.map((err: any) => err.msg).join(", ");
+          } else {
+            msg = data.detail;
+          }
+        }
+        throw new Error(msg);
+      }
+
+      // ─── Redirect to Paystack ──────────────────────────────
+      if (data.authorization_url) {
+        window.location.href = data.authorization_url;
+      } else {
+        setNotice("✅ Order placed! You will be redirected shortly.");
+        setTimeout(() => router.push("/orders"), 2000);
+      }
+    } catch (err: any) {
+      setNotice(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── Loading state ──────────────────────────────────────────
+  if (fetching) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.band}>
+          <h1 className={styles.heading}>Checkout</h1>
+        </div>
+        <div className={styles.message}>
+          <p>Loading your cart…</p>
+        </div>
+      </div>
     );
   }
 
+  // ─── Error state ────────────────────────────────────────────
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.band}>
+          <h1 className={styles.heading}>Checkout</h1>
+        </div>
+        <div className={styles.message}>
+          <p className={styles.messageTitle}>Error</p>
+          <p>{error}</p>
+          <Link href="/store" className={styles.messageLink}>
+            Continue Shopping
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const items = cart?.items || [];
+  const subtotal = items.reduce((sum, item) => sum + item.line_total_ghs, 0);
+  const grandTotal = subtotal + PLACEHOLDER_SERVICE_FEE_GHS + PLACEHOLDER_DELIVERY_FEE_GHS;
+
+  if (!cart || items.length === 0) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.band}>
+          <h1 className={styles.heading}>Checkout</h1>
+        </div>
+        <div className={styles.message}>
+          <p className={styles.messageTitle}>Your cart is empty.</p>
+          <Link href="/store" className={styles.messageLink}>
+            Go to Store
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Render cart items and summary ─────────────────────────
   return (
     <div className={styles.page}>
       <div className={styles.band}>
         <h1 className={styles.heading}>Checkout</h1>
       </div>
 
-      {auth.status === "checking" ? (
-        <div className={styles.message} role="status">
-          Checking your account…
+      <div className={styles.body}>
+        <div className={styles.thumbs}>
+          {items.map((item) => (
+            <div key={item.product_id} className={styles.thumb}>
+              <Image
+                src={item.image_url || "/images/placeholder.png"}
+                alt={item.product_name}
+                fill
+                sizes="168px"
+                className={styles.thumbImage}
+              />
+              {item.quantity > 1 ? (
+                <span className={styles.thumbQuantity}>×{item.quantity}</span>
+              ) : null}
+            </div>
+          ))}
         </div>
-      ) : auth.status === "signed-out" ? (
-        <div className={styles.message}>
-          <p className={styles.messageTitle}>You need to be signed in.</p>
-          <p>Log in to review your cart and pay for it.</p>
-          <Link href="/login" className={styles.messageLink}>
-            Log In
-          </Link>
-        </div>
-      ) : items.length === 0 ? (
-        <div className={styles.message}>
-          <p className={styles.messageTitle}>Your cart is empty.</p>
-          <p>Add something from the store and it will show up here.</p>
-          <Link href="/store" className={styles.messageLink}>
-            Go to Store
-          </Link>
-        </div>
-      ) : (
-        <div className={styles.body}>
-          <div className={styles.thumbs}>
-            {items.map((item) => (
-              <div key={item.product_id} className={styles.thumb}>
-                <Image
-                  src={item.image_url}
-                  alt={item.product_name}
-                  fill
-                  sizes="168px"
-                  className={styles.thumbImage}
-                />
-                {item.quantity > 1 ? (
-                  <span className={styles.thumbQuantity}>×{item.quantity}</span>
-                ) : null}
-              </div>
-            ))}
+
+        <div className={styles.summary}>
+          <div className={styles.summaryHead}>
+            <h2 className={styles.summaryTitle}>Summary</h2>
+            <p className={styles.summaryCurrency}>GH₵</p>
           </div>
 
-          <div className={styles.summary}>
-            <div className={styles.summaryHead}>
-              <h2 className={styles.summaryTitle}>Summary</h2>
-              <p className={styles.summaryCurrency}>GH₵</p>
-            </div>
-
-            <div className={styles.lines}>
-              <p className={styles.line}>
-                <span>Sub - Total</span>
-                <span>{formatAmount(subtotal)}</span>
-              </p>
-              <p className={styles.line}>
-                <span>Service Fee</span>
-                <span>{formatAmount(PLACEHOLDER_SERVICE_FEE_GHS)}</span>
-              </p>
-              <p className={styles.line}>
-                <span>Delivery Fee</span>
-                <span>{formatAmount(PLACEHOLDER_DELIVERY_FEE_GHS)}</span>
-              </p>
-            </div>
-
-            <div className={styles.total}>
-              <p className={styles.totalLabel}>Grand Total</p>
-              <p className={styles.totalValue}>{formatGhsAmount(grandTotal)}</p>
-            </div>
-          </div>
-
-          <div className={styles.actions}>
-            <button type="button" className={styles.pay} onClick={handlePay}>
-              Proceed to Payment
-            </button>
-          </div>
-
-          {notice ? (
-            <p className={styles.notice} role="status">
-              {notice}
+          <div className={styles.lines}>
+            <p className={styles.line}>
+              <span>Sub - Total</span>
+              <span>{subtotal.toFixed(2)}</span>
             </p>
-          ) : null}
+            <p className={styles.line}>
+              <span>Service Fee</span>
+              <span>{PLACEHOLDER_SERVICE_FEE_GHS.toFixed(2)}</span>
+            </p>
+            <p className={styles.line}>
+              <span>Delivery Fee</span>
+              <span>{PLACEHOLDER_DELIVERY_FEE_GHS.toFixed(2)}</span>
+            </p>
+          </div>
+
+          <div className={styles.total}>
+            <p className={styles.totalLabel}>Grand Total</p>
+            <p className={styles.totalValue}>GH₵{grandTotal.toFixed(2)}</p>
+          </div>
         </div>
-      )}
+
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.pay}
+            onClick={handlePay}
+            disabled={loading}
+          >
+            {loading ? "Processing..." : "Proceed to Payment"}
+          </button>
+        </div>
+
+        {notice && (
+          <p className={`${styles.notice} ${notice.startsWith("✅") ? styles.success : styles.error}`}>
+            {notice}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

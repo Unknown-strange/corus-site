@@ -1,0 +1,463 @@
+.page {
+  width: 100%;
+  padding: 60px 8%;
+  background: #f8fafc;
+  min-height: 10vh;
+}
+
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, sans-serif;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+
+.loading {
+  text-align: center;
+  padding: 3rem 0;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+
+
+/* ─── Grid ─── */
+
+.grid {
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:1.5rem;
+
+  margin:0 auto;
+
+}
+
+
+
+/* ─── Card ─── */
+
+.card {
+
+  position:relative;
+
+  display:block;
+
+  background:white;
+
+
+  padding:1.25rem 1.5rem;
+
+
+  border-radius:18px;
+
+
+  border:1px solid rgba(0,0,0,.05);
+
+
+  overflow:hidden;
+
+
+  height:4.5rem;
+
+
+  box-shadow:
+
+    0 8px 25px rgba(0,0,0,.06);
+
+
+  transition:
+
+    transform .35s ease,
+
+    box-shadow .35s ease;
+
+}
+
+
+
+/* Orange side animation */
+
+.card::before {
+
+  content:"";
+
+  position:absolute;
+
+  left:0;
+
+  top:0;
+
+  height:100%;
+
+  width:5px;
+
+  background:#ea580c;
+
+
+  transform:scaleY(0);
+
+  transform-origin:center;
+
+
+  transition:.35s ease;
+
+}
+
+
+
+.card:hover {
+
+  transform:translateY(-6px);
+
+
+  box-shadow:
+
+    0 18px 40px rgba(0,0,0,.12);
+
+}
+
+
+
+.card:hover::before {
+
+  transform:scaleY(1);
+
+}
+
+
+
+
+
+.cardContent {
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:1rem;
+
+}
+
+
+
+
+
+/* ─── Date + Time ─── */
+
+.info {
+
+  flex:1;
+
+  min-width:0;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:1.5rem;
+
+  flex-wrap:wrap;
+
+}
+
+
+
+.date {
+
+  font-size:1.5rem;
+
+  font-weight:700;
+
+  color:#ea580c;
+
+
+  font-family:Helvetica, Arial, sans-serif;
+
+
+  transition:.3s ease;
+
+}
+
+
+
+.card:hover .date {
+
+  transform:translateX(5px);
+
+}
+
+
+
+.time {
+
+  font-size:1.5rem;
+
+  font-weight:500;
+
+  color:#1a1a1a;
+
+  font-family:Helvetica, Arial, sans-serif;
+
+}
+
+
+
+
+
+/* ─── Delete Action ─── */
+
+.actions {
+
+  display:flex;
+
+  align-items:center;
+
+  gap:.5rem;
+
+  flex-shrink:0;
+
+  flex-direction:row;
+
+  flex-wrap:nowrap;
+
+}
+
+
+
+.deleteButton {
+
+  background:#fff5f5;
+
+  border:none;
+
+
+  color:#dc3545;
+
+
+  cursor:pointer;
+
+
+  padding:.45rem;
+
+
+  border-radius:10px;
+
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+
+  transition:
+
+    background .25s ease,
+
+    color .25s ease,
+
+    transform .25s ease;
+
+}
+
+
+
+.deleteButton:hover {
+
+  background:#fee2e2;
+
+  color:#b02a37;
+
+  transform:scale(1.1);
+
+}
+
+
+
+
+
+/* ─── Add Button ─── */
+
+.addButtonWrapper {
+
+  margin-top:2.5rem;
+
+  display:flex;
+
+  justify-content:center;
+
+}
+
+
+
+.addButton {
+
+  display:inline-flex;
+
+
+  align-items:center;
+
+
+  gap:.5rem;
+
+
+  padding:.85rem 2.2rem;
+
+
+  background:#ea580c;
+
+
+  color:white;
+
+
+  font-weight:700;
+
+
+  font-size:1.1rem;
+
+
+  border:none;
+
+
+  border-radius:14px;
+
+
+  cursor:pointer;
+
+
+  text-decoration:none;
+
+
+  font-family:Helvetica, Arial, sans-serif;
+
+
+  box-shadow:
+
+    0 8px 20px rgba(234,88,12,.25);
+
+
+  transition:
+
+    transform .25s ease,
+
+    box-shadow .25s ease,
+
+    background .25s ease;
+
+}
+
+
+
+.addButton:hover {
+
+  background:#c2410c;
+
+
+  transform:translateY(-3px);
+
+
+  box-shadow:
+
+    0 15px 30px rgba(234,88,12,.35);
+
+}
+
+
+
+
+
+/* ─── Mobile ─── */
+
+@media(max-width:600px){
+
+
+  .page {
+
+    padding:40px 5%;
+
+  }
+
+
+  .heading {
+
+    font-size:2rem;
+
+  }
+
+
+  .card {
+
+    height:auto;
+
+    min-height:4.5rem;
+
+    padding:1rem;
+
+    border-radius:15px;
+
+  }
+
+
+  .cardContent {
+
+    gap:.75rem;
+
+    flex-wrap:wrap;
+
+  }
+
+
+  .info {
+
+    gap:.5rem;
+
+  }
+
+
+  .date {
+
+    font-size:1.1rem;
+
+  }
+
+
+  .time {
+
+    font-size:1rem;
+
+  }
+
+
+  .deleteButton svg {
+
+    width:18px;
+
+    height:18px;
+
+  }
+
+
+  .addButton {
+
+    width:100%;
+
+    justify-content:center;
+
+  }
+
+}

@@ -1,3 +1,5 @@
+// lib/reservations.ts
+
 export type ReservationStatus =
   | "pending"
   | "approved"
@@ -13,64 +15,18 @@ export type Reservation = {
   requested_start: string;
   requested_end: string;
   purpose: string | null;
+  notes?: string | null;
   rejection_reason: string | null;
+  approved_price_ghs?: string;
+  deposit_amount_ghs?: string;
+  balance_due_ghs?: string;
+  approved_at?: string | null;
+  payment_deadline?: string | null;
+  paystack_reference?: string | null;
+  created_at?: string;
+  updated_at?: string;
 };
 
-export const DUMMY_RESERVATIONS: Reservation[] = [
-  {
-    id: "1",
-    status: "approved",
-    requested_start: "2026-07-12T10:00:00Z",
-    requested_end: "2026-07-12T12:00:00Z",
-    purpose: "Photoshoot",
-    rejection_reason: null,
-  },
-  {
-    id: "2",
-    status: "rejected",
-    requested_start: "2026-07-12T10:00:00Z",
-    requested_end: "2026-07-12T12:00:00Z",
-    purpose: "Podcast",
-    rejection_reason: "Studio already booked for that slot.",
-  },
-  {
-    id: "3",
-    status: "pending",
-    requested_start: "2026-07-12T10:00:00Z",
-    requested_end: "2026-07-12T12:00:00Z",
-    purpose: "Podcast",
-    rejection_reason: null,
-  },
-  {
-    id: "4",
-    status: "approved",
-    requested_start: "2026-07-12T10:00:00Z",
-    requested_end: "2026-07-12T12:00:00Z",
-    purpose: "Photoshoot",
-    rejection_reason: null,
-  },
-  {
-    id: "5",
-    status: "rejected",
-    requested_start: "2026-07-12T10:00:00Z",
-    requested_end: "2026-07-12T12:00:00Z",
-    purpose: "Podcast",
-    rejection_reason: "Outside opening hours.",
-  },
-  {
-    id: "6",
-    status: "pending",
-    requested_start: "2026-07-12T10:00:00Z",
-    requested_end: "2026-07-12T12:00:00Z",
-    purpose: "Podcast",
-    rejection_reason: null,
-  },
-];
-
-/**
- * The API has seven statuses; the design draws three badges. Everything is
- * mapped so real data can never render an unlabelled row.
- */
 export const STATUS_LABELS: Record<ReservationStatus, string> = {
   pending: "Pending",
   approved: "Approved",
@@ -81,7 +37,6 @@ export const STATUS_LABELS: Record<ReservationStatus, string> = {
   cancelled: "Cancelled",
 };
 
-/** Which of the three badge treatments each status uses. */
 export const STATUS_TONE: Record<ReservationStatus, "positive" | "negative" | "waiting"> = {
   pending: "waiting",
   payment_pending: "waiting",
@@ -92,13 +47,6 @@ export const STATUS_TONE: Record<ReservationStatus, "positive" | "negative" | "w
   cancelled: "negative",
 };
 
-/*
- * Dates are formatted from UTC parts on purpose.
- *
- * Ghana is GMT+0 all year, so UTC *is* the studio's wall clock — and reading
- * fixed parts keeps the server and browser output identical, which a
- * locale-dependent format would not.
- */
 const MERIDIEM_HOURS = (hour: number) => (hour % 12 === 0 ? 12 : hour % 12);
 
 export function formatRequestDate(iso: string) {

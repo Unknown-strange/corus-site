@@ -1,0 +1,278 @@
+.page {
+  width: 100%;
+  padding: 80px 8%;
+  background: #f8fafc;
+  min-height: 10vh;
+}
+
+
+.container {
+  text-align: center;
+  margin-top: -1.5rem;
+}
+
+
+.heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: Helvetica, Arial, sans-serif;
+  margin-bottom: 0.5rem;
+}
+
+
+.subheading {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 3rem;
+}
+
+
+/* Booking list */
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+
+/* Individual booking bar */
+
+.card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+
+  background: white;
+
+  padding: 2.5rem 2rem;
+
+  border-radius: 18px;
+
+  border: 2px solid #f0f0f0;
+
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.06);
+
+  text-decoration: none;
+
+  transition:
+    transform .35s ease,
+    box-shadow .35s ease,
+    border-color .35s ease;
+
+  cursor: pointer;
+}
+
+
+/* Orange animated side bar */
+
+.accent {
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  height: 100%;
+  width: 5px;
+
+  background: #ea580c;
+
+  transform: scaleY(0);
+
+  transform-origin: top;
+
+  transition: transform .35s ease;
+
+}
+
+
+.card:hover {
+
+  transform: translateY(-5px);
+
+  border-color: #ea580c;
+
+  box-shadow:
+    0 16px 35px rgba(0,0,0,0.12);
+
+}
+
+
+.card:hover .accent {
+
+  transform: scaleY(1);
+
+}
+
+
+/* Content */
+
+.cardContent {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 1.5rem;
+
+  text-align: left;
+
+}
+
+
+.info {
+
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 1.5rem;
+
+}
+
+
+.cardTitle {
+
+  margin: 0;
+
+  font-size: 1.25rem;
+
+  font-weight: 700;
+
+  color: #1a1a1a;
+
+  font-family: Helvetica, Arial, sans-serif;
+
+}
+
+
+.bookingType {
+
+  font-size: 1rem;
+
+  font-weight: 500;
+
+  color: #666;
+
+  font-family: Helvetica, Arial, sans-serif;
+
+  white-space: nowrap;
+
+}
+
+
+/* Arrow */
+
+.cardArrow {
+
+  flex-shrink: 0;
+
+  font-size: 2.2rem;
+
+  font-weight: 300;
+
+  color: #ccc;
+
+  line-height: 1;
+
+  transition:
+    transform .3s ease,
+    color .3s ease;
+
+}
+
+
+.card:hover .cardArrow {
+
+  color: #ea580c;
+
+  transform: translateX(8px);
+
+}
+
+
+/* Loading */
+
+.loading {
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 2rem;
+
+  font-size: 1.1rem;
+
+  color: #666;
+
+}
+
+
+/* Mobile */
+
+@media(max-width:700px) {
+
+
+  .page {
+
+    padding: 40px 5%;
+
+  }
+
+
+  .heading {
+
+    font-size: 2rem;
+
+  }
+
+
+  .card {
+
+    padding: 1.5rem 1.25rem;
+
+  }
+
+
+  .cardContent {
+
+    gap: 1rem;
+
+  }
+
+
+  .info {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: .5rem;
+
+  }
+
+
+  .cardTitle {
+
+    font-size: 1.1rem;
+
+  }
+
+
+  .bookingType {
+
+    font-size: .9rem;
+
+  }
+
+
+}
