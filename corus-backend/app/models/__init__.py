@@ -20,7 +20,7 @@ from app.models.product_category import ProductCategory
 from app.models.receipt import Receipt, ReceiptTypeEnum
 from app.models.rental_request import RentalRequest, RentalStatus
 from app.models.session_type import SessionType
-from app.models.site_content import ContentSection, SiteContent
+from app.models.site_content import ContentSection, GalleryCategory, SiteContent
 from app.models.slot_hold import HoldStatus, SlotHold
 from app.models.studio_reservation import ReservationStatus, StudioReservation
 from app.models.studio_slot import StudioSlot
@@ -34,6 +34,7 @@ __all__ = [
     "BookingStatus",
     "Cart",
     "CartItem",
+    "GalleryCategory",
     "ContentSection",
     "EmailVerification",
     "EquipmentForRent",

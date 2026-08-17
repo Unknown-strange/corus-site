@@ -43,6 +43,7 @@ class SiteContentPublicResponse(BaseModel):
     body: str | None
     image_url: str | None
     caption: str | None
+    category: str | None
     sort_order: int
 
     model_config = {"from_attributes": True}

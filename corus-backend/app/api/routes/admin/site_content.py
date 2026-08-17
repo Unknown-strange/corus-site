@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 
 from app.core.admin_deps import CmsManageUser
 from app.core.deps import DbSession
-from app.models.site_content import ContentSection, SiteContent
+from app.models.site_content import ContentSection, GalleryCategory, SiteContent
 from app.schemas.site_content import (
     SiteContentAdminResponse,
     SiteContentCreateRequest,
@@ -14,6 +14,19 @@ from app.services.audit_service import log_action
 from app.services.imagekit import delete_image
 
 router = APIRouter(prefix="/admin/site-content", tags=["admin-site-content"])
+
+
+def _ensure_gallery_category(section: ContentSection, category: GalleryCategory | None) -> None:
+    if section == ContentSection.gallery and category is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="category is required for gallery content",
+        )
+
+
+@router.get("/gallery-categories", response_model=list[str])
+def list_gallery_categories(_user: CmsManageUser) -> list[str]:
+    return [category.value for category in GalleryCategory]
 
 
 @router.post("", response_model=SiteContentAdminResponse, status_code=status.HTTP_201_CREATED)
@@ -29,6 +42,7 @@ def create_site_content(
         image_url=payload.image_url,
         imagekit_file_id=payload.imagekit_file_id,
         caption=payload.caption,
+        category=payload.category,
         sort_order=payload.sort_order,
         is_published=payload.is_published,
     )
@@ -78,6 +92,8 @@ def update_site_content(
         content.body = data["body"]
     if "caption" in data:
         content.caption = data["caption"]
+    if "category" in data:
+        content.category = data["category"]
     if "sort_order" in data and data["sort_order"] is not None:
         content.sort_order = data["sort_order"]
     if "is_published" in data and data["is_published"] is not None:
@@ -89,6 +105,8 @@ def update_site_content(
             delete_image(content.imagekit_file_id)
         content.image_url = data.get("image_url", content.image_url)
         content.imagekit_file_id = new_file_id
+
+    _ensure_gallery_category(content.section, content.category)
 
     db.add(content)
     db.commit()

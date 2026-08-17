@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.product import ProductForSale
 from app.models.product_category import ProductCategory
-from app.models.site_content import ContentSection, SiteContent
+from app.models.site_content import ContentSection, GalleryCategory, SiteContent
 
 
 def seed_catalog() -> None:
@@ -84,6 +84,7 @@ def seed_catalog() -> None:
                 section=ContentSection.gallery,
                 title="Studio Session",
                 caption="Behind the scenes at Corus Studios",
+                category=GalleryCategory.birthday,
                 sort_order=1,
                 is_published=True,
             ),

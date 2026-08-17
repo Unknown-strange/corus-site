@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload
 from app.core.deps import DbSession
 from app.models.product import ProductForSale
 from app.models.product_category import ProductCategory
-from app.models.site_content import ContentSection, SiteContent
+from app.models.site_content import ContentSection, GalleryCategory, SiteContent
 from app.schemas.catalog import (
     CategoryPublicResponse,
     ProductListResponse,
@@ -112,8 +112,23 @@ def get_homepage_content(db: DbSession) -> list[SiteContent]:
 
 
 @router.get("/content/gallery", response_model=list[SiteContentPublicResponse])
-def get_gallery_content(db: DbSession) -> list[SiteContent]:
-    return _content_for_section(db, ContentSection.gallery)
+def get_gallery_content(
+    db: DbSession,
+    category: GalleryCategory | None = Query(default=None),
+) -> list[SiteContent]:
+    query = (
+        db.query(SiteContent)
+        .filter(SiteContent.section == ContentSection.gallery, SiteContent.is_published.is_(True))
+        .order_by(SiteContent.sort_order.asc(), SiteContent.created_at.asc())
+    )
+    if category is not None:
+        query = query.filter(SiteContent.category == category)
+    return query.all()
+
+
+@router.get("/gallery-categories", response_model=list[str])
+def list_gallery_categories() -> list[str]:
+    return [category.value for category in GalleryCategory]
 
 
 @router.get("/content/rental-info", response_model=list[SiteContentPublicResponse])
