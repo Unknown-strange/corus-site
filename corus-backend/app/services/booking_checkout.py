@@ -6,6 +6,8 @@ from decimal import Decimal
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
+from app.models.session_type import SessionType
+
 from app.core.config import settings
 from app.models.booking import Booking, BookingStatus
 from app.models.payment import Payment, PaymentPurpose, PaymentStatus
