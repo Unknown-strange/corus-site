@@ -31,25 +31,39 @@ def seed_sessions() -> None:
 
         types = [
             SessionType(
-                name="Photoshoot",
-                slug="photoshoot",
-                description="Professional photo session in studio",
+                name="Birthday",
+                slug="birthday",
+                description="Birthday photoshoot session",
                 price_ghs=Decimal("500.00"),
                 duration_minutes=120,
             ),
             SessionType(
-                name="Podcast Recording",
-                slug="podcast-recording",
-                description="Audio podcast recording session",
-                price_ghs=Decimal("350.00"),
-                duration_minutes=90,
+                name="Graduation",
+                slug="graduation",
+                description="Graduation photoshoot session",
+                price_ghs=Decimal("500.00"),
+                duration_minutes=120,
             ),
             SessionType(
-                name="Video Shoot",
-                slug="video-shoot",
-                description="Video production session",
+                name="Matriculation",
+                slug="matriculation",
+                description="Matriculation photoshoot session",
+                price_ghs=Decimal("500.00"),
+                duration_minutes=120,
+            ),
+            SessionType(
+                name="Lifestyle (weddings and funerals)",
+                slug="lifestyle-weddings-funerals",
+                description="Lifestyle photoshoot for weddings and funerals",
                 price_ghs=Decimal("800.00"),
                 duration_minutes=180,
+            ),
+            SessionType(
+                name="Agenda",
+                slug="agenda",
+                description="Agenda and editorial photoshoot session",
+                price_ghs=Decimal("500.00"),
+                duration_minutes=120,
             ),
         ]
         db.add_all(types)

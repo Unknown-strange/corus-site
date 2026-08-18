@@ -125,6 +125,12 @@
     background: #e14d00;
 }
 
+.emptyState {
+    text-align: center;
+    color: #555;
+    padding: 40px 0;
+}
+
 /* ===========================
         SKELETON LOADER
 =========================== */

@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload
 from app.core.deps import DbSession
 from app.models.product import ProductForSale
 from app.models.product_category import ProductCategory
-from app.models.site_content import ContentSection, GalleryCategory, SiteContent
+from app.models.site_content import ContentSection, SiteContent
 from app.schemas.catalog import (
     CategoryPublicResponse,
     ProductListResponse,
@@ -97,40 +97,52 @@ def get_product(slug: str, db: DbSession) -> ProductPublicResponse:
     return _product_to_public(product)
 
 
-def _content_for_section(db: DbSession, section: ContentSection) -> list[SiteContent]:
-    return (
+def _content_to_public(content: SiteContent) -> SiteContentPublicResponse:
+    return SiteContentPublicResponse(
+        id=content.id,
+        section=content.section.value,
+        title=content.title,
+        body=content.body,
+        image_url=content.image_url,
+        caption=content.caption,
+        session_type_id=content.session_type_id,
+        session_type_name=content.session_type.name if content.session_type else None,
+        sort_order=content.sort_order,
+    )
+
+
+def _content_for_section(db: DbSession, section: ContentSection) -> list[SiteContentPublicResponse]:
+    items = (
         db.query(SiteContent)
+        .options(joinedload(SiteContent.session_type))
         .filter(SiteContent.section == section, SiteContent.is_published.is_(True))
         .order_by(SiteContent.sort_order.asc(), SiteContent.created_at.asc())
         .all()
     )
+    return [_content_to_public(item) for item in items]
 
 
 @router.get("/content/homepage", response_model=list[SiteContentPublicResponse])
-def get_homepage_content(db: DbSession) -> list[SiteContent]:
+def get_homepage_content(db: DbSession) -> list[SiteContentPublicResponse]:
     return _content_for_section(db, ContentSection.homepage)
 
 
 @router.get("/content/gallery", response_model=list[SiteContentPublicResponse])
 def get_gallery_content(
     db: DbSession,
-    category: GalleryCategory | None = Query(default=None),
-) -> list[SiteContent]:
+    session_type_id: UUID | None = Query(default=None),
+) -> list[SiteContentPublicResponse]:
     query = (
         db.query(SiteContent)
+        .options(joinedload(SiteContent.session_type))
         .filter(SiteContent.section == ContentSection.gallery, SiteContent.is_published.is_(True))
         .order_by(SiteContent.sort_order.asc(), SiteContent.created_at.asc())
     )
-    if category is not None:
-        query = query.filter(SiteContent.category == category)
-    return query.all()
-
-
-@router.get("/gallery-categories", response_model=list[str])
-def list_gallery_categories() -> list[str]:
-    return [category.value for category in GalleryCategory]
+    if session_type_id is not None:
+        query = query.filter(SiteContent.session_type_id == session_type_id)
+    return [_content_to_public(item) for item in query.all()]
 
 
 @router.get("/content/rental-info", response_model=list[SiteContentPublicResponse])
-def get_rental_info_content(db: DbSession) -> list[SiteContent]:
+def get_rental_info_content(db: DbSession) -> list[SiteContentPublicResponse]:
     return _content_for_section(db, ContentSection.rental_info)
