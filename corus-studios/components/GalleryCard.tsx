@@ -6,28 +6,51 @@ import { useRouter } from "next/navigation";
 
 import styles from "./GalleryCard.module.css";
 import GallerySkeleton from "./GallerySkeleton";
+import {
+  fetchGalleryContent,
+  GALLERY_CATEGORIES,
+  type GalleryContentItem,
+} from "@/lib/gallery";
 
 type GalleryImage = {
   id: string;
-  section: string;
-  title: string;
-  body: string;
-  image_url: string;
-  caption: string;
-  sort_order: number;
+  image: string;
+  category: string;
+  alt: string;
 };
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:8000";
+const categories = ["All", ...GALLERY_CATEGORIES];
 
-const categories = [
-  "All",
-  "Birthday",
-  "Graduation",
-  "Matriculation",
-  "Agenda",
+const HOMEPAGE_PREVIEW_COUNT = 12;
+
+const fallbackImages: GalleryImage[] = [
+  { id: "1", image: "/gallery/1.png", category: "Birthday", alt: "Birthday shoot" },
+  { id: "2", image: "/gallery/2.png", category: "Birthday", alt: "Birthday shoot" },
+  { id: "3", image: "/gallery/3.png", category: "Birthday", alt: "Birthday shoot" },
+  { id: "4", image: "/gallery/4.png", category: "Agenda", alt: "Agenda shoot" },
+  { id: "5", image: "/gallery/5.png", category: "Graduation", alt: "Graduation shoot" },
+  { id: "6", image: "/gallery/6.png", category: "Birthday", alt: "Birthday shoot" },
+  { id: "7", image: "/gallery/7.png", category: "Matriculation", alt: "Matriculation shoot" },
+  { id: "8", image: "/gallery/8.png", category: "Birthday", alt: "Birthday shoot" },
+  { id: "9", image: "/gallery/9.png", category: "Graduation", alt: "Graduation shoot" },
+  { id: "10", image: "/gallery/10.png", category: "Agenda", alt: "Agenda shoot" },
+  {
+    id: "11",
+    image: "/gallery/studio.jpg",
+    category: "Lifestyle (weddings and funerals)",
+    alt: "Lifestyle shoot",
+  },
+  { id: "12", image: "/gallery/Aunt Vida.jpg", category: "Agenda", alt: "Agenda shoot" },
 ];
+
+function toGalleryImages(items: GalleryContentItem[]): GalleryImage[] {
+  return items.map((item) => ({
+    id: item.id,
+    image: item.image_url,
+    category: item.category || "Agenda",
+    alt: item.caption || item.title || "Gallery image",
+  }));
+}
 
 type GalleryCardProps = {
   isGalleryPage?: boolean;
@@ -37,67 +60,36 @@ export default function GalleryCard({
   isGalleryPage = false,
 }: GalleryCardProps) {
   const router = useRouter();
-
-  const [images, setImages] =
-    useState<GalleryImage[]>([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [activeCategory, setActiveCategory] =
-    useState("All");
-
-  /*
-   * =====================================================
-   * LOAD GALLERY FROM PUBLIC API
-   * =====================================================
-   */
+  const [allImages, setAllImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
-    const fetchGallery = async () => {
+    let cancelled = false;
+
+    async function loadGallery() {
       try {
-        setLoading(true);
-
-        const response = await fetch(
-          `${API_BASE}/catalog/content/gallery`,
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            "Failed to fetch gallery."
-          );
+        const items = await fetchGalleryContent();
+        if (!cancelled) {
+          const mapped = toGalleryImages(items);
+          setAllImages(mapped.length > 0 ? mapped : fallbackImages);
         }
-
-        const data: GalleryImage[] =
-          await response.json();
-
-        /*
-         * Make sure the database ordering is respected.
-         */
-
-        const sorted = [...data].sort(
-          (a, b) =>
-            a.sort_order - b.sort_order
-        );
-
-        setImages(sorted);
-      } catch (error) {
-        console.error(
-          "Gallery loading error:",
-          error
-        );
-
-        setImages([]);
+      } catch {
+        if (!cancelled) {
+          setAllImages(fallbackImages);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    };
+    }
 
-    fetchGallery();
+    loadGallery();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /*
@@ -113,28 +105,25 @@ export default function GalleryCard({
 
   const filteredImages =
     activeCategory === "All"
-      ? images
-      : images;
+      ? allImages
+      : allImages.filter((img) => img.category === activeCategory);
 
-  /*
-   * =====================================================
-   * VIEW MORE
-   * =====================================================
-   */
+  const visibleImages = isGalleryPage
+    ? filteredImages
+    : filteredImages.slice(0, HOMEPAGE_PREVIEW_COUNT);
 
   const handleViewMore = () => {
-    if (!isGalleryPage) {
-      router.push("/gallery");
+    if (isGalleryPage) {
+      return;
     }
+    router.push("/gallery");
   };
 
-  return (
-    <section
-      className={styles.gallerySection}
-      id="gallery"
-    >
-      {/* FILTERS */}
+  const showButton =
+    !isGalleryPage && filteredImages.length > HOMEPAGE_PREVIEW_COUNT;
 
+  return (
+    <section className={styles.gallerySection} id="gallery">
       <div className={styles.filters}>
         {categories.map((category) => (
           <button
@@ -153,28 +142,17 @@ export default function GalleryCard({
         ))}
       </div>
 
-      {/* GALLERY */}
-
       {loading ? (
         <GallerySkeleton />
-      ) : images.length === 0 ? (
-        <div className={styles.empty}>
-          No gallery images available.
-        </div>
+      ) : visibleImages.length === 0 ? (
+        <p className={styles.emptyState}>No images in this category yet.</p>
       ) : (
         <div className={styles.galleryGrid}>
-          {filteredImages.map((image) => (
-            <div
-              key={image.id}
-              className={styles.galleryItem}
-            >
+          {visibleImages.map((image) => (
+            <div key={image.id} className={styles.galleryItem}>
               <Image
-                src={image.image_url}
-                alt={
-                  image.caption ||
-                  image.title ||
-                  "Gallery image"
-                }
+                src={image.image}
+                alt={image.alt}
                 width={600}
                 height={800}
                 className={styles.image}
@@ -184,22 +162,13 @@ export default function GalleryCard({
         </div>
       )}
 
-      {/* VIEW MORE */}
-
-      {!isGalleryPage &&
-        !loading &&
-        images.length > 0 && (
-          <div
-            className={styles.buttonContainer}
-          >
-            <button
-              className={styles.viewMore}
-              onClick={handleViewMore}
-            >
-              View More
-            </button>
-          </div>
-        )}
+      {showButton && (
+        <div className={styles.buttonContainer}>
+          <button className={styles.viewMore} onClick={handleViewMore}>
+            View More
+          </button>
+        </div>
+      )}
     </section>
   );
 }

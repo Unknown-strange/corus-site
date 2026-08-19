@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     imagekit_private_key: str | None = None
     imagekit_public_key: str | None = None
     imagekit_url_endpoint: str | None = None
-    max_upload_size_mb: int = 5
+    max_upload_size_mb: int = 20
 
     default_low_stock_threshold: int = 5
     admin_alert_email: str | None = None

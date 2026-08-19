@@ -43,6 +43,8 @@ class SiteContentPublicResponse(BaseModel):
     body: str | None
     image_url: str | None
     caption: str | None
+    session_type_id: UUID | None
+    session_type_name: str | None
     sort_order: int
 
     model_config = {"from_attributes": True}

@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.product import ProductForSale
 from app.models.product_category import ProductCategory
+from app.models.session_type import SessionType
 from app.models.site_content import ContentSection, SiteContent
 
 
@@ -65,6 +66,8 @@ def seed_catalog() -> None:
         ]
         db.add_all(products)
 
+        birthday_type = db.query(SessionType).filter(SessionType.slug == "birthday").first()
+
         content_blocks = [
             SiteContent(
                 section=ContentSection.homepage,
@@ -84,6 +87,7 @@ def seed_catalog() -> None:
                 section=ContentSection.gallery,
                 title="Studio Session",
                 caption="Behind the scenes at Corus Studios",
+                session_type_id=birthday_type.id if birthday_type else None,
                 sort_order=1,
                 is_published=True,
             ),
