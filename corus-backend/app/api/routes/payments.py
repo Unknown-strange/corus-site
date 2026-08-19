@@ -2,11 +2,19 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.core.config import settings
 from app.core.deps import DbSession
-from app.models.payment import PaymentPurpose
+from app.models.payment import Payment, PaymentPurpose
 from app.schemas.payment import PaymentVerifyResponse
 from app.services.payment_confirmation import verify_and_confirm_payment
+from app.services.payment_redirect import callback_path_for_purpose
 
 router = APIRouter(prefix="/payments", tags=["payments"])
+
+
+def _callback_path(db: DbSession, reference: str, purpose: PaymentPurpose | None = None) -> str:
+    if purpose is not None:
+        return callback_path_for_purpose(purpose)
+    payment = db.query(Payment).filter(Payment.reference == reference).first()
+    return callback_path_for_purpose(payment.purpose if payment else None)
 
 
 @router.get("/verify/{reference}", response_model=PaymentVerifyResponse)
@@ -19,13 +27,17 @@ def verify_payment(reference: str, db: DbSession) -> PaymentVerifyResponse:
         return PaymentVerifyResponse(
             status="failed",
             reference=reference,
+            callback_path=_callback_path(db, reference),
             message="Payment not confirmed",
         )
+
+    path = callback_path_for_purpose(result.purpose)
 
     if result.purpose == PaymentPurpose.session_deposit and result.booking:
         return PaymentVerifyResponse(
             status="success",
             reference=reference,
+            callback_path=path,
             booking_id=str(result.booking.id),
             message="Booking confirmed",
         )
@@ -33,6 +45,7 @@ def verify_payment(reference: str, db: DbSession) -> PaymentVerifyResponse:
         return PaymentVerifyResponse(
             status="success",
             reference=reference,
+            callback_path=path,
             rental_id=str(result.rental.id),
             message="Rental confirmed",
         )
@@ -40,6 +53,7 @@ def verify_payment(reference: str, db: DbSession) -> PaymentVerifyResponse:
         return PaymentVerifyResponse(
             status="success",
             reference=reference,
+            callback_path=path,
             reservation_id=str(result.reservation.id),
             message="Studio reservation confirmed",
         )
@@ -47,6 +61,7 @@ def verify_payment(reference: str, db: DbSession) -> PaymentVerifyResponse:
         return PaymentVerifyResponse(
             status="success",
             reference=reference,
+            callback_path=path,
             order_id=str(result.order.id),
             message="Order confirmed",
         )
@@ -54,5 +69,6 @@ def verify_payment(reference: str, db: DbSession) -> PaymentVerifyResponse:
     return PaymentVerifyResponse(
         status="success",
         reference=reference,
+        callback_path=path,
         message="Payment confirmed",
     )
