@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Suspense,
   useEffect,
   useState,
 } from "react";
@@ -45,6 +46,10 @@ type VerifyResponse = {
   issued_at?: string;
 };
 
+/* =========================================================
+   RECEIPT HELPERS
+========================================================= */
+
 function getReceipt(
   data: VerifyResponse
 ): ReceiptInfo | null {
@@ -74,7 +79,142 @@ function getReceipt(
   return null;
 }
 
-export default function PaymentCallbackPage() {
+/* =========================================================
+   ERROR MESSAGE
+========================================================= */
+
+function getErrorMessage(
+  data: unknown,
+  fallback: string
+): string {
+  if (
+    typeof data === "string" &&
+    data.trim()
+  ) {
+    return data;
+  }
+
+  if (
+    data &&
+    typeof data === "object"
+  ) {
+    if (
+      "detail" in data
+    ) {
+      const detail =
+        (
+          data as {
+            detail?: unknown;
+          }
+        ).detail;
+
+      if (
+        typeof detail ===
+        "string"
+      ) {
+        return detail;
+      }
+
+      if (
+        Array.isArray(detail)
+      ) {
+        const messages =
+          detail
+            .map((item) => {
+              if (
+                item &&
+                typeof item ===
+                  "object" &&
+                "msg" in item &&
+                typeof (
+                  item as {
+                    msg?: unknown;
+                  }
+                ).msg ===
+                  "string"
+              ) {
+                return (
+                  item as {
+                    msg: string;
+                  }
+                ).msg;
+              }
+
+              return null;
+            })
+            .filter(
+              (
+                message
+              ): message is string =>
+                Boolean(message)
+            );
+
+        if (
+          messages.length >
+          0
+        ) {
+          return messages.join(
+            ", "
+          );
+        }
+      }
+    }
+
+    if (
+      "message" in data &&
+      typeof (
+        data as {
+          message?: unknown;
+        }
+      ).message === "string"
+    ) {
+      return (
+        data as {
+          message: string;
+        }
+      ).message;
+    }
+
+    if (
+      "error" in data
+    ) {
+      const errorValue =
+        (
+          data as {
+            error?: unknown;
+          }
+        ).error;
+
+      if (
+        errorValue &&
+        typeof errorValue ===
+          "object" &&
+        "message" in
+          errorValue &&
+        typeof (
+          errorValue as {
+            message?: unknown;
+          }
+        ).message ===
+          "string"
+      ) {
+        return (
+          errorValue as {
+            message: string;
+          }
+        ).message;
+      }
+    }
+  }
+
+  return fallback;
+}
+
+/* =========================================================
+   CALLBACK CONTENT
+========================================================= */
+
+function PaymentCallbackContent() {
   const searchParams =
     useSearchParams();
 
@@ -111,11 +251,23 @@ export default function PaymentCallbackPage() {
     );
 
   useEffect(() => {
+    let cancelled = false;
+
     const verifyPayment =
       async () => {
+        /* =========================================
+           NO REFERENCE
+        ========================================= */
+
         if (!reference) {
           const errorMessage =
             "No payment reference was provided.";
+
+          if (
+            cancelled
+          ) {
+            return;
+          }
 
           setStatus(
             "error"
@@ -142,6 +294,10 @@ export default function PaymentCallbackPage() {
           return;
         }
 
+        /* =========================================
+           AUTH TOKEN
+        ========================================= */
+
         const token =
           localStorage.getItem(
             "access_token"
@@ -150,6 +306,12 @@ export default function PaymentCallbackPage() {
         if (!token) {
           const errorMessage =
             "Your session has expired. Please log in again.";
+
+          if (
+            cancelled
+          ) {
+            return;
+          }
 
           setStatus(
             "error"
@@ -177,6 +339,10 @@ export default function PaymentCallbackPage() {
           return;
         }
 
+        /* =========================================
+           VERIFY PAYMENT
+        ========================================= */
+
         try {
           const response =
             await fetch(
@@ -184,6 +350,7 @@ export default function PaymentCallbackPage() {
               {
                 method:
                   "POST",
+
                 headers: {
                   "Content-Type":
                     "application/json",
@@ -199,55 +366,45 @@ export default function PaymentCallbackPage() {
               }
             );
 
-          const data =
-            (await response
-              .json()
-              .catch(
-                () => null
-              )) as
-              | VerifyResponse
-              | {
-                  detail?: unknown;
-                  message?: unknown;
-                }
-              | null;
+          const rawBody =
+            await response.text();
 
-          if (!response.ok) {
-            const backendMessage =
-              data &&
-              typeof data ===
-                "object" &&
-              "detail" in data &&
-              typeof (
-                data as {
-                  detail?: unknown;
-                }
-              ).detail ===
-                "string"
-                ? (
-                    data as {
-                      detail: string;
-                    }
-                  ).detail
-                : data &&
-                  typeof data ===
-                    "object" &&
-                  "message" in data &&
-                  typeof (
-                    data as {
-                      message?: unknown;
-                    }
-                  ).message ===
-                    "string"
-                ? (
-                    data as {
-                      message: string;
-                    }
-                  ).message
-                : "Payment verification failed.";
+          let data: unknown =
+            null;
 
+          if (rawBody) {
+            try {
+              data =
+                JSON.parse(
+                  rawBody
+                );
+            } catch {
+              data =
+                rawBody;
+            }
+          }
+
+          console.log(
+            "PAYMENT VERIFICATION RESPONSE",
+            {
+              status:
+                response.status,
+              ok:
+                response.ok,
+              body:
+                data,
+              reference,
+            }
+          );
+
+          if (
+            !response.ok
+          ) {
             throw new Error(
-              backendMessage
+              getErrorMessage(
+                data,
+                "Payment verification failed."
+              )
             );
           }
 
@@ -259,6 +416,12 @@ export default function PaymentCallbackPage() {
               verifyData
             );
 
+          if (
+            cancelled
+          ) {
+            return;
+          }
+
           setReceipt(
             receiptData
           );
@@ -268,13 +431,14 @@ export default function PaymentCallbackPage() {
           );
 
           setMessage(
-            "Payment successful. Your payment has been verified."
+            verifyData.message ||
+              "Payment successful. Your payment has been verified."
           );
 
-          /*
-           * Send the verified result to the
-           * checkout tab.
-           */
+          /* =========================================
+             SEND RESULT TO CHECKOUT WINDOW
+          ========================================= */
+
           window.opener?.postMessage(
             {
               type:
@@ -285,14 +449,19 @@ export default function PaymentCallbackPage() {
 
               result: {
                 reference,
+
                 message:
                   verifyData.message,
+
                 receipt:
                   receiptData,
+
                 receipt_number:
                   verifyData.receipt_number,
+
                 amount_ghs:
                   verifyData.amount_ghs,
+
                 issued_at:
                   verifyData.issued_at,
               },
@@ -301,19 +470,28 @@ export default function PaymentCallbackPage() {
             window.location.origin
           );
 
-          /*
-           * Give the parent enough time to receive
-           * the message, then close this Paystack
-           * callback tab.
-           */
+          /* =========================================
+             CLOSE CALLBACK TAB
+          ========================================= */
+
           setTimeout(() => {
-            window.close();
+            try {
+              window.close();
+            } catch {
+              // Browser may prevent closing.
+            }
           }, 1800);
         } catch (error) {
           console.error(
             "PAYMENT VERIFICATION FAILED",
             error
           );
+
+          if (
+            cancelled
+          ) {
+            return;
+          }
 
           const errorMessage =
             error instanceof Error
@@ -349,6 +527,10 @@ export default function PaymentCallbackPage() {
       };
 
     verifyPayment();
+
+    return () => {
+      cancelled = true;
+    };
   }, [reference]);
 
   return (
@@ -365,6 +547,10 @@ export default function PaymentCallbackPage() {
             styles.card
           }
         >
+          {/* =========================================
+              LOADING
+          ========================================= */}
+
           {status ===
             "loading" && (
             <>
@@ -385,8 +571,28 @@ export default function PaymentCallbackPage() {
                 confirm your Paystack
                 payment.
               </p>
+
+              {reference && (
+                <div
+                  className={
+                    styles.reference
+                  }
+                >
+                  <span>
+                    Reference
+                  </span>
+
+                  <strong>
+                    {reference}
+                  </strong>
+                </div>
+              )}
             </>
           )}
+
+          {/* =========================================
+              SUCCESS
+          ========================================= */}
 
           {status ===
             "success" && (
@@ -456,6 +662,22 @@ export default function PaymentCallbackPage() {
                     </strong>
                   </>
                 )}
+
+                {receipt?.issued_at && (
+                  <>
+                    <span>
+                      Issued
+                    </span>
+
+                    <strong>
+                      {new Date(
+                        receipt.issued_at
+                      ).toLocaleString(
+                        "en-GH"
+                      )}
+                    </strong>
+                  </>
+                )}
               </div>
 
               <p
@@ -463,8 +685,8 @@ export default function PaymentCallbackPage() {
                   styles.closeNote
                 }
               >
-                You can return to the checkout
-                window.
+                Payment confirmation has been
+                sent back to the checkout window.
               </p>
 
               <button
@@ -480,6 +702,10 @@ export default function PaymentCallbackPage() {
               </button>
             </>
           )}
+
+          {/* =========================================
+              ERROR
+          ========================================= */}
 
           {status ===
             "error" && (
@@ -522,7 +748,7 @@ export default function PaymentCallbackPage() {
                 }
               >
                 Please return to the checkout
-                window.
+                window and try again if necessary.
               </p>
 
               <button
@@ -543,5 +769,59 @@ export default function PaymentCallbackPage() {
 
       <Footer />
     </>
+  );
+}
+
+/* =========================================================
+   PAGE WRAPPER WITH SUSPENSE
+========================================================= */
+
+function CallbackLoading() {
+  return (
+    <>
+      <Navbar />
+
+      <main
+        className={
+          styles.page
+        }
+      >
+        <div
+          className={
+            styles.card
+          }
+        >
+          <div
+            className={`${styles.icon} ${styles.loading}`}
+          >
+            <Loader2
+              size={42}
+            />
+          </div>
+
+          <h1>
+            Loading Payment
+          </h1>
+
+          <p>
+            Preparing payment verification...
+          </p>
+        </div>
+      </main>
+
+      <Footer />
+    </>
+  );
+}
+
+export default function PaymentCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <CallbackLoading />
+      }
+    >
+      <PaymentCallbackContent />
+    </Suspense>
   );
 }
