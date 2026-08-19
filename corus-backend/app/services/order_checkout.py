@@ -96,9 +96,9 @@ def checkout_order(db: Session, user: User) -> dict:
     )
     db.add(payment)
 
-    db.query(CartItem).filter(CartItem.cart_id == cart.id).delete()
+    for item in list(cart.items):
+        db.delete(item)
     cart.updated_at = datetime.now(UTC)
-    db.add(cart)
     db.commit()
     db.refresh(order)
 
