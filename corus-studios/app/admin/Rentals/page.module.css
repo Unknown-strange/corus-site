@@ -1,0 +1,953 @@
+.page {
+    min-height: 100vh;
+
+    background: #f6f8fb;
+
+    padding: 30px 36px 70px;
+
+    font-family:
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+
+.container {
+    width: 100%;
+
+    max-width: 1350px;
+
+    margin: 0 auto;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    min-height: 180px;
+
+    margin-bottom: 24px;
+
+    padding: 32px 34px;
+
+    border: 1px solid #eef0f4;
+
+    border-radius: 26px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(
+            16,
+            24,
+            40,
+            .03
+        ),
+        0 14px 35px rgba(
+            16,
+            24,
+            40,
+            .05
+        );
+}
+
+.heroContent {
+    min-width: 0;
+}
+
+.eyebrow {
+    display: inline-block;
+
+    margin-bottom: 8px;
+
+    color: #ff5b00;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.4px;
+
+    text-transform: uppercase;
+}
+
+.heading {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: clamp(
+        2rem,
+        4vw,
+        2.9rem
+    );
+
+    font-weight: 750;
+
+    letter-spacing: -1.3px;
+
+    line-height: 1.05;
+}
+
+.subtitle {
+    max-width: 670px;
+
+    margin: 10px 0 0;
+
+    color: #667085;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+/* =========================================================
+   HERO STATS
+========================================================= */
+
+.heroStats {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+.statBox {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    min-width: 125px;
+
+    padding: 12px 14px;
+
+    border: 1px solid #eef0f4;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+.statIcon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.statBox strong {
+    display: block;
+
+    color: #101828;
+
+    font-size: 20px;
+
+    line-height: 1.1;
+}
+
+.statBox span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+.smallStat {
+    min-width: 70px;
+
+    padding: 11px 10px;
+
+    border-radius: 12px;
+
+    text-align: center;
+}
+
+.smallStat span {
+    display: block;
+
+    font-size: 18px;
+
+    font-weight: 750;
+
+    line-height: 1;
+}
+
+.smallStat label {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+.pendingStat {
+    background: #fff7e8;
+
+    color: #b54708;
+}
+
+.approvedStat {
+    background: #eafaf0;
+
+    color: #12b76a;
+}
+
+.rejectedStat {
+    background: #fff0ef;
+
+    color: #d92d20;
+}
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.rentalCard {
+    padding: 27px;
+
+    border: 1px solid #eef0f4;
+
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 15px rgba(
+            16,
+            24,
+            40,
+            .03
+        ),
+        0 12px 32px rgba(
+            16,
+            24,
+            40,
+            .05
+        );
+}
+
+.cardHeader {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 22px;
+}
+
+.titleRow {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+}
+
+.titleRow h2 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 20px;
+
+    font-weight: 750;
+}
+
+.cardHeader p {
+    margin: 6px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 13px;
+}
+
+.requestBadge {
+    padding: 5px 8px;
+
+    border-radius: 999px;
+
+    background: #f2f4f7;
+
+    color: #667085;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.tabs {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 12px;
+
+    background: #f9fafb;
+}
+
+.tab {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    height: 37px;
+
+    padding: 0 13px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: #667085;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        box-shadow .2s ease;
+}
+
+.tab:hover {
+    color: #101828;
+}
+
+.activeTab {
+    background: #ff5b00;
+
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 10px rgba(
+            255,
+            91,
+            0,
+            .18
+        );
+}
+
+.activeTab:hover {
+    color: #ffffff;
+}
+
+/* =========================================================
+   LIST
+========================================================= */
+
+.list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 11px;
+}
+
+.item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    min-width: 0;
+
+    padding: 14px 15px;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    transition:
+        border-color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.item:hover {
+    border-color: #ffd6c5;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(
+            16,
+            24,
+            40,
+            .05
+        );
+}
+
+/* =========================================================
+   CUSTOMER
+========================================================= */
+
+.customerIcon {
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 13px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.info {
+    flex: 1;
+
+    min-width: 200px;
+}
+
+.itemLabel {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #98a2b3;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .7px;
+}
+
+.customerName {
+    margin: 0;
+
+    overflow: hidden;
+
+    color: #101828;
+
+    font-size: 15px;
+
+    font-weight: 750;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+.service {
+    display: block;
+
+    margin-top: 4px;
+
+    color: #667085;
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   DATE / TIME META
+========================================================= */
+
+.meta {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    min-width: 120px;
+
+    color: #ff5b00;
+}
+
+.meta > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.meta span {
+    color: #98a2b3;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+.meta strong {
+    color: #344054;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.statusArea {
+    min-width: 95px;
+
+    display: flex;
+
+    justify-content: center;
+}
+
+.status {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    min-width: 80px;
+
+    padding: 6px 9px;
+
+    border-radius: 999px;
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
+
+.pending {
+    background: #fff7e8;
+
+    color: #b54708;
+}
+
+.approved {
+    background: #eafaf0;
+
+    color: #12b76a;
+}
+
+.rejected {
+    background: #fff0ef;
+
+    color: #d92d20;
+}
+
+.statusIcon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+}
+
+.statusIcon svg {
+    color: #98a2b3;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    flex-shrink: 0;
+}
+
+.approveButton,
+.rejectButton {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    height: 37px;
+
+    padding: 0 11px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+.approveButton {
+    border: 1px solid #12b76a;
+
+    background: #eafaf0;
+
+    color: #12b76a;
+}
+
+.approveButton:hover {
+    background: #12b76a;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+}
+
+.rejectButton {
+    border: 1px solid #f04438;
+
+    background: #fff0ef;
+
+    color: #d92d20;
+}
+
+.rejectButton:hover {
+    background: #f04438;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty {
+    min-height: 330px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 40px;
+
+    border: 1px dashed #d0d5dd;
+
+    border-radius: 17px;
+
+    background: #fafbfc;
+
+    text-align: center;
+}
+
+.emptyIcon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+    border-radius: 16px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.empty h3 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 18px;
+}
+
+.empty p {
+    max-width: 400px;
+
+    margin: 8px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loadingList {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 11px;
+}
+
+.skeleton {
+    height: 83px;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf0f4 25%,
+            #f8f9fb 50%,
+            #edf0f4 75%
+        );
+
+    background-size: 200% 100%;
+
+    animation:
+        shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1150px) {
+    .hero {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .heroStats {
+        width: 100%;
+    }
+
+    .statBox {
+        flex: 1;
+    }
+}
+
+@media (max-width: 900px) {
+    .cardHeader {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .tabs {
+        width: fit-content;
+    }
+
+    .item {
+        flex-wrap: wrap;
+    }
+
+    .info {
+        min-width: calc(
+            100% - 64px
+        );
+    }
+
+    .meta {
+        margin-left: 60px;
+    }
+
+    .statusArea {
+        margin-left: 60px;
+    }
+
+    .actions {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 650px) {
+    .page {
+        padding: 20px 14px 45px;
+    }
+
+    .rentalCard {
+        padding: 19px;
+    }
+
+    .heroStats {
+        align-items: stretch;
+
+        flex-wrap: wrap;
+    }
+
+    .statBox {
+        min-width: 140px;
+
+        flex: 1;
+    }
+
+    .smallStat {
+        flex: 1;
+    }
+
+    .item {
+        align-items: flex-start;
+
+        padding: 13px;
+    }
+
+    .customerIcon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .info {
+        min-width: calc(
+            100% - 58px
+        );
+    }
+
+    .meta {
+        margin-left: 58px;
+
+        min-width: 115px;
+    }
+
+    .statusArea {
+        margin-left: 58px;
+
+        justify-content: flex-start;
+    }
+
+    .actions {
+        width: calc(
+            100% - 58px
+        );
+
+        margin-left: 58px;
+    }
+
+    .approveButton,
+    .rejectButton {
+        flex: 1;
+    }
+}
+
+@media (max-width: 430px) {
+    .heading {
+        font-size: 2.1rem;
+    }
+
+    .tabs {
+        width: 100%;
+    }
+
+    .tab {
+        flex: 1;
+    }
+
+    .heroStats {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .statBox {
+        min-width: 0;
+
+        grid-column: span 2;
+    }
+}

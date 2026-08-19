@@ -3,105 +3,115 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
+
 import styles from "./RentalsToolbar.module.css";
 
-/**
- * Static category list – the backend has no category support for rentals yet.
- * These buttons only filter the already‑loaded list in the parent component.
- */
-export const CATEGORIES = ["Cameras", "Lenses", "Lights"] as const;
-export type Category = (typeof CATEGORIES)[number];
-
 type Props = {
-  /** Current search term, passed from parent */
   search?: string;
-  /** Callback when search input changes */
-  onSearchChange?: (value: string) => void;
-  /** Currently selected category (or null) */
-  category?: Category | null;
-  /** Callback when a category button is clicked */
-  onCategoryChange?: (value: Category | null) => void;
+  onSearchChange?: (
+    value: string
+  ) => void;
 };
 
 export default function RentalsToolbar({
-  search,
+  search = "",
   onSearchChange,
-  category,
-  onCategoryChange,
 }: Props) {
   const router = useRouter();
 
-  /** Toggle category selection – if the same category is clicked again, deselect it */
-  function handleCategory(next: Category) {
-    if (onCategoryChange) {
-      onCategoryChange(category === next ? null : next);
-    } else {
-      // If no handler is provided, navigate back to the rentals page (fallback)
-      router.push("/rentals");
-    }
-  }
+  const handleSearchChange = (
+    value: string
+  ) => {
+    onSearchChange?.(value);
+  };
 
-  /** Navigate to the cart page */
+  const clearSearch = () => {
+    onSearchChange?.("");
+  };
+
   const handleCartClick = () => {
     router.push("/cart");
   };
 
   return (
-    <div className={styles.band}>
-      <h1 className={styles.heading}>Rent a Gadget Today</h1>
+    <section className={styles.band}>
+      <div className={styles.inner}>
 
-      <div className={styles.bar}>
-        {/* Search bar */}
-        <div className={styles.searchWrap}>
-          <Search className={styles.searchIcon} size={20} aria-hidden="true" />
-          <input
-            className={styles.search}
-            type="search"
-            placeholder="Search"
-            aria-label="Search gadgets"
-            value={search ?? ""}
-            onChange={(e) =>
-              onSearchChange ? onSearchChange(e.target.value) : router.push("/rentals")
-            }
-          />
+        {/* =================================================
+            HEADING
+        ================================================= */}
+
+        <div className={styles.headingArea}>
+
+          <h1 className={styles.heading}>
+            Rent a Gadget Today
+          </h1>
+
+          <p className={styles.subheading}>
+            Browse available equipment and
+            choose what you need for your
+            next project.
+          </p>
         </div>
 
-        <div className={styles.filters}>
-          {/* Category filter group – client‑side only */}
-          <div className={styles.filterGroup}>
-            <span className={styles.filterCaption}>Filter</span>
-            <div className={styles.filterButtons}>
-              {CATEGORIES.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  className={`${styles.filter} ${category === name ? styles.filterActive : ""}`}
-                  aria-pressed={category === name}
-                  onClick={() => handleCategory(name)}
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
+        {/* =================================================
+            TOOLBAR
+        ================================================= */}
+
+        <div className={styles.bar}>
+
+          {/* SEARCH */}
+
+          <div className={styles.searchWrap}>
+            <Search
+              className={styles.searchIcon}
+              size={17}
+              aria-hidden="true"
+            />
+
+            <input
+              className={styles.search}
+              type="search"
+              placeholder="Search rental equipment..."
+              aria-label="Search rental equipment"
+              value={search}
+              onChange={(event) =>
+                handleSearchChange(
+                  event.target.value
+                )
+              }
+            />
+
+            {search && (
+              <button
+                type="button"
+                className={styles.clearSearch}
+                onClick={clearSearch}
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
           </div>
 
-          {/* Cart icon – navigates to /cart */}
+          {/* CART */}
+
           <button
             type="button"
             className={styles.cart}
-            aria-label="Cart"
+            aria-label="Open cart"
             onClick={handleCartClick}
           >
             <Image
               src="/icons/Cart.png"
               alt=""
-              width={30}
-              height={30}
+              width={22}
+              height={22}
               className={styles.cartIcon}
             />
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

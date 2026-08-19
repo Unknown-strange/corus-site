@@ -1,0 +1,468 @@
+.card {
+    min-width: 0;
+
+    padding: 27px;
+
+    border: 1px solid #eef0f4;
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 15px rgba(16, 24, 40, .03),
+        0 12px 32px rgba(16, 24, 40, .06);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 10px 25px rgba(16, 24, 40, .06),
+        0 20px 45px rgba(16, 24, 40, .08);
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 8px;
+}
+
+.titleArea {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 14px;
+}
+
+.icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #f4efff;
+
+    color: #8b5cf6;
+}
+
+.title {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.subtitle {
+    margin: 5px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 13px;
+}
+
+.viewAll {
+    padding: 8px 13px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #f5f0ff;
+
+    color: #7c3aed;
+
+    font-family: inherit;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.viewAll:hover {
+    background: #ede5ff;
+}
+
+.list {
+    margin-top: 10px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid #f2f4f7;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.itemIcon {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+}
+
+.booking {
+    background: #fff0e8;
+    color: #ff5b00;
+}
+
+.rental {
+    background: #edf3ff;
+    color: #2563eb;
+}
+
+.order {
+    background: #eafaf1;
+    color: #16a34a;
+}
+
+.itemMain {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    gap: 3px;
+}
+
+.itemMain strong {
+    overflow: hidden;
+
+    color: #101828;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.itemMain span {
+    overflow: hidden;
+
+    color: #98a2b3;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.itemRight {
+    margin-left: auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    gap: 6px;
+
+    flex-shrink: 0;
+}
+
+.time {
+    color: #98a2b3;
+
+    font-size: 11px;
+}
+
+.status {
+    padding: 5px 9px;
+
+    border-radius: 7px;
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.completed {
+    background: #eafaf0;
+    color: #12b76a;
+}
+
+.active {
+    background: #edf3ff;
+    color: #2563eb;
+}
+
+@media (max-width: 600px) {
+    .card {
+        padding: 22px 18px;
+    }
+
+    .itemRight {
+        gap: 4px;
+    }
+
+    .status {
+        font-size: 9px;
+    }
+}
+.card {
+    grid-column: span 2;
+
+    background: #ffffff;
+
+    border: 1px solid #f2f4f7;
+
+    border-radius: 24px;
+
+    padding: 24px;
+
+    box-shadow:
+        0 4px 12px rgba(16,24,40,.04),
+        0 12px 35px rgba(16,24,40,.06);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.titleArea {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #fff1e8;
+    color: #ff5b00;
+}
+
+.title {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 19px;
+    font-weight: 750;
+}
+
+.subtitle {
+    margin: 4px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 12px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 13px 0;
+
+    border-bottom:
+        1px solid #f2f4f7;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.itemIcon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+}
+
+.booking {
+    background: #fff1e8;
+    color: #ff5b00;
+}
+
+.rental {
+    background: #edf3ff;
+    color: #2563eb;
+}
+
+.order {
+    background: #ecfdf3;
+    color: #12b76a;
+}
+
+.default {
+    background: #f2f4f7;
+    color: #667085;
+}
+
+.itemMain {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.itemMain strong {
+    color: #101828;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.itemMain span {
+    color: #667085;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.itemMain small {
+    color: #98a2b3;
+
+    font-size: 9px;
+}
+
+.itemRight {
+    flex-shrink: 0;
+}
+
+.time {
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activitySkeleton {
+    width: 100%;
+    height: 62px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf0f4 25%,
+            #f8f9fb 50%,
+            #edf0f4 75%
+        );
+
+    background-size: 200% 100%;
+
+    animation: activityShimmer 1.3s infinite;
+}
+
+@keyframes activityShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.empty {
+    min-height: 170px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    color: #98a2b3;
+
+    font-size: 12px;
+
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .card {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .card {
+        padding: 18px;
+
+        border-radius: 20px;
+    }
+
+    .itemIcon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .itemMain strong {
+        font-size: 12px;
+    }
+}

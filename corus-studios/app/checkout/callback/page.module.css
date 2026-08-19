@@ -1,0 +1,205 @@
+.page {
+  min-height: 70vh;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px 20px;
+
+  background: #f7f8fa;
+}
+
+.card {
+  width: 100%;
+
+  max-width: 520px;
+
+  padding: 42px 35px;
+
+  border: 1px solid #eceff3;
+
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  text-align: center;
+
+  box-shadow:
+    0 12px 35px
+      rgba(
+        16,
+        24,
+        40,
+        0.06
+      );
+}
+
+.icon {
+  width: 76px;
+  height: 76px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 20px;
+}
+
+.loading {
+  background: #fff1e8;
+
+  color: #ff5100;
+}
+
+.success {
+  background: #ecfdf3;
+
+  color: #16a34a;
+}
+
+.error {
+  background: #fef2f2;
+
+  color: #dc2626;
+}
+
+.icon.loading svg {
+  animation:
+    spin 1s linear infinite;
+}
+
+.card h1 {
+  margin: 0 0 12px;
+
+  color: #101828;
+
+  font-size: 28px;
+
+  font-weight: 750;
+
+  letter-spacing: -0.5px;
+}
+
+.card p {
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.reference {
+  margin-top: 20px;
+
+  padding: 15px;
+
+  border: 1px solid #eef0f4;
+
+  border-radius: 11px;
+
+  background: #f9fafb;
+
+  text-align: left;
+}
+
+.reference span {
+  display: block;
+
+  margin-top: 10px;
+
+  color: #98a2b3;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+}
+
+.reference span:first-child {
+  margin-top: 0;
+}
+
+.reference strong {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #344054;
+
+  font-size: 12px;
+
+  word-break: break-word;
+}
+
+.closeNote {
+  margin-top: 15px !important;
+
+  color: #98a2b3 !important;
+
+  font-size: 11px !important;
+}
+
+.button {
+  margin-top: 22px;
+
+  min-width: 150px;
+
+  height: 44px;
+
+  padding: 0 20px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background: #ff5100;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.button:hover {
+  background: #e84f00;
+
+  transform:
+    translateY(-1px);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding:
+      34px
+      22px;
+  }
+
+  .card h1 {
+    font-size: 24px;
+  }
+}

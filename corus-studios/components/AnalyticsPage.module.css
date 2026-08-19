@@ -1,0 +1,475 @@
+.page {
+    min-height: 100vh;
+
+    background: #f6f8fb;
+
+    padding: 30px 36px 70px;
+
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.container {
+    max-width: 1350px;
+
+    margin: 0 auto;
+}
+
+.hero {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    min-height: 170px;
+
+    margin-bottom: 18px;
+
+    padding: 30px 34px 30px 80px;
+
+    border: 1px solid #eef0f4;
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(16,24,40,.03),
+        0 14px 35px rgba(16,24,40,.05);
+}
+
+.backButton {
+    position: absolute;
+
+    left: 26px;
+    top: 28px;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #344054;
+
+    text-decoration: none;
+}
+
+.backButton:hover {
+    border-color: #ff5b00;
+    color: #ff5b00;
+}
+
+.eyebrow {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.titleIcon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 14px;
+}
+
+.titleRow h1 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: clamp(2rem, 4vw, 2.8rem);
+
+    font-weight: 750;
+
+    letter-spacing: -1px;
+}
+
+.titleRow p {
+    max-width: 650px;
+
+    margin: 7px 0 0;
+
+    color: #667085;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.controls {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+.rangeButtons {
+    display: flex;
+
+    gap: 7px;
+}
+
+.rangeButton,
+.rangeActive {
+    height: 37px;
+
+    padding: 0 13px;
+
+    border: 1px solid #d0d5dd;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #667085;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.rangeButton:hover {
+    border-color: #ff5b00;
+    color: #ff5b00;
+}
+
+.rangeActive {
+    color: #ffffff;
+}
+
+.period {
+    color: #98a2b3;
+    font-size: 11px;
+}
+
+.error {
+    margin-bottom: 18px;
+
+    padding: 12px 14px;
+
+    border: 1px solid #ffd6d2;
+    border-radius: 10px;
+
+    background: #fff2f0;
+    color: #b42318;
+
+    font-size: 12px;
+}
+
+.summaryGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 14px;
+
+    margin-bottom: 18px;
+}
+
+.summaryCard {
+    padding: 20px;
+
+    border: 1px solid #eef0f4;
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 15px rgba(16,24,40,.03);
+}
+
+.summaryCard span {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+.summaryCard strong {
+    color: #101828;
+
+    font-size: 22px;
+
+    font-weight: 800;
+}
+
+.chartCard,
+.topItemsCard {
+    margin-bottom: 18px;
+
+    padding: 26px;
+
+    border: 1px solid #eef0f4;
+    border-radius: 22px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 15px rgba(16,24,40,.03),
+        0 12px 30px rgba(16,24,40,.04);
+}
+
+.cardHeader {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.cardHeader h2 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 19px;
+
+    font-weight: 750;
+}
+
+.cardHeader p {
+    margin: 5px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 11px;
+}
+
+.legend {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #667085;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.legend span {
+    width: 9px;
+    height: 9px;
+
+    display: block;
+
+    border-radius: 50%;
+}
+
+.chart {
+    width: 100%;
+    height: 390px;
+}
+
+.chartLoading {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #98a2b3;
+
+    font-size: 12px;
+}
+
+.topItemsList {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.topItem {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 13px;
+
+    border: 1px solid #eaecf0;
+    border-radius: 13px;
+}
+
+.rank {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.itemInfo {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.itemInfo strong {
+    color: #101828;
+
+    font-size: 12px;
+}
+
+.itemInfo span {
+    color: #98a2b3;
+
+    font-size: 9px;
+}
+
+.itemRevenue {
+    color: #101828;
+
+    font-size: 12px;
+}
+
+.topItemsLoading {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.topItemsLoading div {
+    height: 60px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf0f4 25%,
+            #f8f9fb 50%,
+            #edf0f4 75%
+        );
+
+    background-size: 200% 100%;
+
+    animation: shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.noTopItems {
+    padding: 45px;
+
+    color: #98a2b3;
+
+    text-align: center;
+
+    font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+    .summaryGrid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .page {
+        padding: 20px 14px 50px;
+    }
+
+    .hero {
+        padding: 27px 20px 27px 67px;
+    }
+
+    .backButton {
+        left: 18px;
+    }
+
+    .controls {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rangeButtons {
+        width: 100%;
+    }
+
+    .rangeButton,
+    .rangeActive {
+        flex: 1;
+    }
+
+    .summaryGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .chartCard,
+    .topItemsCard {
+        padding: 20px;
+    }
+
+    .chart {
+        height: 300px;
+    }
+
+    .period {
+        width: 100%;
+    }
+}
