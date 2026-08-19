@@ -1,152 +1,429 @@
 .page {
-  min-height:100vh;
-  background:#f8fafc;
-  padding:40px;
+    min-height: 100vh;
+    background: #f6f8fb;
+    padding: 28px 36px 60px;
+    font-family: Helvetica, Arial, sans-serif;
 }
-
 
 .inner {
-  max-width:1400px;
-  margin:auto;
-  align-items:center;
-  color:#667085;
-  text-align:center;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
+/* =========================================================
+   HERO
+========================================================= */
 
 .hero {
-background:white;
-border-radius:28px;
-padding:35px;
-margin-bottom:30px;
-border:1px solid #f2f4f7;
-box-shadow:
-0 10px 30px rgba(16,24,40,.05);
+    position: relative;
+
+    min-height: 270px;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    margin-bottom: 28px;
+
+    padding: 38px;
+
+    border: 1px solid #eef0f4;
+    border-radius: 28px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(16, 24, 40, 0.03),
+        0 15px 35px rgba(16, 24, 40, 0.05);
+}
+
+.heroContent {
+    position: relative;
+    z-index: 2;
+
+    max-width: 700px;
 }
 
 .badge {
-display:inline-flex;
-padding:8px 14px;
-border-radius:999px;
-background:#fff1e8;
-color:#ff5b00;
-font-size:13px;
-font-weight:700;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 9px 15px;
+
+    border-radius: 999px;
+
+    background: #fff1e8;
+    color: #ff5b00;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.badgeIcon {
+    font-size: 12px;
 }
 
 .welcome {
-  margin:18px 0 8px;
-  font-size:36px;
-  color:#101828;
-  font-weight:500;
-  font-style:bold;
+    margin: 19px 0 8px;
+
+    color: #101828;
+
+    font-size: clamp(
+        2.2rem,
+        4vw,
+        3.3rem
+    );
+
+    font-weight: 700;
+
+    letter-spacing: -1.8px;
+
+    line-height: 1.1;
 }
 
-.hero p {
-color:#667085;
-font-size:16px;
+.wave {
+    display: inline-block;
+
+    transform-origin: 70% 70%;
 }
+
+.heroText {
+    margin: 0;
+
+    color: #667085;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+}
+
+.heroMeta {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+
+    margin-top: 30px;
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: #475467;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.metaIcon {
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #fff5ef;
+    color: #ff5b00;
+}
+
+.clockDot {
+    width: 15px;
+    height: 15px;
+
+    display: block;
+
+    border: 2px solid #ff5b00;
+    border-radius: 50%;
+
+    position: relative;
+}
+
+.clockDot::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 5px;
+    height: 2px;
+
+    transform:
+        translate(-5%, -50%)
+        rotate(20deg);
+
+    transform-origin: left center;
+
+    background: #ff5b00;
+
+    border-radius: 2px;
+}
+
+.heroGlow {
+    position: absolute;
+
+    right: -120px;
+    bottom: -180px;
+
+    width: 520px;
+    height: 420px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 91, 0, 0.12),
+            rgba(255, 91, 0, 0.03) 45%,
+            transparent 70%
+        );
+
+    filter: blur(3px);
+}
+
+/* =========================================================
+   STATS
+========================================================= */
 
 .stats {
-display:grid;
-grid-template-columns:
-repeat(3,1fr);
-gap:24px;
-margin-bottom:35px;
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 22px;
+
+    margin-bottom: 28px;
 }
 
-.actions {
-margin-bottom:35px;
+/* =========================================================
+   MAIN GRID
+========================================================= */
+
+.dashboardGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 24px;
 }
 
-.actions h2 {
-font-size:22px;
-color:#101828;
-margin-bottom:18px;
+/* =========================================================
+   LOADING
+========================================================= */
+
+.heroSkeleton {
+    height: 270px;
+
+    margin-bottom: 28px;
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf0f4 25%,
+            #f7f8fa 50%,
+            #edf0f4 75%
+        );
+
+    background-size: 200% 100%;
+
+    animation: shimmer 1.5s infinite;
 }
 
-.actionGrid {
-display:flex;
-gap:16px;
-flex-wrap:wrap;
-}
+.statsSkeletonGrid {
+    display: grid;
 
-.actionButton {
-display:flex;
-align-items:center;
-gap:10px;
-padding:14px 22px;
-border-radius:14px;
-border:none;
-background:white;
-color:#344054;
-font-weight:600;
-cursor:pointer;
-box-shadow:
-0 8px 25px rgba(0,0,0,.05);
-transition:.25s;
-}
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
 
-.actionButton:hover {
-background:#ff5b00;
-color:white;
-transform:translateY(-3px);
-}
+    gap: 22px;
 
-.charts {
-display:grid;
-grid-template-columns:
-repeat(2,1fr);
-gap:25px;
-}
-
-.skeletonCard,
-.skeletonChart {
-background:#eaeef5;
-border-radius:24px;
-animation:pulse 1.5s infinite;
+    margin-bottom: 28px;
 }
 
 .skeletonCard {
-height:220px;
+    height: 176px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf0f4 25%,
+            #f7f8fa 50%,
+            #edf0f4 75%
+        );
+
+    background-size: 200% 100%;
+
+    animation: shimmer 1.5s infinite;
+}
+
+.dashboardSkeletonGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 24px;
 }
 
 .skeletonChart {
-height:400px;
+    height: 420px;
+
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf0f4 25%,
+            #f7f8fa 50%,
+            #edf0f4 75%
+        );
+
+    background-size: 200% 100%;
+
+    animation: shimmer 1.5s infinite;
 }
 
-@keyframes pulse {
-50%{
-opacity:.5;
+.skeletonActivity {
+    height: 420px;
+
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf0f4 25%,
+            #f7f8fa 50%,
+            #edf0f4 75%
+        );
+
+    background-size: 200% 100%;
+
+    animation: shimmer 1.5s infinite;
 }
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
+
+/* =========================================================
+   ERROR
+========================================================= */
 
 .errorCard {
-background:white;
-padding:40px;
-border-radius:20px;
-text-align:center;
+    max-width: 550px;
+
+    margin: 100px auto;
+
+    padding: 44px;
+
+    border: 1px solid #eef0f4;
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    box-shadow:
+        0 12px 35px rgba(16, 24, 40, .06);
+}
+
+.errorIcon {
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #fff0f0;
+
+    color: #d92d20;
+
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .errorCard h2 {
-  font-size:24px;
-  color:#101828;
-  margin-bottom:12px;
-  font-weight:600;
+    margin: 0 0 10px;
+
+    color: #101828;
+
+    font-size: 24px;
 }
 
 .errorCard p {
-  font-size:16px;
-  color:#667085;
-  margin-bottom:20px;
-}
-@media(max-width:900px){
-.stats, .charts{
-grid-template-columns:1fr;
+    margin: 0;
+
+    color: #667085;
+
+    line-height: 1.6;
 }
 
-.page{
-padding:20px;
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboardGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .statsSkeletonGrid,
+    .dashboardSkeletonGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
+@media (max-width: 700px) {
+    .page {
+        padding: 20px 16px 40px;
+    }
+
+    .hero {
+        min-height: auto;
+
+        padding: 28px 22px;
+    }
+
+    .welcome {
+        font-size: 2.1rem;
+    }
+
+    .heroMeta {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+    .heroGlow {
+        right: -220px;
+    }
 }

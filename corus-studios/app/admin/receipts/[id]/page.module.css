@@ -1,0 +1,882 @@
+.page {
+    min-height: 100vh;
+
+    background: #f6f8fb;
+
+    padding: 32px 36px 70px;
+
+    font-family:
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+
+.container {
+    width: 100%;
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.pageHeader {
+    position: relative;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 17px;
+
+    margin-bottom: 20px;
+
+    padding-left: 52px;
+}
+
+.backButton {
+    position: absolute;
+
+    left: 0;
+    top: 2px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color: #344054;
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.backButton:hover {
+    border-color: #ff5b00;
+
+    color: #ff5b00;
+
+    transform: translateX(-2px);
+}
+
+.eyebrow {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #ff5b00;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.3px;
+
+    text-transform: uppercase;
+}
+
+.heading {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: clamp(
+        2rem,
+        4vw,
+        2.7rem
+    );
+
+    font-weight: 750;
+
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    margin: 6px 0 0;
+
+    color: #667085;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+/* =========================================================
+   RECEIPT HEADER
+========================================================= */
+
+.receiptCard {
+    margin-bottom: 18px;
+
+    padding: 25px;
+
+    border: 1px solid #eef0f4;
+
+    border-radius: 22px;
+
+    background: #fff;
+
+    box-shadow:
+        0 5px 16px rgba(16,24,40,.03),
+        0 12px 30px rgba(16,24,40,.04);
+}
+
+.receiptHeader {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.receiptIdentity {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+}
+
+.receiptIcon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.itemLabel {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #98a2b3;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .6px;
+}
+
+.receiptIdentity h2 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+.receiptType {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #667085;
+
+    font-size: 10px;
+}
+
+.headerRight {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 4px;
+}
+
+.status {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 5px 9px;
+
+    border-radius: 50px;
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
+
+.paid {
+    background: #ecfdf3;
+
+    color: #027a48;
+}
+
+.pending {
+    background: #fff7ed;
+
+    color: #c2410c;
+}
+
+.headerAmount {
+    color: #101828;
+
+    font-size: 23px;
+
+    font-weight: 800;
+}
+
+.issued {
+    color: #98a2b3;
+
+    font-size: 9px;
+}
+
+.headerActions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 20px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid #f2f4f7;
+}
+
+.downloadButton {
+    height: 40px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 0 15px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #ff5b00;
+
+    color: #fff;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
+}
+
+.downloadButton:hover:not(:disabled) {
+    background: #e84f00;
+
+    transform: translateY(-1px);
+}
+
+.downloadButton:disabled {
+    opacity: .55;
+
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   TWO COLUMNS
+========================================================= */
+
+.twoColumn {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 18px;
+}
+
+.infoCard,
+.itemsCard {
+    border: 1px solid #eef0f4;
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    box-shadow:
+        0 5px 15px rgba(16,24,40,.03);
+}
+
+.infoCard {
+    padding: 22px;
+}
+
+.sectionHeader {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.sectionIcon {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.sectionHeader h2 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 16px;
+
+    font-weight: 750;
+}
+
+.sectionHeader p {
+    margin: 3px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+}
+
+/* =========================================================
+   CUSTOMER
+========================================================= */
+
+.customerDetails,
+.paymentDetails {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0;
+}
+
+.customerDetails > div,
+.paymentDetails > div {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 11px 0;
+
+    border-bottom:
+        1px solid #f2f4f7;
+}
+
+.customerDetails > div:last-child,
+.paymentDetails > div:last-child {
+    border-bottom: none;
+}
+
+.customerDetails span,
+.paymentDetails span {
+    color: #98a2b3;
+
+    font-size: 10px;
+}
+
+.customerDetails strong,
+.paymentDetails strong {
+    max-width: 65%;
+
+    color: #344054;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-align: right;
+
+    overflow-wrap: anywhere;
+}
+
+.paidAmount {
+    color: #039855 !important;
+}
+
+.balanceDue {
+    color: #d92d20 !important;
+}
+
+.reference {
+    font-size: 10px !important;
+}
+
+/* =========================================================
+   LINE ITEMS
+========================================================= */
+
+.itemsCard {
+    margin-bottom: 18px;
+
+    padding: 22px;
+}
+
+.table {
+    border: 1px solid #eaecf0;
+
+    border-radius: 13px;
+
+    overflow: hidden;
+}
+
+.tableHeader,
+.tableRow {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 2fr)
+        70px
+        130px
+        130px;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 13px 15px;
+}
+
+.tableHeader {
+    background: #f8fafc;
+
+    color: #667085;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+.tableRow {
+    border-top:
+        1px solid #f2f4f7;
+
+    color: #344054;
+
+    font-size: 11px;
+}
+
+.tableRow > span:nth-last-child(-n+2),
+.tableRow > strong {
+    text-align: right;
+}
+
+.descriptionCell {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.descriptionCell strong {
+    color: #101828;
+
+    font-size: 11px;
+}
+
+.descriptionCell span {
+    color: #98a2b3;
+
+    font-size: 9px;
+}
+
+.quantity {
+    color: #667085;
+
+    font-weight: 600;
+}
+
+.noItems {
+    padding: 25px;
+
+    text-align: center;
+
+    color: #98a2b3;
+
+    font-size: 11px;
+}
+
+.totalRow {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 20px;
+
+    margin-top: 15px;
+
+    padding-top: 15px;
+
+    border-top: 1px solid #f2f4f7;
+
+    color: #667085;
+
+    font-size: 11px;
+}
+
+.totalRow strong {
+    color: #101828;
+
+    font-size: 18px;
+
+    font-weight: 800;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footerCard {
+    display: flex;
+
+    align-items: center;
+
+    gap: 30px;
+
+    padding: 17px 20px;
+
+    border: 1px solid #eef0f4;
+
+    border-radius: 15px;
+
+    background: #fff;
+}
+
+.footerCard > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    min-width: 0;
+}
+
+.footerCard span {
+    color: #98a2b3;
+
+    font-size: 8px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+.footerCard strong {
+    max-width: 300px;
+
+    overflow: hidden;
+
+    color: #667085;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.backLink {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-left: auto;
+
+    color: #ff5b00;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loadingCard {
+    min-height: 50vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    color: #667085;
+
+    font-size: 12px;
+}
+
+.spinner {
+    width: 28px;
+    height: 28px;
+
+    border: 3px solid #f1f3f5;
+
+    border-top-color:
+        #ff5b00;
+
+    border-radius: 50%;
+
+    animation:
+        spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   NOT FOUND
+========================================================= */
+
+.notFound {
+    padding: 80px 30px;
+
+    border: 1px solid #eef0f4;
+
+    border-radius: 22px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 15px rgba(16,24,40,.03);
+}
+
+.notFoundIcon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin: 0 auto 16px;
+
+    border-radius: 16px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.notFound h1 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 21px;
+}
+
+.notFound p {
+    max-width: 400px;
+
+    margin: 8px auto 20px;
+
+    color: #667085;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+}
+
+.backMainButton {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 10px 15px;
+
+    border-radius: 9px;
+
+    background: #ff5b00;
+
+    color: #fff;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+    .page {
+        padding:
+            22px
+            16px
+            50px;
+    }
+
+    .receiptHeader {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .headerRight {
+        align-items: flex-start;
+    }
+
+    .twoColumn {
+        grid-template-columns: 1fr;
+    }
+
+    .table {
+        overflow-x: auto;
+    }
+
+    .tableHeader,
+    .tableRow {
+        min-width: 650px;
+    }
+
+    .footerCard {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 14px;
+    }
+
+    .backLink {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .pageHeader {
+        padding-left: 46px;
+    }
+
+    .receiptCard,
+    .infoCard,
+    .itemsCard {
+        padding: 18px;
+    }
+
+    .receiptIdentity {
+        align-items: flex-start;
+    }
+
+    .headerAmount {
+        font-size: 20px;
+    }
+
+    .customerDetails > div,
+    .paymentDetails > div {
+        flex-direction: column;
+
+        gap: 4px;
+    }
+
+    .customerDetails strong,
+    .paymentDetails strong {
+        max-width: 100%;
+
+        text-align: left;
+    }
+
+    .headerActions {
+        justify-content: stretch;
+    }
+
+    .downloadButton {
+        width: 100%;
+    }
+}

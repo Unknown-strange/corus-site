@@ -1,159 +1,410 @@
-/*
- * Grey band at the top of every rentals screen: page heading, search box,
- * category filters, cart.
- */
+/* =========================================================
+   RENTALS TOOLBAR
+========================================================= */
 
 .band {
-  padding: 2rem 1.25rem 2.25rem;
-  background: #d9d9d9;
+  width: 100%;
+
+  padding: 2rem 1.25rem 1.8rem;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ededed 0%,
+      #e4e4e4 100%
+    );
 }
 
-.heading {
-  margin: 0 0 1.75rem;
-  color: #000000;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: clamp(1.6rem, 4.5vw, 3rem);
-  font-weight: 700;
-  text-align: center;
-  text-transform: uppercase;
-}
+.inner {
+  width: 100%;
 
-.bar {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  max-width: 62rem;
+  max-width: 1180px;
+
   margin: 0 auto;
 }
 
+/* =========================================================
+   HEADING
+========================================================= */
+
+.headingArea {
+  text-align: center;
+
+  margin-bottom: 1.35rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 0.45rem;
+
+  padding: 0.28rem 0.6rem;
+
+  border-radius: 999px;
+
+  background: #fff1e8;
+
+  color: #ff5100;
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  font-size: 0.62rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.8px;
+}
+
+.heading {
+  margin: 0;
+
+  color: #111111;
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  font-size: clamp(
+    1.8rem,
+    4vw,
+    2.7rem
+  );
+
+  font-weight: 800;
+
+  line-height: 1.05;
+
+  letter-spacing: -1px;
+}
+
+.subheading {
+  max-width: 500px;
+
+  margin: 0.45rem auto 0;
+
+  color: #6f6f6f;
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  font-size: 0.82rem;
+
+  line-height: 1.45;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.bar {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.55rem;
+
+  padding: 0.45rem;
+
+  border: 1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.75
+    );
+
+  border-radius: 13px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.72
+  );
+
+  box-shadow:
+    0 6px 18px
+      rgba(
+        0,
+        0,
+        0,
+        0.05
+      );
+
+  backdrop-filter: blur(8px);
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
 .searchWrap {
   position: relative;
+
   flex: 1 1 auto;
+
   min-width: 0;
+
+  height: 44px;
 }
 
 .searchIcon {
   position: absolute;
+
+  left: 13px;
+
   top: 50%;
-  left: 1rem;
-  color: #6b6b6b;
-  transform: translateY(-50%);
+
+  width: 17px;
+  height: 17px;
+
+  color: #8a8a8a;
+
+  transform:
+    translateY(-50%);
+
   pointer-events: none;
 }
 
 .search {
   width: 100%;
-  height: 3.25rem;
-  padding: 0 1rem 0 2.75rem;
-  border: none;
-  background: #efefef;
-  color: #000000;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 1.05rem;
+
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding:
+    0 2.5rem
+    0 2.45rem;
+
+  border: 1px solid
+    transparent;
+
+  border-radius: 9px;
+
+  background: #f5f5f5;
+
+  color: #111111;
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  font-size: 0.84rem;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .search::placeholder {
-  color: #6b6b6b;
+  color: #8b8b8b;
+
   opacity: 1;
 }
 
-/* The "Filter" caption sits above the category buttons, not the search box */
-.filters {
+.search:hover {
+  background: #f1f1f1;
+}
+
+.search:focus {
+  border-color: #ff5100;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+      rgba(
+        255,
+        81,
+        0,
+        0.07
+      );
+}
+
+.clearSearch {
+  position: absolute;
+
+  top: 50%;
+
+  right: 8px;
+
+  width: 25px;
+  height: 25px;
+
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
 
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
+  align-items: center;
+  justify-content: center;
 
-.filterCaption {
-  color: #8a8a8a;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-align: center;
-}
+  padding: 0;
 
-.filterButtons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.filter {
-  height: 3.25rem;
-  padding: 0 1.15rem;
   border: none;
-  background: #efefef;
-  color: #000000;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 700;
-  white-space: nowrap;
+
+  border-radius: 50%;
+
+  background: #dfdfdf;
+
+  color: #555555;
+
+  font-size: 0.95rem;
+
+  line-height: 1;
+
   cursor: pointer;
+
+  transform:
+    translateY(-50%);
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.filter:hover {
-  background: #e4e4e4;
-}
-
-.filterActive,
-.filterActive:hover {
+.clearSearch:hover {
   background: #ff5100;
+
   color: #ffffff;
 }
 
+/* =========================================================
+   CART
+========================================================= */
+
 .cart {
+  width: 44px;
+  height: 44px;
+
+  min-width: 44px;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
-  width: 3.9rem;
-  height: 3.25rem;
-  border: none;
+
+  padding: 0;
+
+  border: 1px solid
+    #e3e3e3;
+
+  border-radius: 9px;
+
   background: #ffffff;
+
+  color: #333333;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .cart:hover {
-  background: #f7f7f7;
+  border-color: #ff5100;
+
+  background: #fff7f2;
+
+  color: #ff5100;
+
+  transform:
+    translateY(-1px);
 }
 
 .cartIcon {
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 20px;
+  height: 20px;
+
   object-fit: contain;
 }
 
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
 .search:focus-visible,
-.filter:focus-visible,
-.cart:focus-visible {
+.cart:focus-visible,
+.clearSearch:focus-visible {
   outline: 2px solid #ff5100;
+
   outline-offset: 2px;
 }
 
-@media (max-width: 52rem) {
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .band {
+    padding:
+      1.5rem
+      0.75rem
+      1.25rem;
+  }
+
+  .headingArea {
+    margin-bottom: 1rem;
+  }
+
+  .eyebrow {
+    margin-bottom: 0.35rem;
+  }
+
+  .heading {
+    font-size: 1.8rem;
+  }
+
+  .subheading {
+    margin-top: 0.35rem;
+
+    font-size: 0.76rem;
+  }
+
   .bar {
-    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    padding: 0.4rem;
+
+    border-radius: 12px;
   }
 
-  .searchWrap {
-    flex: 1 1 100%;
+  .searchWrap,
+  .search {
+    height: 42px;
   }
 
-  .filters {
-    flex: 1 1 100%;
-    justify-content: space-between;
+  .searchIcon {
+    left: 12px;
+
+    width: 16px;
+    height: 16px;
   }
 
-  .filterButtons {
-    flex: 1 1 auto;
+  .search {
+    padding-left: 2.3rem;
   }
 
-  .filter {
-    flex: 1 1 auto;
-    padding: 0 0.75rem;
+  .cart {
+    width: 42px;
+    height: 42px;
+
+    min-width: 42px;
   }
 }

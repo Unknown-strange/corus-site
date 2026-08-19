@@ -7,66 +7,124 @@ import { useRouter } from "next/navigation";
 import { User, Lock, Eye, EyeOff } from "lucide-react";
 import styles from "./LogIn.module.css";
 
+type Notice = {
+  type: "success" | "error";
+  text: string;
+};
+
 export default function LogIn() {
   const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
     setNotice(null);
 
     const form = event.currentTarget;
     const formData = new FormData(form);
 
-    const username = formData.get("username") as string;
-    const password = formData.get("password") as string;
+    const username = String(formData.get("username") || "").trim();
+    const password = String(formData.get("password") || "");
 
     if (!username || !password) {
-      setNotice({ type: "error", text: "Please fill in all fields." });
+      setNotice({
+        type: "error",
+        text: "Please fill in all fields.",
+      });
       return;
     }
 
     setLoading(true);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiBase =
+        process.env.NEXT_PUBLIC_API_URL ||
+        "http://localhost:8000";
 
-      const loginResponse = await fetch(`${apiBase}/auth/login`, {
+      const loginUrl = `${apiBase}/auth/login`;
+
+      console.log("Login API:", loginUrl);
+
+      const loginResponse = await fetch(loginUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
       });
 
-      const loginData = await loginResponse.json();
+      let loginData: any = null;
+
+      try {
+        loginData = await loginResponse.json();
+      } catch {
+        loginData = null;
+      }
 
       if (!loginResponse.ok) {
-        let errorMsg = "Login failed. Please check your credentials.";
-        if (loginData.detail) {
+        let errorMessage =
+          "Login failed. Please check your credentials.";
+
+        if (loginData?.detail) {
           if (Array.isArray(loginData.detail)) {
-            errorMsg = loginData.detail.map((err: any) => err.msg).join(", ");
+            errorMessage = loginData.detail
+              .map((error: any) => error.msg)
+              .join(", ");
           } else {
-            errorMsg = loginData.detail;
+            errorMessage = loginData.detail;
           }
         }
-        throw new Error(errorMsg);
+
+        throw new Error(errorMessage);
       }
 
-      localStorage.setItem("access_token", loginData.access_token);
+      if (!loginData?.access_token) {
+        throw new Error(
+          "Login succeeded, but no access token was returned."
+        );
+      }
 
-      const meResponse = await fetch(`${apiBase}/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${loginData.access_token}`,
-        },
-      });
+      // Save token
+      localStorage.setItem(
+        "access_token",
+        loginData.access_token
+      );
+
+      // Get logged-in user's information
+      const meResponse = await fetch(
+        `${apiBase}/auth/me`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${loginData.access_token}`,
+          },
+        }
+      );
+
+      let userData: any = null;
+
+      try {
+        userData = await meResponse.json();
+      } catch {
+        userData = null;
+      }
 
       if (!meResponse.ok) {
-        throw new Error("Failed to fetch user details.");
+        throw new Error(
+          userData?.detail ||
+            "Failed to fetch user details."
+        );
       }
 
-      const userData = await meResponse.json();
-
+      // Save user information
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -78,19 +136,43 @@ export default function LogIn() {
         })
       );
 
-      setNotice({ type: "success", text: "Login successful! Redirecting..." });
+      setNotice({
+        type: "success",
+        text: "Login successful! Redirecting...",
+      });
+
       setTimeout(() => {
         router.push("/");
       }, 1000);
-    } catch (err: any) {
-      setNotice({ type: "error", text: err.message || "Something went wrong." });
+    } catch (error: unknown) {
+      console.error("LOGIN ERROR:", error);
+
+      if (error instanceof TypeError) {
+        setNotice({
+          type: "error",
+          text:
+            "Unable to connect to the server. Please try again later.",
+        });
+      } else if (error instanceof Error) {
+        setNotice({
+          type: "error",
+          text: error.message,
+        });
+      } else {
+        setNotice({
+          type: "error",
+          text: "Something went wrong while logging in.",
+        });
+      }
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className={styles.loginContainer}> {/* ← new wrapper */}
+    <div className={styles.loginContainer}>
+      {/* Header */}
+
       <div className={styles.header}>
         <Image
           src="/icons/Profile.png"
@@ -99,15 +181,30 @@ export default function LogIn() {
           height={51}
           className={styles.icon}
         />
-        <h1 className={styles.title}>Log In</h1>
+
+        <h1 className={styles.title}>
+          Log In
+        </h1>
       </div>
 
-      <p className={styles.subtitle}>Log in to continue.</p>
+      <p className={styles.subtitle}>
+        Log in to continue.
+      </p>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
-        {/* Username field */}
+      {/* Form */}
+
+      <form
+        className={styles.form}
+        onSubmit={handleSubmit}
+      >
+        {/* Username */}
+
         <div className={styles.inputWrapper}>
-          <User className={styles.inputIcon} size={20} />
+          <User
+            className={styles.inputIcon}
+            size={20}
+          />
+
           <input
             className={`${styles.field} ${styles.fieldWithIcon}`}
             type="text"
@@ -119,50 +216,97 @@ export default function LogIn() {
           />
         </div>
 
-        {/* Password field */}
-        <div className={`${styles.inputWrapper} ${styles.passwordWrapper}`}>
-          <Lock className={styles.inputIcon} size={20} />
+        {/* Password */}
+
+        <div
+          className={`${styles.inputWrapper} ${styles.passwordWrapper}`}
+        >
+          <Lock
+            className={styles.inputIcon}
+            size={20}
+          />
+
           <input
             className={`${styles.field} ${styles.fieldWithIcon} ${styles.passwordField}`}
-            type={showPassword ? "text" : "password"}
+            type={
+              showPassword
+                ? "text"
+                : "password"
+            }
             name="password"
             placeholder="Password"
             aria-label="Password"
             autoComplete="current-password"
             required
           />
+
           <button
             type="button"
             className={styles.togglePassword}
-            onClick={() => setShowPassword(!showPassword)}
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            onClick={() =>
+              setShowPassword(
+                (current) => !current
+              )
+            }
+            aria-label={
+              showPassword
+                ? "Hide password"
+                : "Show password"
+            }
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? (
+              <EyeOff size={20} />
+            ) : (
+              <Eye size={20} />
+            )}
           </button>
         </div>
 
-        <Link href="/forgot-password" className={styles.forgot}>
+        {/* Forgot Password */}
+
+        <Link
+          href="/forgot-password"
+          className={styles.forgot}
+        >
           Forgot Password?
         </Link>
 
-        <button className={styles.submit} type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Log In"}
+        {/* Submit */}
+
+        <button
+          className={styles.submit}
+          type="submit"
+          disabled={loading}
+        >
+          {loading
+            ? "Logging in..."
+            : "Log In"}
         </button>
       </form>
 
+      {/* Sign Up */}
+
       <p className={styles.footer}>
         Don&rsquo;t have an account?{" "}
-        <Link href="/signup" className={styles.footerLink}>
+
+        <Link
+          href="/signup"
+          className={styles.footerLink}
+        >
           Sign Up
         </Link>
       </p>
 
+      {/* Notice */}
+
       {notice && (
         <p
           className={`${styles.notice} ${
-            notice.type === "success" ? styles.successNotice : styles.errorNotice
+            notice.type === "success"
+              ? styles.successNotice
+              : styles.errorNotice
           }`}
-          role="status"
+          role="alert"
         >
           {notice.text}
         </p>

@@ -1,108 +1,651 @@
 .page {
-  width: 100%;
-  padding: 60px 8%;
-  background: #f8fafc;
-  min-height: 10vh;
+    min-height: 100vh;
+
+    background: #f6f8fb;
+
+    padding: 32px 36px 70px;
+
+    font-family:
+        Helvetica,
+        Arial,
+        sans-serif;
 }
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
+    width: 100%;
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.pageHeader {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 18px;
+
+    margin-bottom: 24px;
 }
 
 .backButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: none;
-  border: none;
-  color: #000;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.5rem 0;
-  transition: color 0.2s;
-  font-family: Helvetica, Arial, sans-serif;
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    color: #344054;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
 }
 
 .backButton:hover {
-  color: #ea580c;
+    background: #fff1e8;
+
+    color: #ff5b00;
+
+    transform: translateX(-2px);
+}
+
+.eyebrow {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #ff5b00;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.4px;
+
+    text-transform: uppercase;
 }
 
 .heading {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  font-family: Helvetica, Arial, sans-serif;
-  margin-bottom: 2rem;
-  text-align: center;
+    margin: 0;
+
+    color: #101828;
+
+    font-size: clamp(
+        2rem,
+        4vw,
+        2.8rem
+    );
+
+    font-weight: 750;
+
+    letter-spacing: -1px;
+
+    line-height: 1.05;
 }
 
-.loading,
-.notFound {
-  text-align: center;
-  padding: 3rem 0;
-  color: #555;
-  font-size: 1.2rem;
+.subtitle {
+    margin: 8px 0 0;
+
+    color: #667085;
+
+    font-size: 14px;
+
+    line-height: 1.6;
 }
+
+/* =========================================================
+   DETAILS CARD
+========================================================= */
 
 .detailsCard {
-  background: white;
-  padding: 2.5rem 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e8e8e8;
+    padding: 28px;
+
+    border: 1px solid #eef0f4;
+
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 15px rgba(
+            16,
+            24,
+            40,
+            .03
+        ),
+        0 12px 32px rgba(
+            16,
+            24,
+            40,
+            .05
+        );
 }
 
-.detailRow {
-  display: flex;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
+.cardTop {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding-bottom: 25px;
+
+    border-bottom:
+        1px solid #f2f4f7;
 }
 
-.detailRow:last-child {
-  border-bottom: none;
+.customerHeader {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
 }
 
-.detailLabel {
-  font-weight: 600;
-  color: #1a1a1a;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 1.05rem;
-  min-width: 160px;
+.customerIcon {
+    width: 56px;
+    height: 56px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 17px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
 }
 
-.detailValue {
-  color: #333;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 500;
+.itemLabel {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: .7px;
+
+    text-transform: uppercase;
 }
 
-@media (max-width: 600px) {
-  .page {
-    padding: 40px 5%;
-  }
+.customerHeader h2 {
+    margin: 0;
 
-  .heading {
-    font-size: 2rem;
-  }
+    color: #101828;
 
-  .detailsCard {
-    padding: 1.5rem 1rem;
-  }
+    font-size: 20px;
 
-  .detailRow {
+    font-weight: 750;
+}
+
+.bookingType {
+    display: block;
+
+    margin-top: 4px;
+
+    color: #667085;
+
+    font-size: 12px;
+}
+
+.status {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 7px 10px;
+
+    border-radius: 999px;
+
+    background: #eafaf0;
+
+    color: #12b76a;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+/* =========================================================
+   DETAILS GRID
+========================================================= */
+
+.detailsGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 13px;
+
+    margin-top: 24px;
+}
+
+.detailBox {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 14px;
+
+    background: #fafbfc;
+}
+
+.detailIcon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #ff5b00;
+
+    box-shadow:
+        0 2px 6px rgba(
+            16,
+            24,
+            40,
+            .04
+        );
+}
+
+.detailBox > div:last-child {
+    display: flex;
+
     flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.6rem 0;
-  }
 
-  .detailLabel {
-    font-size: 0.9rem;
-    min-width: auto;
-  }
+    gap: 4px;
+}
 
-  .detailValue {
-    font-size: 1rem;
-  }
+.detailBox span {
+    color: #98a2b3;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+.detailBox strong {
+    color: #344054;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loadingCard {
+    min-height: 300px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 14px;
+
+    border:
+        1px solid #eef0f4;
+
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    color: #667085;
+
+    font-size: 13px;
+}
+
+.loadingSpinner {
+    width: 30px;
+    height: 30px;
+
+    border:
+        3px solid #f2f4f7;
+
+    border-top-color:
+        #ff5b00;
+
+    border-radius: 50%;
+
+    animation:
+        spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   NOT FOUND
+========================================================= */
+
+.notFound {
+    min-height: 350px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px;
+
+    border:
+        1px solid #eef0f4;
+
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    text-align: center;
+}
+
+.notFoundIcon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+    border-radius: 16px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.notFound h1 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 21px;
+}
+
+.notFound p {
+    margin: 8px 0 20px;
+
+    color: #98a2b3;
+
+    font-size: 13px;
+}
+
+.backMainButton {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    height: 42px;
+
+    padding: 0 15px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #ff5b00;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+    .page {
+        padding: 22px 16px 50px;
+    }
+
+    .detailsCard {
+        padding: 20px;
+    }
+
+    .cardTop {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .detailsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+.heroStats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.completed {
+    background: #eafaf0;
+    color: #12b76a;
+}
+
+.pending {
+    background: #fff7e8;
+    color: #b54708;
+}
+
+.cancelled {
+    background: #fff0ef;
+    color: #d92d20;
+}
+
+.sectionHeading {
+    margin-top: 28px;
+    margin-bottom: 14px;
+
+    padding-top: 22px;
+
+    border-top: 1px solid #f2f4f7;
+}
+
+.sectionHeading h3 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.sectionHeading p {
+    margin: 4px 0 0;
+
+    color: #98a2b3;
+
+    font-size: 11px;
+}
+
+.paymentGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+.paymentBox {
+    padding: 16px;
+
+    border: 1px solid #eaecf0;
+
+    border-radius: 14px;
+
+    background: #fafbfc;
+}
+
+.paymentIcon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 11px;
+
+    border-radius: 11px;
+
+    background: #fff1e8;
+
+    color: #ff5b00;
+}
+
+.paymentBox span {
+    display: block;
+
+    color: #98a2b3;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+.paymentBox strong {
+    display: block;
+
+    margin-top: 4px;
+
+    color: #101828;
+
+    font-size: 16px;
+
+    font-weight: 800;
+}
+
+.paymentBox .balance {
+    color: #ff5b00;
+}
+
+.metaFooter {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 14px;
+
+    margin-top: 23px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid #f2f4f7;
+}
+
+.metaFooter span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #98a2b3;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.metaFooter strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: #344054;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 700px) {
+    .paymentGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .metaFooter {
+        grid-template-columns: 1fr;
+    }
 }
