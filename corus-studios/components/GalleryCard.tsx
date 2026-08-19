@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
 import styles from "./GalleryCard.module.css";
 import GallerySkeleton from "./GallerySkeleton";
 import {
@@ -55,7 +56,9 @@ type GalleryCardProps = {
   isGalleryPage?: boolean;
 };
 
-export default function GalleryCard({ isGalleryPage = false }: GalleryCardProps) {
+export default function GalleryCard({
+  isGalleryPage = false,
+}: GalleryCardProps) {
   const router = useRouter();
   const [allImages, setAllImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +92,17 @@ export default function GalleryCard({ isGalleryPage = false }: GalleryCardProps)
     };
   }, []);
 
+  /*
+   * =====================================================
+   * FILTER
+   * =====================================================
+   *
+   * The API currently doesn't return category.
+   *
+   * Therefore, until the backend adds category,
+   * "All" is the only database-backed filter.
+   */
+
   const filteredImages =
     activeCategory === "All"
       ? allImages
@@ -114,9 +128,13 @@ export default function GalleryCard({ isGalleryPage = false }: GalleryCardProps)
         {categories.map((category) => (
           <button
             key={category}
-            onClick={() => setActiveCategory(category)}
+            onClick={() =>
+              setActiveCategory(category)
+            }
             className={`${styles.filterButton} ${
-              activeCategory === category ? styles.active : ""
+              activeCategory === category
+                ? styles.active
+                : ""
             }`}
           >
             {category}

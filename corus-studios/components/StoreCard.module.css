@@ -1,134 +1,462 @@
-/* Store catalogue card template — one purchasable product. */
+/* =========================================================
+   STORE PRODUCT CARD
+========================================================= */
 
 .card {
   position: relative;
+
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 1rem 1rem 1.25rem;
+  align-items: stretch;
+
+  gap: 0.4rem;
+
+  width: 100%;
+
+  padding: 0.8rem 0.8rem 1rem;
+
+  border: 1px solid #ececec;
+  border-radius: 16px;
+
   background: #ffffff;
+
   font-family: Helvetica, Arial, sans-serif;
-  text-align: center;
+
+  text-align: left;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.04);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
+
+.card:hover {
+  transform: translateY(-4px);
+
+  border-color: #e4e4e4;
+
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.09);
+}
+
+/* =========================================================
+   IMAGE
+========================================================= */
 
 .imageWrap {
   position: relative;
+
   width: 100%;
+
   aspect-ratio: 4 / 3;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8f8f8,
+      #f1f1f1
+    );
 }
 
 .image {
   object-fit: contain;
+
+  padding: 0.8rem;
+
+  transition:
+    transform 0.35s ease;
 }
 
-/* "Brand New" / "UK Used" — left aligned under the photo, as drawn */
+.card:hover .image {
+  transform: scale(1.04);
+}
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
 .condition {
   align-self: flex-start;
-  margin: 0.5rem 0 0;
-  color: #333333;
-  font-size: 0.8rem;
-  font-style: italic;
+
+  margin: 0.65rem 0 0;
+
+  padding: 0.28rem 0.6rem;
+
+  border-radius: 999px;
+
+  background: #fff3ed;
+
+  color: #ff5100;
+
+  font-size: 0.68rem;
+
+  font-style: normal;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.4px;
 }
+
+/* =========================================================
+   PRODUCT NAME
+========================================================= */
 
 .name {
-  margin: 0;
-  color: #000000;
+  margin: 0.2rem 0 0;
+
+  color: #111111;
+
   font-size: 1rem;
-  font-weight: 700;
+
+  font-weight: 750;
+
+  line-height: 1.35;
+
+  letter-spacing: -0.15px;
+
+  display: -webkit-box;
+
+  -webkit-box-orient: vertical;
+
+  -webkit-line-clamp: 2;
+
+  line-clamp: 2;
+
+  overflow: hidden;
+
+  min-height: 2.7em;
 }
 
+/* =========================================================
+   PRICE
+========================================================= */
+
 .price {
-  margin: 0;
+  margin: 0.05rem 0 0;
+
   color: #ff5100;
-  font-size: 0.95rem;
-  font-weight: 700;
+
+  font-size: 1rem;
+
+  font-weight: 800;
+
+  line-height: 1.2;
 }
+
+/* =========================================================
+   ACTIONS
+========================================================= */
 
 .actions {
   display: flex;
+
   align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
+
+  gap: 0.55rem;
+
+  margin-top: 0.65rem;
 }
 
+/* =========================================================
+   BUY BUTTON
+========================================================= */
+
 .cta {
+  flex: 1;
+
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
-  min-width: 6.5rem;
-  height: 2rem;
-  padding: 0 1rem;
+
+  min-width: 0;
+
+  height: 40px;
+
+  padding: 0 0.8rem;
+
   border: none;
+
+  border-radius: 9px;
+
   background: #ff5100;
+
   color: #ffffff;
+
   font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 700;
+
+  font-size: 0.82rem;
+
+  font-weight: 750;
+
   text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .cta:hover {
   background: #e64900;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 12px rgba(
+      255,
+      81,
+      0,
+      0.2
+    );
 }
 
 .cta:focus-visible,
 .cartButton:focus-visible {
   outline: 2px solid #ff5100;
-  outline-offset: 2px;
+
+  outline-offset: 3px;
 }
 
+/* =========================================================
+   CART BUTTON
+========================================================= */
+
 .cartButton {
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
+
   padding: 0;
-  border: none;
-  background: none;
+
+  border: 1px solid #e7e7e7;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
   cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.cartButton:hover:not(:disabled) {
+  border-color: #ff5100;
+
+  background: #fff5f0;
+
+  transform: translateY(-1px);
 }
 
 .cartIcon {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 20px;
+  height: 20px;
+
   object-fit: contain;
+
+  transition:
+    transform 0.2s ease;
 }
 
-/* ── Out of stock ────────────────────────────────────────────── */
+.cartButton:hover:not(:disabled)
+.cartIcon {
+  transform: scale(1.08);
+}
 
-/*
- * The card keeps its white background; a dark sheet is laid over the whole
- * thing instead of recolouring the individual parts.
- *
- * `::after` rather than `::before` — it is the last child, so it paints above
- * the photo and text. Only the badge is lifted back out, with z-index.
- */
+/* =========================================================
+   OUT OF STOCK OVERLAY
+========================================================= */
+
 .cardUnavailable::after {
   content: "";
+
   position: absolute;
+
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+
+  z-index: 5;
+
+  background: rgba(
+    17,
+    17,
+    17,
+    0.28
+  );
+
   pointer-events: none;
 }
 
+/* =========================================================
+   OUT OF STOCK BADGE
+========================================================= */
+
 .badge {
   position: absolute;
-  z-index: 1;
+
+  z-index: 10;
+
   top: 0.75rem;
   left: 0.75rem;
+
   display: inline-flex;
+
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.3rem 0.7rem;
+
+  gap: 0.35rem;
+
+  padding: 0.42rem 0.7rem;
+
+  border-radius: 999px;
+
   background: #ff5100;
+
   color: #ffffff;
-  font-size: 0.85rem;
-  font-weight: 700;
+
+  font-size: 0.7rem;
+
+  font-weight: 750;
+
+  box-shadow:
+    0 4px 10px rgba(
+      0,
+      0,
+      0,
+      0.12
+    );
 }
 
-/* No recolouring — the overlay above does the dimming. */
+/* =========================================================
+   DISABLED BUTTON
+========================================================= */
+
 .ctaDisabled,
 .ctaDisabled:hover {
   background: #ff5100;
+
+  color: #ffffff;
+
   cursor: default;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+.cartButton:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.55;
+
+  background: #f7f7f7;
+
+  border-color: #e5e5e5;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .card {
+    border-radius: 14px;
+  }
+
+  .image {
+    padding: 0.65rem;
+  }
+
+  .name {
+    font-size: 0.95rem;
+  }
+
+  .price {
+    font-size: 0.95rem;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .card {
+    padding: 0.65rem 0.65rem 0.85rem;
+
+    border-radius: 13px;
+  }
+
+  .imageWrap {
+    border-radius: 10px;
+  }
+
+  .image {
+    padding: 0.5rem;
+  }
+
+  .condition {
+    margin-top: 0.5rem;
+
+    font-size: 0.62rem;
+  }
+
+  .name {
+    font-size: 0.9rem;
+
+    min-height: 2.45em;
+  }
+
+  .price {
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    margin-top: 0.5rem;
+  }
+
+  .cta {
+    height: 37px;
+
+    font-size: 0.75rem;
+  }
+
+  .cartButton {
+    width: 37px;
+    height: 37px;
+  }
+
+  .cartIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .badge {
+    top: 0.55rem;
+    left: 0.55rem;
+
+    padding: 0.35rem 0.55rem;
+
+    font-size: 0.62rem;
+  }
 }

@@ -1,14 +1,14 @@
-// lib/admin-dashboard.ts
-
 import type { LucideIcon } from "lucide-react";
 import {
   CalendarDays,
   Camera,
   ShoppingBag,
+  Package,
 } from "lucide-react";
 
-
-// ─── Types from API ──────────────────────────────────────
+/* =========================================================
+   DASHBOARD API TYPES
+========================================================= */
 
 export type DashboardSummary = {
   pending_reservation_approvals: number;
@@ -61,8 +61,70 @@ export type DashboardSummary = {
   studio_timezone: string;
 };
 
+/* =========================================================
+   ANALYTICS TYPES
+========================================================= */
 
-// ─── Dashboard Card Types ───────────────────────────────
+export type AnalyticsPoint = {
+  bucket: string;
+  count: number;
+  revenue_ghs: string;
+};
+
+export type AnalyticsItem = {
+  id: string;
+  name: string;
+  count: number;
+  revenue_ghs: string;
+};
+
+export type AnalyticsResponse = {
+  interval: "day" | "week" | "month";
+  period_start: string;
+  period_end: string;
+  total_count: number;
+  total_revenue_ghs: string;
+  points: AnalyticsPoint[];
+  top_items: AnalyticsItem[];
+};
+
+export type AnalyticsOverview = {
+  interval: "day" | "week" | "month";
+  period_start: string;
+  period_end: string;
+
+  bookings: AnalyticsResponse;
+  rentals: AnalyticsResponse;
+  products: AnalyticsResponse;
+
+  studio_timezone: string;
+};
+
+/* =========================================================
+   ACTIVITY TYPES
+========================================================= */
+
+export type DashboardActivity = {
+  id: string;
+  event_type: string;
+  title: string;
+  description: string;
+  user_id: string;
+  occurred_at: string;
+  reference_id: string;
+};
+
+export type DashboardActivityResponse = {
+  items: DashboardActivity[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+};
+
+/* =========================================================
+   STAT CARD
+========================================================= */
 
 export type StatCard = {
   id: string;
@@ -73,15 +135,16 @@ export type StatCard = {
   color: string;
 };
 
-
-// ─── Placeholder Stats ──────────────────────────────────
+/* =========================================================
+   DEFAULT STATS
+========================================================= */
 
 export const STAT_CARDS: StatCard[] = [
   {
     id: "bookings",
     label: "Today's Bookings",
     value: "0",
-    delta: "+0%",
+    delta: "0%",
     icon: CalendarDays,
     color: "#ff5b00",
   },
@@ -90,7 +153,7 @@ export const STAT_CARDS: StatCard[] = [
     id: "rentals",
     label: "Active Rentals",
     value: "0",
-    delta: "+0%",
+    delta: "0%",
     icon: Camera,
     color: "#2563eb",
   },
@@ -99,46 +162,54 @@ export const STAT_CARDS: StatCard[] = [
     id: "orders",
     label: "Pending Orders",
     value: "0",
-    delta: "+0%",
+    delta: "0%",
     icon: ShoppingBag,
     color: "#22c55e",
   },
 ];
 
+/* =========================================================
+   TREND SERIES
+========================================================= */
 
-
-// ─── Trend Charts ───────────────────────────────────────
+export type TrendSeriesId =
+  | "bookings"
+  | "rentals"
+  | "products";
 
 export type TrendSeries = {
-  id: string;
+  id: TrendSeriesId;
   title: string;
   metricLabel: string;
+  icon: LucideIcon;
 };
 
-
 export const TREND_SERIES: TrendSeries[] = [
-
   {
     id: "bookings",
     title: "Bookings",
     metricLabel: "Booking",
+    icon: CalendarDays,
   },
 
   {
     id: "rentals",
     title: "Rentals",
     metricLabel: "Rental",
+    icon: Camera,
   },
 
   {
-    id: "orders",
-    title: "Orders",
-    metricLabel: "Order",
+    id: "products",
+    title: "Store Products",
+    metricLabel: "Sale",
+    icon: Package,
   },
-
 ];
 
-
+/* =========================================================
+   RANGE OPTIONS
+========================================================= */
 
 export const RANGE_OPTIONS = [
   {
@@ -157,126 +228,141 @@ export const RANGE_OPTIONS = [
   },
 ];
 
+/* =========================================================
+   API → CHART DATA
+========================================================= */
 
+export type TrendPoint = {
+  date: string;
+  value: number;
+};
 
-// ─── Placeholder Chart Data ─────────────────────────────
-
-export function getTrendPoints(
-  seriesId: string,
-  days: number
-) {
-
-  const data = [];
-
-  const now = new Date();
-
-
-  for (
-    let i = days - 1;
-    i >= 0;
-    i--
-  ) {
-
-    const date = new Date(now);
-
-    date.setDate(
-      date.getDate() - i
-    );
-
-
-    data.push({
-
-      date:
-        date
-          .toISOString()
-          .split("T")[0],
-
-      value:
-        Math.floor(
-          Math.random() * 50
-        ) + 10,
-
-    });
-
-  }
-
-
-  return data;
+export function getAnalyticsPoints(
+  response: AnalyticsResponse
+): TrendPoint[] {
+  return response.points.map((point) => ({
+    date: point.bucket,
+    value: point.count,
+  }));
 }
 
-
+/* =========================================================
+   SUMMARISE CHART
+========================================================= */
 
 export function summarise(
-  points: {
-    date:string;
-    value:number;
-  }[]
+  points: TrendPoint[]
 ) {
-
   if (!points.length) {
-
     return {
-      peakDay:"N/A",
-      average:"0",
+      peakDay: "N/A",
+      average: "0",
+      total: 0,
     };
-
   }
 
-
-  const peak =
-    points.reduce(
-      (a,b)=>
-        a.value > b.value
-        ? a
-        : b
-    );
-
-
-  const avg =
-    points.reduce(
-      (sum,p)=>
-        sum + p.value,
-      0
-    )
-    /
-    points.length;
-
-
-
-  return {
-
-    peakDay:
-      new Date(
-        peak.date
-      ).toLocaleDateString(
-        "en-US",
-        {
-          weekday:"short",
-        }
-      ),
-
-
-    average:
-      Math.round(avg)
-      .toString(),
-
-  };
-
-}
-
-
-
-export function weekdayName(
-  dateStr:string
-) {
-
-  return new Date(
-    dateStr
-  ).toLocaleDateString(
-    "en-US",
-    {
-      weekday:"short",
-    }
+  const peak = points.reduce(
+    (highest, current) =>
+      current.value > highest.value
+        ? current
+        : highest
   );
 
+  const total = points.reduce(
+    (sum, point) =>
+      sum + point.value,
+    0
+  );
+
+  const average =
+    total / points.length;
+
+  return {
+    peakDay: weekdayName(
+      peak.date
+    ),
+    average:
+      Math.round(average).toString(),
+    total,
+  };
+}
+
+/* =========================================================
+   DATE LABEL
+========================================================= */
+
+export function weekdayName(
+  dateStr: string
+) {
+  const date = new Date(
+    `${dateStr}T12:00:00`
+  );
+
+  if (Number.isNaN(date.getTime())) {
+    return dateStr;
+  }
+
+  return date.toLocaleDateString(
+    "en-US",
+    {
+      weekday: "short",
+    }
+  );
+}
+
+/* =========================================================
+   ACTIVITY TIME
+========================================================= */
+
+export function formatRelativeTime(
+  value: string
+) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const now = Date.now();
+  const diff =
+    now - date.getTime();
+
+  const minute =
+    60 * 1000;
+
+  const hour =
+    60 * minute;
+
+  const day =
+    24 * hour;
+
+  if (diff < minute) {
+    return "Just now";
+  }
+
+  if (diff < hour) {
+    return `${Math.floor(
+      diff / minute
+    )}m ago`;
+  }
+
+  if (diff < day) {
+    return `${Math.floor(
+      diff / hour
+    )}h ago`;
+  }
+
+  if (diff < 7 * day) {
+    return `${Math.floor(
+      diff / day
+    )}d ago`;
+  }
+
+  return date.toLocaleDateString(
+    "en-GB",
+    {
+      day: "2-digit",
+      month: "short",
+    }
+  );
 }

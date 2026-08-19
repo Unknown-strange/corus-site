@@ -1,135 +1,265 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import GadgetCard from "./GadgetCard";
-import RentalsToolbar, { type Category } from "./RentalsToolbar";
+import RentalsToolbar from "./RentalsToolbar";
 import StudioHero from "./StudioHero";
-import { RentEquipment } from "@/lib/types";
+
+import type {
+  RentEquipment,
+} from "@/lib/types";
+
 import api from "@/lib/api";
+
 import styles from "./RentalsScreen.module.css";
 
 export default function RentalsScreen() {
-  const [equipment, setEquipment] = useState<RentEquipment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<Category | null>(null);
-  const [notice, setNotice] = useState("");
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [
+    equipment,
+    setEquipment,
+  ] = useState<RentEquipment[]>(
+    []
+  );
 
-  // Fetch initial data
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState<string | null>(
+    null
+  );
+
+  const [
+    search,
+    setSearch,
+  ] = useState("");
+
   useEffect(() => {
-    const fetchEquipment = async () => {
-      try {
-        const res = await api.rentals.equipment();
-        if (!res.ok) throw new Error("Failed to load equipment");
-        const data = await res.json();
-        setEquipment(data);
-        // If the API returned all items at once, there is no pagination
-        setHasMore(false); // since /rentals/equipment returns all, we disable "View More"
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Error loading equipment");
-        setLoading(false);
-      }
-    };
+    let mounted = true;
+
+    const fetchEquipment =
+      async () => {
+        try {
+          setLoading(true);
+          setError(null);
+
+          const response =
+            await api.rentals.equipment();
+
+          if (!response.ok) {
+            throw new Error(
+              "Failed to load equipment"
+            );
+          }
+
+          const data =
+            await response.json();
+
+          if (!mounted) {
+            return;
+          }
+
+          setEquipment(
+            Array.isArray(data)
+              ? data
+              : []
+          );
+        } catch (err) {
+          console.error(
+            "Failed to load rental equipment:",
+            err
+          );
+
+          if (mounted) {
+            setError(
+              err instanceof Error
+                ? err.message
+                : "Error loading equipment"
+            );
+          }
+        } finally {
+          if (mounted) {
+            setLoading(false);
+          }
+        }
+      };
+
     fetchEquipment();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  // Filter logic (client‑side)
-  const query = search.trim().toLowerCase();
-  const filtered = equipment.filter((item) => {
-    const matchName = item.name.toLowerCase().includes(query);
-    // Category filtering: if we had category on the item, we'd filter here.
-    // Since the API doesn't provide category, we skip category filter.
-    return matchName;
-  });
+  /* =========================================================
+     SEARCH
+  ========================================================= */
 
-  // Handle category change (UI only – no backend support)
-  function handleCategory(next: Category | null) {
-    setCategory(next);
-    setNotice(
-      next
-        ? "Category filters aren't connected — rent equipment has no category field in the API yet."
-        : ""
+  const query =
+    search
+      .trim()
+      .toLowerCase();
+
+  const filtered =
+    equipment.filter(
+      (item) => {
+        if (!query) {
+          return true;
+        }
+
+        return (
+          item.name
+            .toLowerCase()
+            .includes(query) ||
+          item.description
+            .toLowerCase()
+            .includes(query) ||
+          item.slug
+            .toLowerCase()
+            .includes(query)
+        );
+      }
     );
-  }
 
-  // "View More" handler (pagination not supported by /rentals/equipment)
-  const handleViewMore = () => {
-    setNotice("All equipment is already loaded – no more items to show.");
-  };
+  /* =========================================================
+     TOOLBAR
+  ========================================================= */
+
+  const toolbar = (
+    <RentalsToolbar
+      search={search}
+      onSearchChange={
+        setSearch
+      }
+    />
+  );
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
 
   if (loading) {
     return (
-      <div className={styles.page}>
-        <RentalsToolbar
-          search={search}
-          onSearchChange={setSearch}
-          category={category}
-          onCategoryChange={handleCategory}
-        />
-        <div className={styles.loading}>Loading equipment...</div>
+      <div
+        className={
+          styles.page
+        }
+      >
+        {toolbar}
+
+        <div
+          className={
+            styles.loading
+          }
+        >
+          Loading equipment...
+        </div>
       </div>
     );
   }
+
+  /* =========================================================
+     ERROR
+  ========================================================= */
 
   if (error) {
     return (
-      <div className={styles.page}>
-        <RentalsToolbar
-          search={search}
-          onSearchChange={setSearch}
-          category={category}
-          onCategoryChange={handleCategory}
-        />
-        <div className={styles.error}>Error: {error}</div>
+      <div
+        className={
+          styles.page
+        }
+      >
+        {toolbar}
+
+        <div
+          className={
+            styles.error
+          }
+        >
+          <h2>
+            Unable to load rental
+            equipment
+          </h2>
+
+          <p>
+            {error}
+          </p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className={styles.page}>
-      <RentalsToolbar
-        search={search}
-        onSearchChange={setSearch}
-        category={category}
-        onCategoryChange={handleCategory}
-      />
+  /* =========================================================
+     MAIN
+  ========================================================= */
 
-      <div className={styles.heroWrap}>
+  return (
+    <div
+      className={
+        styles.page
+      }
+    >
+      {toolbar}
+
+      <div
+        className={
+          styles.heroWrap
+        }
+      >
         <StudioHero />
       </div>
 
-      {notice ? (
-        <p className={styles.notice} role="status">
-          {notice}
-        </p>
-      ) : null}
-
       {filtered.length > 0 ? (
-        <div className={styles.grid}>
-          {filtered.map((item) => (
-            <GadgetCard key={item.id} gadget={item} />
-          ))}
+        <div
+          className={
+            styles.grid
+          }
+        >
+          {filtered.map(
+            (item) => (
+              <GadgetCard
+                key={item.id}
+                gadget={item}
+              />
+            )
+          )}
         </div>
       ) : (
-        <p className={styles.empty}>No equipment matches “{search}”.</p>
-      )}
-
-      {/* View More – disabled since all items are already loaded */}
-      <div className={styles.moreRow}>
-        <button
-          type="button"
-          className={styles.more}
-          onClick={handleViewMore}
-          disabled={!hasMore}
+        <div
+          className={
+            styles.empty
+          }
         >
-          View More
-        </button>
-      </div>
+          <h3>
+            No equipment found
+          </h3>
+
+          <p>
+            {search
+              ? `No rental equipment matches "${search}".`
+              : "There is currently no rental equipment available."}
+          </p>
+
+          {search && (
+            <button
+              type="button"
+              onClick={() =>
+                setSearch("")
+              }
+            >
+              Clear search
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
