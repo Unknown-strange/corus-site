@@ -1,21 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { ShoppingBag } from "lucide-react";
+import {
+  useEffect,
+  useState,
+} from "react";
+import {
+  useRouter,
+} from "next/navigation";
+import Image from "next/image";
+
+import {
+  Check,
+  Minus,
+  Plus,
+  ShoppingBag,
+  Trash2,
+} from "lucide-react";
 
 import styles from "./Cart.module.css";
-import CartItem, {
-  CartItemType,
-} from "./CartItem";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:8000";
-
-// =========================================================
-// API TYPES
-// =========================================================
 
 type ApiCartItem = {
   product_id: string;
@@ -36,6 +42,18 @@ type ApiCartResponse = {
   updated_at: string;
 };
 
+type CartItem = {
+  productId: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+  stock: number;
+  lineTotal: number;
+  selected: boolean;
+  slug: string;
+};
+
 type Props = {
   category?: string;
 };
@@ -43,27 +61,31 @@ type Props = {
 export default function Cart({
   category = "store",
 }: Props) {
-  const [cartItems, setCartItems] =
-    useState<CartItemType[]>([]);
+  const router = useRouter();
+
+  const [items, setItems] =
+    useState<CartItem[]>([]);
 
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
-    useState<string | null>(null);
+    useState<string | null>(
+      null
+    );
 
-  const [updating, setUpdating] =
-    useState<string | null>(null);
-
-  const router = useRouter();
+  const [updatingId, setUpdatingId] =
+    useState<string | null>(
+      null
+    );
 
   const categoryDisplay =
     category.charAt(0).toUpperCase() +
     category.slice(1);
 
-  // =========================================================
-  // FETCH CART
-  // =========================================================
+  /* =========================================================
+     LOAD CART
+  ========================================================= */
 
   const fetchCart = async () => {
     try {
@@ -78,21 +100,19 @@ export default function Cart({
         setError(
           "Please log in to view your cart."
         );
-
-        setLoading(false);
-
         return;
       }
 
-      const response = await fetch(
-        `${API_BASE}/cart`,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
+      const response =
+        await fetch(
+          `${API_BASE}/cart`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
       if (
         response.status === 401
@@ -100,9 +120,6 @@ export default function Cart({
         setError(
           "Session expired. Please log in again."
         );
-
-        setLoading(false);
-
         return;
       }
 
@@ -112,85 +129,69 @@ export default function Cart({
         setError(
           "Customer access is required to use the cart."
         );
-
-        setLoading(false);
-
         return;
+      }
+
+      const raw =
+        await response.text();
+
+      let data: unknown =
+        null;
+
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          data = raw;
+        }
       }
 
       if (!response.ok) {
         throw new Error(
-          "Failed to fetch cart."
+          getErrorMessage(
+            data,
+            "Failed to load cart."
+          )
         );
       }
 
-      const data: ApiCartResponse =
-        await response.json();
+      const cart =
+        data as ApiCartResponse;
 
-      const mappedItems: CartItemType[] =
-        data.items.map(
-          (item, index) => ({
-            id:
-              Number.isFinite(
-                Number(item.product_id)
-              )
-                ? Number(
-                    item.product_id
-                  )
-                : index + 1,
-
+      const mapped: CartItem[] =
+        cart.items.map(
+          (item) => ({
             productId:
               item.product_id,
-
             name:
               item.product_name,
-
-            description:
-              "",
-
             price:
               Number.parseFloat(
                 item.unit_price_ghs
               ) || 0,
-
             image:
               item.image_url ||
               "/images/placeholder.png",
-
             quantity:
               item.quantity,
-
-            selected:
-              true,
-
             stock:
               Number.isFinite(
                 item.stock
               )
                 ? item.stock
                 : 0,
-
+            lineTotal:
+              Number.parseFloat(
+                item.line_total_ghs
+              ) || 0,
+            selected:
+              true,
             slug:
               item.product_slug,
-
-            lineTotal:
-              Number.isFinite(
-                Number(
-                  item.line_total_ghs
-                )
-              )
-                ? Number(
-                    item.line_total_ghs
-                  )
-                : 0,
           })
         );
 
-      setCartItems(
-        mappedItems
-      );
-
-      setError(null);
+      setItems(mapped);
     } catch (err) {
       console.error(
         "CART LOAD FAILED:",
@@ -200,362 +201,389 @@ export default function Cart({
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to load cart items."
+          : "Failed to load cart."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  // =========================================================
-  // UPDATE QUANTITY
-  // =========================================================
-
-  const updateQuantity = async (
-    productId: string,
-    quantity: number
-  ) => {
-    if (quantity < 1) {
-      return;
-    }
-
-    try {
-      setUpdating(productId);
-      setError(null);
-
-      const token =
-        localStorage.getItem(
-          "access_token"
-        );
-
-      if (!token) {
-        setError(
-          "Please log in to update your cart."
-        );
-
-        return;
-      }
-
-      const response = await fetch(
-        `${API_BASE}/cart/items/${productId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Authorization:
-              `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            quantity,
-          }),
-        }
-      );
-
-      if (
-        response.status === 401
-      ) {
-        setError(
-          "Session expired. Please log in again."
-        );
-
-        return;
-      }
-
-      if (!response.ok) {
-        const data =
-          await response
-            .json()
-            .catch(() => null);
-
-        throw new Error(
-          data?.detail ||
-            data?.message ||
-            "Failed to update quantity."
-        );
-      }
-
-      await fetchCart();
-    } catch (err) {
-      console.error(
-        "CART QUANTITY UPDATE FAILED:",
-        err
-      );
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to update quantity."
-      );
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  // =========================================================
-  // DELETE ITEM
-  // =========================================================
-
-  const deleteItem = async (
-    productId: string
-  ) => {
-    try {
-      setUpdating(productId);
-      setError(null);
-
-      const token =
-        localStorage.getItem(
-          "access_token"
-        );
-
-      if (!token) {
-        setError(
-          "Please log in to update your cart."
-        );
-
-        return;
-      }
-
-      const response = await fetch(
-        `${API_BASE}/cart/items/${productId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (
-        response.status === 401
-      ) {
-        setError(
-          "Session expired. Please log in again."
-        );
-
-        return;
-      }
-
-      if (!response.ok) {
-        const data =
-          await response
-            .json()
-            .catch(() => null);
-
-        throw new Error(
-          data?.detail ||
-            data?.message ||
-            "Failed to remove item."
-        );
-      }
-
-      await fetchCart();
-    } catch (err) {
-      console.error(
-        "DELETE CART ITEM FAILED:",
-        err
-      );
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to remove item."
-      );
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  // =========================================================
-  // INITIAL LOAD
-  // =========================================================
-
   useEffect(() => {
     fetchCart();
   }, []);
 
-  // =========================================================
-  // CHILD HANDLERS
-  // =========================================================
+  /* =========================================================
+     API ERROR HELPER
+  ========================================================= */
 
-  const increase = (
-    id: number
-  ) => {
-    const item =
-      cartItems.find(
-        (current) =>
-          current.id === id
-      );
-
-    if (!item) {
-      return;
-    }
-
-    const stock =
-      typeof item.stock ===
-      "number"
-        ? item.stock
-        : Number(item.stock) || 0;
-
+  function getErrorMessage(
+    data: unknown,
+    fallback: string
+  ): string {
     if (
-      stock > 0 &&
-      item.quantity >= stock
+      typeof data ===
+        "string" &&
+      data.trim()
     ) {
-      return;
-    }
-
-    updateQuantity(
-      item.productId,
-      item.quantity + 1
-    );
-  };
-
-  const decrease = (
-    id: number
-  ) => {
-    const item =
-      cartItems.find(
-        (current) =>
-          current.id === id
-      );
-
-    if (!item) {
-      return;
+      return data;
     }
 
     if (
-      item.quantity <= 1
+      data &&
+      typeof data ===
+        "object"
     ) {
-      return;
-    }
+      if (
+        "detail" in data
+      ) {
+        const detail =
+          (
+            data as {
+              detail?: unknown;
+            }
+          ).detail;
 
-    updateQuantity(
-      item.productId,
-      item.quantity - 1
-    );
-  };
+        if (
+          typeof detail ===
+          "string"
+        ) {
+          return detail;
+        }
 
-  const toggleSelected = (
-    id: number
-  ) => {
-    setCartItems(
-      (items) =>
-        items.map(
-          (item) =>
-            item.id === id
-              ? {
-                  ...item,
-                  selected:
-                    !item.selected,
+        if (
+          Array.isArray(detail)
+        ) {
+          const messages =
+            detail
+              .map(
+                (item) => {
+                  if (
+                    item &&
+                    typeof item ===
+                      "object" &&
+                    "msg" in
+                      item &&
+                    typeof (
+                      item as {
+                        msg?: unknown;
+                      }
+                    ).msg ===
+                      "string"
+                  ) {
+                    return (
+                      item as {
+                        msg: string;
+                      }
+                    ).msg;
+                  }
+
+                  return null;
                 }
-              : item
-        )
-    );
-  };
+              )
+              .filter(
+                (
+                  value
+                ): value is string =>
+                  Boolean(value)
+              );
 
-  const handleDelete = (
-    id: number
-  ) => {
-    const item =
-      cartItems.find(
-        (current) =>
-          current.id === id
-      );
+          if (
+            messages.length
+          ) {
+            return messages.join(
+              ", "
+            );
+          }
+        }
+      }
 
-    if (!item) {
-      return;
+      if (
+        "message" in data &&
+        typeof (
+          data as {
+            message?: unknown;
+          }
+        ).message ===
+          "string"
+      ) {
+        return (
+          data as {
+            message: string;
+          }
+        ).message;
+      }
     }
 
-    deleteItem(
-      item.productId
-    );
-  };
+    return fallback;
+  }
+
+  /* =========================================================
+     UPDATE QUANTITY
+  ========================================================= */
+
+  const updateQuantity =
+    async (
+      productId: string,
+      quantity: number
+    ) => {
+      if (
+        quantity < 1
+      ) {
+        return;
+      }
+
+      try {
+        setUpdatingId(
+          productId
+        );
+        setError(null);
+
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
+
+        if (!token) {
+          setError(
+            "Please log in to update your cart."
+          );
+          return;
+        }
+
+        const response =
+          await fetch(
+            `${API_BASE}/cart/items/${productId}`,
+            {
+              method:
+                "PATCH",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                Authorization:
+                  `Bearer ${token}`,
+              },
+              body:
+                JSON.stringify({
+                  quantity,
+                }),
+            }
+          );
+
+        const raw =
+          await response.text();
+
+        let data: unknown =
+          null;
+
+        if (raw) {
+          try {
+            data =
+              JSON.parse(raw);
+          } catch {
+            data = raw;
+          }
+        }
+
+        if (
+          !response.ok
+        ) {
+          throw new Error(
+            getErrorMessage(
+              data,
+              "Failed to update quantity."
+            )
+          );
+        }
+
+        await fetchCart();
+      } catch (err) {
+        console.error(
+          "CART UPDATE FAILED:",
+          err
+        );
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to update quantity."
+        );
+      } finally {
+        setUpdatingId(null);
+      }
+    };
+
+  /* =========================================================
+     DELETE ITEM
+  ========================================================= */
+
+  const deleteItem =
+    async (
+      productId: string
+    ) => {
+      try {
+        setUpdatingId(
+          productId
+        );
+        setError(null);
+
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
+
+        if (!token) {
+          setError(
+            "Please log in to update your cart."
+          );
+          return;
+        }
+
+        const response =
+          await fetch(
+            `${API_BASE}/cart/items/${productId}`,
+            {
+              method:
+                "DELETE",
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const raw =
+          await response.text();
+
+        let data: unknown =
+          null;
+
+        if (raw) {
+          try {
+            data =
+              JSON.parse(raw);
+          } catch {
+            data = raw;
+          }
+        }
+
+        if (
+          !response.ok
+        ) {
+          throw new Error(
+            getErrorMessage(
+              data,
+              "Failed to remove item."
+            )
+          );
+        }
+
+        await fetchCart();
+      } catch (err) {
+        console.error(
+          "CART DELETE FAILED:",
+          err
+        );
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to remove item."
+        );
+      } finally {
+        setUpdatingId(null);
+      }
+    };
+
+  /* =========================================================
+     SELECTION
+  ========================================================= */
+
+  const toggleSelected =
+    (productId: string) => {
+      setItems(
+        (current) =>
+          current.map(
+            (item) =>
+              item.productId ===
+              productId
+                ? {
+                    ...item,
+                    selected:
+                      !item.selected,
+                  }
+                : item
+          )
+      );
+    };
 
   const allSelected =
-    cartItems.length > 0 &&
-    cartItems.every(
-      (item) =>
-        item.selected
-    );
-
-  const someSelected =
-    cartItems.some(
-      (item) =>
-        item.selected
-    );
-
-  const selectAll = () => {
-    setCartItems(
-      (items) =>
-        items.map(
-          (item) => ({
-            ...item,
-            selected:
-              !allSelected,
-          })
-        )
-    );
-  };
-
-  // =========================================================
-  // TOTALS
-  // =========================================================
-
-  const selectedItems =
-    cartItems.filter(
+    items.length > 0 &&
+    items.every(
       (item) =>
         item.selected
     );
 
   const selectedCount =
-    selectedItems.reduce(
-      (sum, item) =>
-        sum +
-        item.quantity,
-      0
-    );
+    items
+      .filter(
+        (item) =>
+          item.selected
+      )
+      .reduce(
+        (sum, item) =>
+          sum +
+          item.quantity,
+        0
+      );
 
   const selectedTotal =
-    selectedItems.reduce(
-      (sum, item) => {
-        const lineTotal =
-          typeof item.lineTotal ===
-          "number"
-            ? item.lineTotal
-            : Number(
-                item.lineTotal
-              ) || 0;
-
-        return (
-          sum + lineTotal
-        );
-      },
-      0
-    );
+    items
+      .filter(
+        (item) =>
+          item.selected
+      )
+      .reduce(
+        (sum, item) =>
+          sum +
+          item.lineTotal,
+        0
+      );
 
   const totalItems =
-    cartItems.reduce(
+    items.reduce(
       (sum, item) =>
         sum +
         item.quantity,
       0
     );
 
-  // =========================================================
-  // CHECKOUT
-  // =========================================================
+  const selectAll =
+    () => {
+      setItems(
+        (current) =>
+          current.map(
+            (item) => ({
+              ...item,
+              selected:
+                !allSelected,
+            })
+          )
+      );
+    };
+
+  /* =========================================================
+     CHECKOUT
+  ========================================================= */
 
   const handleCheckout =
     () => {
       if (
-        selectedItems.length ===
+        selectedCount ===
         0
       ) {
         setError(
           "Please select at least one item before checkout."
         );
-
         return;
       }
 
@@ -564,9 +592,23 @@ export default function Cart({
       );
     };
 
-  // =========================================================
-  // LOADING
-  // =========================================================
+  /* =========================================================
+     FORMAT
+  ========================================================= */
+
+  const formatMoney =
+    (value: number) =>
+      `GH₵${value.toLocaleString(
+        "en-GH",
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
+      )}`;
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
 
   if (loading) {
     return (
@@ -582,7 +624,7 @@ export default function Cart({
         >
           <div
             className={
-              styles.loadingSpinner
+              styles.spinner
             }
           />
 
@@ -594,14 +636,13 @@ export default function Cart({
     );
   }
 
-  // =========================================================
-  // ERROR
-  // =========================================================
+  /* =========================================================
+     ERROR
+  ========================================================= */
 
   if (
     error &&
-    cartItems.length ===
-      0
+    items.length === 0
   ) {
     return (
       <section
@@ -611,19 +652,19 @@ export default function Cart({
       >
         <div
           className={
-            styles.errorCard
+            styles.messageCard
           }
         >
           <div
             className={
-              styles.errorIcon
+              styles.messageIcon
             }
           >
             !
           </div>
 
           <h2>
-            Unable to load cart
+            Unable to load your cart
           </h2>
 
           <p>
@@ -634,13 +675,12 @@ export default function Cart({
     );
   }
 
-  // =========================================================
-  // EMPTY
-  // =========================================================
+  /* =========================================================
+     EMPTY
+  ========================================================= */
 
   if (
-    cartItems.length ===
-    0
+    items.length === 0
   ) {
     return (
       <section
@@ -650,7 +690,7 @@ export default function Cart({
       >
         <div
           className={
-            styles.emptyCard
+            styles.messageCard
           }
         >
           <div
@@ -659,13 +699,13 @@ export default function Cart({
             }
           >
             <ShoppingBag
-              size={28}
+              size={30}
             />
           </div>
 
           <span
             className={
-              styles.emptyEyebrow
+              styles.messageLabel
             }
           >
             {categoryDisplay}
@@ -685,9 +725,9 @@ export default function Cart({
     );
   }
 
-  // =========================================================
-  // CART
-  // =========================================================
+  /* =========================================================
+     MAIN
+  ========================================================= */
 
   return (
     <section
@@ -697,40 +737,35 @@ export default function Cart({
     >
       <div
         className={
-          styles.cartContainer
+          styles.cartShell
         }
       >
-        {/* HEADER */}
+        {/* ===============================================
+            HEADER
+        =============================================== */}
 
-        <div
+        <header
           className={
-            styles.topHeader
+            styles.header
           }
         >
           <div>
             <span
               className={
-                styles.eyebrow
+                styles.badge
               }
             >
               {categoryDisplay}
             </span>
 
-            <h1
-              className={
-                styles.heading
-              }
-            >
+            <h1>
               Your Cart
             </h1>
 
-            <p
-              className={
-                styles.subheading
-              }
-            >
+            <p>
               {totalItems}{" "}
-              {totalItems === 1
+              {totalItems ===
+              1
                 ? "item"
                 : "items"}{" "}
               in your cart
@@ -739,14 +774,67 @@ export default function Cart({
 
           <div
             className={
-              styles.itemCount
+              styles.count
             }
           >
             {totalItems}
           </div>
+        </header>
+
+        {/* ===============================================
+            SELECT ALL
+        =============================================== */}
+
+        <div
+          className={
+            styles.selectionBar
+          }
+        >
+          <button
+            type="button"
+            className={`${styles.selectAllButton} ${
+              allSelected
+                ? styles.selectAllActive
+                : ""
+            }`}
+            onClick={
+              selectAll
+            }
+            aria-pressed={
+              allSelected
+            }
+          >
+            <span
+              className={
+                styles.checkbox
+              }
+            >
+              {allSelected && (
+                <Check
+                  size={13}
+                  strokeWidth={3}
+                />
+              )}
+            </span>
+
+            <span>
+              Select all items
+            </span>
+          </button>
+
+          <span
+            className={
+              styles.selectedLabel
+            }
+          >
+            {selectedCount}{" "}
+            selected
+          </span>
         </div>
 
-        {/* ERROR */}
+        {/* ===============================================
+            ERROR
+        =============================================== */}
 
         {error && (
           <div
@@ -758,183 +846,295 @@ export default function Cart({
           </div>
         )}
 
-        {/* SELECT ALL */}
+        {/* ===============================================
+            ITEMS
+        =============================================== */}
 
         <div
           className={
-            styles.selectBar
+            styles.items
           }
         >
-          <label
-            className={
-              styles.selectAll
-            }
-          >
-            <input
-              type="checkbox"
-              checked={
-                allSelected
-              }
-              ref={(element) => {
-                if (
-                  element
-                ) {
-                  element.indeterminate =
-                    !allSelected &&
-                    someSelected;
-                }
-              }}
-              onChange={
-                selectAll
-              }
-            />
+          {items.map(
+            (item) => {
+              const updating =
+                updatingId ===
+                item.productId;
 
-            <span>
-              Select all items
-            </span>
-          </label>
-
-          <span
-            className={
-              styles.selectedText
-            }
-          >
-            {selectedCount}{" "}
-            selected
-          </span>
-        </div>
-
-        {/* ITEMS */}
-
-        <div
-          className={
-            styles.cartList
-          }
-        >
-          {cartItems.map(
-            (item) => (
-              <div
-                key={item.id}
-                className={`${styles.itemRow} ${
-                  item.selected
-                    ? styles.itemSelected
-                    : ""
-                } ${
-                  updating ===
-                  item.productId
-                    ? styles.itemUpdating
-                    : ""
-                }`}
-              >
-                <CartItem
-                  item={item}
-                  onIncrease={
-                    increase
+              return (
+                <article
+                  key={
+                    item.productId
                   }
-                  onDecrease={
-                    decrease
-                  }
-                  onDelete={
-                    handleDelete
-                  }
-                  onToggle={
-                    toggleSelected
-                  }
-                />
+                  className={`${styles.item} ${
+                    item.selected
+                      ? styles.itemSelected
+                      : ""
+                  } ${
+                    updating
+                      ? styles.itemLoading
+                      : ""
+                  }`}
+                >
+                  <button
+                    type="button"
+                    className={`${styles.itemCheck} ${
+                      item.selected
+                        ? styles.itemCheckActive
+                        : ""
+                    }`}
+                    onClick={() =>
+                      toggleSelected(
+                        item.productId
+                      )
+                    }
+                    aria-label={`${
+                      item.selected
+                        ? "Deselect"
+                        : "Select"
+                    } ${
+                      item.name
+                    }`}
+                  >
+                    {item.selected && (
+                      <Check
+                        size={13}
+                        strokeWidth={3}
+                      />
+                    )}
+                  </button>
 
-                {updating ===
-                  item.productId && (
                   <div
                     className={
-                      styles.itemOverlay
+                      styles.productImage
                     }
                   >
-                    <div
+                    <Image
+                      src={
+                        item.image
+                      }
+                      alt={
+                        item.name
+                      }
+                      fill
+                      sizes="(max-width: 600px) 84px, 112px"
                       className={
-                        styles.loadingSpinner
+                        styles.image
                       }
                     />
                   </div>
-                )}
-              </div>
-            )
+
+                  <div
+                    className={
+                      styles.productInfo
+                    }
+                  >
+                    <span
+                      className={
+                        styles.productType
+                      }
+                    >
+                      Product
+                    </span>
+
+                    <h2>
+                      {
+                        item.name
+                      }
+                    </h2>
+
+                    <p>
+                      {formatMoney(
+                        item.price
+                      )}{" "}
+                      each
+                    </p>
+
+                    <div
+                      className={
+                        styles.productBottom
+                      }
+                    >
+                      <div
+                        className={
+                          styles.quantity
+                        }
+                      >
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(
+                              item.productId,
+                              item.quantity -
+                                1
+                            )
+                          }
+                          disabled={
+                            updating ||
+                            item.quantity <=
+                              1
+                          }
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus
+                            size={14}
+                          />
+                        </button>
+
+                        <span>
+                          {
+                            item.quantity
+                          }
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(
+                              item.productId,
+                              item.quantity +
+                                1
+                            )
+                          }
+                          disabled={
+                            updating ||
+                            (item.stock >
+                              0 &&
+                              item.quantity >=
+                                item.stock)
+                          }
+                          aria-label="Increase quantity"
+                        >
+                          <Plus
+                            size={14}
+                          />
+                        </button>
+                      </div>
+
+                      <strong
+                        className={
+                          styles.mobileLineTotal
+                        }
+                      >
+                        {formatMoney(
+                          item.lineTotal
+                        )}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div
+                    className={
+                      styles.desktopTotal
+                    }
+                  >
+                    <span>
+                      Total
+                    </span>
+
+                    <strong>
+                      {formatMoney(
+                        item.lineTotal
+                      )}
+                    </strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={
+                      styles.deleteButton
+                    }
+                    onClick={() =>
+                      deleteItem(
+                        item.productId
+                      )
+                    }
+                    disabled={
+                      updating
+                    }
+                    aria-label={`Remove ${item.name} from cart`}
+                  >
+                    <Trash2
+                      size={18}
+                    />
+                  </button>
+
+                  {updating && (
+                    <div
+                      className={
+                        styles.itemOverlay
+                      }
+                    >
+                      <div
+                        className={
+                          styles.spinner
+                        }
+                      />
+                    </div>
+                  )}
+                </article>
+              );
+            }
           )}
         </div>
 
-        {/* SUMMARY */}
+        {/* ===============================================
+            SUMMARY
+        =============================================== */}
 
-        <div
+        <footer
           className={
             styles.summary
           }
         >
           <div
             className={
-              styles.summaryInfo
+              styles.summaryContent
             }
           >
-            <span
-              className={
-                styles.summaryLabel
-              }
-            >
-              Selected Items
-            </span>
+            <div>
+              <span>
+                Selected Items
+              </span>
 
-            <span
-              className={
-                styles.summaryValue
-              }
-            >
-              {selectedCount}
-            </span>
-          </div>
+              <strong>
+                {selectedCount}
+              </strong>
+            </div>
 
-          <div
-            className={
-              styles.summaryInfo
-            }
-          >
-            <span
-              className={
-                styles.summaryLabel
-              }
-            >
-              Cart Total
-            </span>
+            <div>
+              <span>
+                Cart Total
+              </span>
 
-            <strong
-              className={
-                styles.total
-              }
-            >
-              GH₵
-              {selectedTotal.toLocaleString(
-                "en-GH",
-                {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
+              <strong
+                className={
+                  styles.total
                 }
-              )}
-            </strong>
+              >
+                {formatMoney(
+                  selectedTotal
+                )}
+              </strong>
+            </div>
           </div>
 
           <button
             type="button"
             className={
-              styles.checkout
+              styles.checkoutButton
+            }
+            disabled={
+              selectedCount ===
+              0
             }
             onClick={
               handleCheckout
             }
-            disabled={
-              selectedItems.length ===
-              0
-            }
           >
             Proceed to Checkout
           </button>
-        </div>
+        </footer>
       </div>
     </section>
   );
