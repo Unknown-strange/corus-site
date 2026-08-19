@@ -2,17 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
+
 import styles from "./Cart.module.css";
 import CartItem, {
   CartItemType,
 } from "./CartItem";
-import api from "@/lib/api";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 
-// API response types
+// =========================================================
+// API TYPES
+// =========================================================
+
 type ApiCartItem = {
   product_id: string;
   product_name: string;
@@ -33,230 +37,904 @@ type ApiCartResponse = {
 };
 
 type Props = {
-  category?: string; // "rentals" or "store"
+  category?: string;
 };
 
-export default function Cart({ category = "store" }: Props) {
-  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function Cart({
+  category = "store",
+}: Props) {
+  const [cartItems, setCartItems] =
+    useState<CartItemType[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [updating, setUpdating] =
+    useState<string | null>(null);
+
   const router = useRouter();
 
-  // Format category name for display
-  const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
+  const categoryDisplay =
+    category.charAt(0).toUpperCase() +
+    category.slice(1);
 
-  // Fetch cart from API
+  // =========================================================
+  // FETCH CART
+  // =========================================================
+
   const fetchCart = async () => {
     try {
-      const token = localStorage.getItem("access_token");
+      setError(null);
+
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
+
       if (!token) {
-        setError("Please log in to view your cart.");
+        setError(
+          "Please log in to view your cart."
+        );
+
         setLoading(false);
+
         return;
       }
 
-      const response = await fetch(`${API_BASE}/cart`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          setError("Session expired. Please log in again.");
-          setLoading(false);
-          return;
+      const response = await fetch(
+        `${API_BASE}/cart`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
         }
-        throw new Error("Failed to fetch cart");
+      );
+
+      if (
+        response.status === 401
+      ) {
+        setError(
+          "Session expired. Please log in again."
+        );
+
+        setLoading(false);
+
+        return;
       }
 
-      const data: ApiCartResponse = await response.json();
+      if (
+        response.status === 403
+      ) {
+        setError(
+          "Customer access is required to use the cart."
+        );
 
-      // Map API response to CartItemType
-      const mappedItems: CartItemType[] = data.items.map((item) => ({
-        id: parseInt(item.product_id) || 0,
-        productId: item.product_id,
-        name: item.product_name,
-        description: "", // API doesn't provide description yet
-        price: parseFloat(item.unit_price_ghs) || 0,
-        image: item.image_url || "/images/placeholder.png",
-        quantity: item.quantity,
-        selected: true,
-        stock: item.stock,
-        slug: item.product_slug,
-        lineTotal: parseFloat(item.line_total_ghs) || 0,
-      }));
+        setLoading(false);
 
-      // TODO: Filter by category when API supports it
-      // For now, show all items (you can add filtering later)
-      setCartItems(mappedItems);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to fetch cart."
+        );
+      }
+
+      const data: ApiCartResponse =
+        await response.json();
+
+      const mappedItems: CartItemType[] =
+        data.items.map(
+          (item, index) => ({
+            id:
+              Number.isFinite(
+                Number(item.product_id)
+              )
+                ? Number(
+                    item.product_id
+                  )
+                : index + 1,
+
+            productId:
+              item.product_id,
+
+            name:
+              item.product_name,
+
+            description:
+              "",
+
+            price:
+              Number.parseFloat(
+                item.unit_price_ghs
+              ) || 0,
+
+            image:
+              item.image_url ||
+              "/images/placeholder.png",
+
+            quantity:
+              item.quantity,
+
+            selected:
+              true,
+
+            stock:
+              Number.isFinite(
+                item.stock
+              )
+                ? item.stock
+                : 0,
+
+            slug:
+              item.product_slug,
+
+            lineTotal:
+              Number.isFinite(
+                Number(
+                  item.line_total_ghs
+                )
+              )
+                ? Number(
+                    item.line_total_ghs
+                  )
+                : 0,
+          })
+        );
+
+      setCartItems(
+        mappedItems
+      );
+
       setError(null);
     } catch (err) {
-      setError("Failed to load cart items.");
-      console.error(err);
+      console.error(
+        "CART LOAD FAILED:",
+        err
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load cart items."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Add/update item quantity
-  const updateQuantity = async (productId: string, quantity: number) => {
+  // =========================================================
+  // UPDATE QUANTITY
+  // =========================================================
+
+  const updateQuantity = async (
+    productId: string,
+    quantity: number
+  ) => {
+    if (quantity < 1) {
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
+      setUpdating(productId);
+      setError(null);
 
-      const response = await fetch(`${API_BASE}/cart/items/${productId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ quantity }),
-      });
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
 
-      if (!response.ok) throw new Error("Failed to update quantity");
+      if (!token) {
+        setError(
+          "Please log in to update your cart."
+        );
+
+        return;
+      }
+
+      const response = await fetch(
+        `${API_BASE}/cart/items/${productId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Authorization:
+              `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            quantity,
+          }),
+        }
+      );
+
+      if (
+        response.status === 401
+      ) {
+        setError(
+          "Session expired. Please log in again."
+        );
+
+        return;
+      }
+
+      if (!response.ok) {
+        const data =
+          await response
+            .json()
+            .catch(() => null);
+
+        throw new Error(
+          data?.detail ||
+            data?.message ||
+            "Failed to update quantity."
+        );
+      }
 
       await fetchCart();
     } catch (err) {
-      console.error(err);
-      setError("Failed to update quantity.");
+      console.error(
+        "CART QUANTITY UPDATE FAILED:",
+        err
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to update quantity."
+      );
+    } finally {
+      setUpdating(null);
     }
   };
 
-  // Delete item from cart
-  const deleteItem = async (productId: string) => {
+  // =========================================================
+  // DELETE ITEM
+  // =========================================================
+
+  const deleteItem = async (
+    productId: string
+  ) => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
+      setUpdating(productId);
+      setError(null);
 
-      const response = await fetch(`${API_BASE}/cart/items/${productId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
 
-      if (!response.ok) throw new Error("Failed to delete item");
+      if (!token) {
+        setError(
+          "Please log in to update your cart."
+        );
+
+        return;
+      }
+
+      const response = await fetch(
+        `${API_BASE}/cart/items/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (
+        response.status === 401
+      ) {
+        setError(
+          "Session expired. Please log in again."
+        );
+
+        return;
+      }
+
+      if (!response.ok) {
+        const data =
+          await response
+            .json()
+            .catch(() => null);
+
+        throw new Error(
+          data?.detail ||
+            data?.message ||
+            "Failed to remove item."
+        );
+      }
 
       await fetchCart();
     } catch (err) {
-      console.error(err);
-      setError("Failed to delete item.");
+      console.error(
+        "DELETE CART ITEM FAILED:",
+        err
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to remove item."
+      );
+    } finally {
+      setUpdating(null);
     }
   };
 
-  // Load cart on mount
+  // =========================================================
+  // INITIAL LOAD
+  // =========================================================
+
   useEffect(() => {
     fetchCart();
   }, []);
 
-  // Handlers for child components
-  const increase = (id: number) => {
-    const item = cartItems.find((i) => i.id === id);
-    if (item) {
-      updateQuantity(item.productId, item.quantity + 1);
-    }
-  };
+  // =========================================================
+  // CHILD HANDLERS
+  // =========================================================
 
-  const decrease = (id: number) => {
-    const item = cartItems.find((i) => i.id === id);
-    if (item && item.quantity > 1) {
-      updateQuantity(item.productId, item.quantity - 1);
-    }
-  };
+  const increase = (
+    id: number
+  ) => {
+    const item =
+      cartItems.find(
+        (current) =>
+          current.id === id
+      );
 
-  const toggleSelected = (id: number) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
+    if (!item) {
+      return;
+    }
+
+    const stock =
+      typeof item.stock ===
+      "number"
+        ? item.stock
+        : Number(item.stock) || 0;
+
+    if (
+      stock > 0 &&
+      item.quantity >= stock
+    ) {
+      return;
+    }
+
+    updateQuantity(
+      item.productId,
+      item.quantity + 1
     );
   };
 
-  const handleDelete = (id: number) => {
-    const item = cartItems.find((i) => i.id === id);
-    if (item) {
-      deleteItem(item.productId);
+  const decrease = (
+    id: number
+  ) => {
+    const item =
+      cartItems.find(
+        (current) =>
+          current.id === id
+      );
+
+    if (!item) {
+      return;
     }
+
+    if (
+      item.quantity <= 1
+    ) {
+      return;
+    }
+
+    updateQuantity(
+      item.productId,
+      item.quantity - 1
+    );
   };
+
+  const toggleSelected = (
+    id: number
+  ) => {
+    setCartItems(
+      (items) =>
+        items.map(
+          (item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  selected:
+                    !item.selected,
+                }
+              : item
+        )
+    );
+  };
+
+  const handleDelete = (
+    id: number
+  ) => {
+    const item =
+      cartItems.find(
+        (current) =>
+          current.id === id
+      );
+
+    if (!item) {
+      return;
+    }
+
+    deleteItem(
+      item.productId
+    );
+  };
+
+  const allSelected =
+    cartItems.length > 0 &&
+    cartItems.every(
+      (item) =>
+        item.selected
+    );
+
+  const someSelected =
+    cartItems.some(
+      (item) =>
+        item.selected
+    );
 
   const selectAll = () => {
-    const allSelected = cartItems.every((item) => item.selected);
-    setCartItems((items) =>
-      items.map((item) => ({
-        ...item,
-        selected: !allSelected,
-      }))
+    setCartItems(
+      (items) =>
+        items.map(
+          (item) => ({
+            ...item,
+            selected:
+              !allSelected,
+          })
+        )
     );
   };
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // =========================================================
+  // TOTALS
+  // =========================================================
 
-    // ─── Checkout handler ──────────────────────────────────────────
-  const handleCheckout = () => {
-    router.push("/checkout");
-  };
+  const selectedItems =
+    cartItems.filter(
+      (item) =>
+        item.selected
+    );
+
+  const selectedCount =
+    selectedItems.reduce(
+      (sum, item) =>
+        sum +
+        item.quantity,
+      0
+    );
+
+  const selectedTotal =
+    selectedItems.reduce(
+      (sum, item) => {
+        const lineTotal =
+          typeof item.lineTotal ===
+          "number"
+            ? item.lineTotal
+            : Number(
+                item.lineTotal
+              ) || 0;
+
+        return (
+          sum + lineTotal
+        );
+      },
+      0
+    );
+
+  const totalItems =
+    cartItems.reduce(
+      (sum, item) =>
+        sum +
+        item.quantity,
+      0
+    );
+
+  // =========================================================
+  // CHECKOUT
+  // =========================================================
+
+  const handleCheckout =
+    () => {
+      if (
+        selectedItems.length ===
+        0
+      ) {
+        setError(
+          "Please select at least one item before checkout."
+        );
+
+        return;
+      }
+
+      router.push(
+        "/checkout"
+      );
+    };
+
+  // =========================================================
+  // LOADING
+  // =========================================================
 
   if (loading) {
     return (
-      <section className={styles.cartContainer}>
-        <div className={styles.loading}>Loading your cart...</div>
+      <section
+        className={
+          styles.cartSection
+        }
+      >
+        <div
+          className={
+            styles.loadingCard
+          }
+        >
+          <div
+            className={
+              styles.loadingSpinner
+            }
+          />
+
+          <p>
+            Loading your cart...
+          </p>
+        </div>
       </section>
     );
   }
 
-  if (error) {
+  // =========================================================
+  // ERROR
+  // =========================================================
+
+  if (
+    error &&
+    cartItems.length ===
+      0
+  ) {
     return (
-      <section className={styles.cartContainer}>
-        <div className={styles.error}>{error}</div>
+      <section
+        className={
+          styles.cartSection
+        }
+      >
+        <div
+          className={
+            styles.errorCard
+          }
+        >
+          <div
+            className={
+              styles.errorIcon
+            }
+          >
+            !
+          </div>
+
+          <h2>
+            Unable to load cart
+          </h2>
+
+          <p>
+            {error}
+          </p>
+        </div>
       </section>
     );
   }
 
-  if (cartItems.length === 0) {
+  // =========================================================
+  // EMPTY
+  // =========================================================
+
+  if (
+    cartItems.length ===
+    0
+  ) {
     return (
-      <section className={styles.cartContainer}>
-        <div className={styles.header}>{categoryDisplay} (0)</div>
-        <div className={styles.emptyCart}>Your {categoryDisplay.toLowerCase()} cart is empty.</div>
+      <section
+        className={
+          styles.cartSection
+        }
+      >
+        <div
+          className={
+            styles.emptyCard
+          }
+        >
+          <div
+            className={
+              styles.emptyIcon
+            }
+          >
+            <ShoppingBag
+              size={28}
+            />
+          </div>
+
+          <span
+            className={
+              styles.emptyEyebrow
+            }
+          >
+            {categoryDisplay}
+          </span>
+
+          <h2>
+            Your cart is empty
+          </h2>
+
+          <p>
+            Add something from the{" "}
+            {categoryDisplay.toLowerCase()}{" "}
+            to get started.
+          </p>
+        </div>
       </section>
     );
   }
+
+  // =========================================================
+  // CART
+  // =========================================================
 
   return (
-    <section className={styles.cartContainer}>
-      <div className={styles.header}>
-        {categoryDisplay} ({totalItems})
-      </div>
+    <section
+      className={
+        styles.cartSection
+      }
+    >
+      <div
+        className={
+          styles.cartContainer
+        }
+      >
+        {/* HEADER */}
 
-      {/* Select All */}
-      <label className={styles.selectAll}>
-        <input
-          type="checkbox"
-          checked={cartItems.every((i) => i.selected)}
-          onChange={selectAll}
-        />
-        Select all items
-      </label>
+        <div
+          className={
+            styles.topHeader
+          }
+        >
+          <div>
+            <span
+              className={
+                styles.eyebrow
+              }
+            >
+              {categoryDisplay}
+            </span>
 
-      {/* Items */}
-      <div className={styles.cartList}>
-        {cartItems.map((item) => (
-          <CartItem
-            key={item.id}
-            item={item}
-            onIncrease={increase}
-            onDecrease={decrease}
-            onDelete={handleDelete}
-            onToggle={toggleSelected}
-          />
-        ))}
-      </div>
+            <h1
+              className={
+                styles.heading
+              }
+            >
+              Your Cart
+            </h1>
 
-      {/* Footer */}
-      <div className={styles.footer}>
-          <button className={styles.checkout} onClick={handleCheckout}>
-    Checkout
-  </button>
+            <p
+              className={
+                styles.subheading
+              }
+            >
+              {totalItems}{" "}
+              {totalItems === 1
+                ? "item"
+                : "items"}{" "}
+              in your cart
+            </p>
+          </div>
+
+          <div
+            className={
+              styles.itemCount
+            }
+          >
+            {totalItems}
+          </div>
+        </div>
+
+        {/* ERROR */}
+
+        {error && (
+          <div
+            className={
+              styles.inlineError
+            }
+          >
+            {error}
+          </div>
+        )}
+
+        {/* SELECT ALL */}
+
+        <div
+          className={
+            styles.selectBar
+          }
+        >
+          <label
+            className={
+              styles.selectAll
+            }
+          >
+            <input
+              type="checkbox"
+              checked={
+                allSelected
+              }
+              ref={(element) => {
+                if (
+                  element
+                ) {
+                  element.indeterminate =
+                    !allSelected &&
+                    someSelected;
+                }
+              }}
+              onChange={
+                selectAll
+              }
+            />
+
+            <span>
+              Select all items
+            </span>
+          </label>
+
+          <span
+            className={
+              styles.selectedText
+            }
+          >
+            {selectedCount}{" "}
+            selected
+          </span>
+        </div>
+
+        {/* ITEMS */}
+
+        <div
+          className={
+            styles.cartList
+          }
+        >
+          {cartItems.map(
+            (item) => (
+              <div
+                key={item.id}
+                className={`${styles.itemRow} ${
+                  item.selected
+                    ? styles.itemSelected
+                    : ""
+                } ${
+                  updating ===
+                  item.productId
+                    ? styles.itemUpdating
+                    : ""
+                }`}
+              >
+                <CartItem
+                  item={item}
+                  onIncrease={
+                    increase
+                  }
+                  onDecrease={
+                    decrease
+                  }
+                  onDelete={
+                    handleDelete
+                  }
+                  onToggle={
+                    toggleSelected
+                  }
+                />
+
+                {updating ===
+                  item.productId && (
+                  <div
+                    className={
+                      styles.itemOverlay
+                    }
+                  >
+                    <div
+                      className={
+                        styles.loadingSpinner
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+            )
+          )}
+        </div>
+
+        {/* SUMMARY */}
+
+        <div
+          className={
+            styles.summary
+          }
+        >
+          <div
+            className={
+              styles.summaryInfo
+            }
+          >
+            <span
+              className={
+                styles.summaryLabel
+              }
+            >
+              Selected Items
+            </span>
+
+            <span
+              className={
+                styles.summaryValue
+              }
+            >
+              {selectedCount}
+            </span>
+          </div>
+
+          <div
+            className={
+              styles.summaryInfo
+            }
+          >
+            <span
+              className={
+                styles.summaryLabel
+              }
+            >
+              Cart Total
+            </span>
+
+            <strong
+              className={
+                styles.total
+              }
+            >
+              GH₵
+              {selectedTotal.toLocaleString(
+                "en-GH",
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }
+              )}
+            </strong>
+          </div>
+
+          <button
+            type="button"
+            className={
+              styles.checkout
+            }
+            onClick={
+              handleCheckout
+            }
+            disabled={
+              selectedItems.length ===
+              0
+            }
+          >
+            Proceed to Checkout
+          </button>
+        </div>
       </div>
     </section>
   );
