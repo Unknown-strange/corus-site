@@ -44,7 +44,7 @@ async def rate_limit_handler(request, exc: RateLimitExceeded):
 
 app.add_middleware(SlowAPIMiddleware)
 
-_cors_origins = ["*"] if settings.debug else [settings.frontend_url]
+_cors_origins = settings.cors_origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,

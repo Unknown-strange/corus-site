@@ -21,7 +21,8 @@ All settings are loaded from environment variables (or `.env`) via [`app/core/co
 | `PAYSTACK_PUBLIC_KEY` | Prod payments | test key | `pk_live_...` |
 | `PAYSTACK_CALLBACK_URL` | Prod payments | localhost | Frontend callback URL after Paystack redirect |
 | `API_BASE_URL` | No | `http://127.0.0.1:8000` | Public API URL, e.g. `https://api.corusstudios.com` |
-| `FRONTEND_URL` | No | `http://localhost:3000` | Public frontend origin |
+| `FRONTEND_URL` | No | `http://localhost:3000` | Primary frontend origin (callbacks, redirects) |
+| `FRONTEND_URLS` | No | — | Comma-separated CORS origins, e.g. `https://corus-studios-gtym.onrender.com,http://localhost:3000` |
 | `IMAGEKIT_PRIVATE_KEY` | Image uploads | — | From ImageKit dashboard |
 | `IMAGEKIT_PUBLIC_KEY` | Image uploads | — | Public key |
 | `IMAGEKIT_URL_ENDPOINT` | Image uploads | — | e.g. `https://ik.imagekit.io/your_id` |
@@ -72,7 +73,8 @@ Recommended hosting: **Supabase** (PostgreSQL) + **Render** (Web Service).
 - `SECRET_KEY` — long random string
 - `DEBUG=false`
 - `DISABLE_EMAIL_SEND=false`
-- `FRONTEND_URL` — your production frontend (used for CORS when `DEBUG=false`)
+- `FRONTEND_URL` — production frontend (callbacks, redirects)
+- `FRONTEND_URLS` — comma-separated CORS origins (include `http://localhost:3000` for local dev against live API)
 - `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`, `PAYSTACK_CALLBACK_URL` — live keys
 - SMTP vars, ImageKit vars, business rules from `.env.example`
 

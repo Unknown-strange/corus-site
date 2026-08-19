@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     paystack_callback_url: str | None = None
     api_base_url: str = "http://127.0.0.1:8000"
     frontend_url: str = "http://localhost:3000"
+    # Comma-separated allowed browser origins for CORS (e.g. prod + local dev).
+    frontend_urls: str | None = None
 
     session_deposit_ghs: int = 50
     reservation_deposit_ghs: int = 50
@@ -64,6 +66,14 @@ class Settings(BaseSettings):
     @property
     def paystack_configured(self) -> bool:
         return bool(self.paystack_secret_key and self.paystack_public_key)
+
+    @property
+    def cors_origins(self) -> list[str]:
+        if self.frontend_urls:
+            origins = [origin.strip().rstrip("/") for origin in self.frontend_urls.split(",") if origin.strip()]
+            if origins:
+                return origins
+        return [self.frontend_url.rstrip("/")]
 
 
 settings = Settings()
