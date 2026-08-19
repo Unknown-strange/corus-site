@@ -525,231 +525,263 @@ export default function CheckoutPage() {
      PROCEED TO PAYMENT
   ========================================================= */
 
-  const proceedToPayment =
-    async () => {
-      const token =
-        localStorage.getItem(
-          "access_token"
-        );
+const proceedToPayment = async () => {
+  const token =
+    localStorage.getItem("access_token");
 
-      if (!token) {
+  if (!token) {
+    setError(
+      "Please log in to continue."
+    );
+    return;
+  }
+
+  try {
+    setPaying(true);
+    setError(null);
+    setPaymentResult(null);
+
+    let response: Response;
+
+    console.log(
+      "STARTING PAYMENT",
+      {
+        mode,
+        apiBase:
+          process.env.NEXT_PUBLIC_API_URL,
+      }
+    );
+
+    /* =========================================
+       BOOKING
+    ========================================= */
+
+    if (
+      mode === "booking" &&
+      bookingCheckout
+    ) {
+      console.log(
+        "CALLING BOOKING CHECKOUT",
+        {
+          hold_id:
+            bookingCheckout.hold_id,
+        }
+      );
+
+      response =
+        await api.sessions.checkoutBooking(
+          {
+            hold_id:
+              bookingCheckout.hold_id,
+          },
+          token
+        );
+    }
+
+    /* =========================================
+       RENTAL
+    ========================================= */
+
+    else if (
+      mode === "rental" &&
+      rentalCheckout
+    ) {
+      console.log(
+        "CALLING RENTAL CHECKOUT",
+        {
+          equipment_id:
+            rentalCheckout.equipment_id,
+          start_date:
+            rentalCheckout.start_date,
+          end_date:
+            rentalCheckout.end_date,
+        }
+      );
+
+      response =
+        await api.rentals.checkout(
+          {
+            equipment_id:
+              rentalCheckout.equipment_id,
+            start_date:
+              rentalCheckout.start_date,
+            end_date:
+              rentalCheckout.end_date,
+          },
+          token
+        );
+    }
+
+    /* =========================================
+       STORE
+    ========================================= */
+
+    else {
+      if (
+        !cart ||
+        cart.items.length === 0
+      ) {
         setError(
-          "Please log in to continue."
+          "Your cart is empty."
         );
-
+        setPaying(false);
         return;
       }
 
-      try {
-        setPaying(true);
-        setError(null);
-        setPaymentResult(
-          null
+      console.log(
+        "CALLING STORE CHECKOUT"
+      );
+
+      response =
+        await api.orders.checkout(
+          token
         );
+    }
 
-        /*
-         * Open a blank tab immediately from the click
-         * event so the browser does not block it.
-         */
-        const paymentWindow =
-          window.open(
-            "",
-            "_blank"
-          );
-
-        /*
-         * Show modal immediately while payment is
-         * being prepared.
-         */
-        setPaymentState(
-          "waiting"
-        );
-
-        let response: Response;
-
-        /* =========================================
-           BOOKING
-        ========================================= */
-
-        if (
-          mode ===
-            "booking" &&
-          bookingCheckout
-        ) {
-          response =
-            await api.sessions.checkoutBooking(
-              {
-                hold_id:
-                  bookingCheckout.hold_id,
-              },
-              token
-            );
-        }
-
-        /* =========================================
-           RENTAL
-        ========================================= */
-
-        else if (
-          mode ===
-            "rental" &&
-          rentalCheckout
-        ) {
-          response =
-            await api.rentals.checkout(
-              {
-                equipment_id:
-                  rentalCheckout.equipment_id,
-                start_date:
-                  rentalCheckout.start_date,
-                end_date:
-                  rentalCheckout.end_date,
-              },
-              token
-            );
-        }
-
-        /* =========================================
-           STORE
-        ========================================= */
-
-        else {
-          if (
-            !cart ||
-            cart.items.length ===
-              0
-          ) {
-            paymentWindow?.close();
-
-            setPaymentState(
-              "error"
-            );
-
-            setError(
-              "Your cart is empty."
-            );
-
-            setPaying(false);
-
-            return;
-          }
-
-          response =
-            await api.orders.checkout(
-              token
-            );
-        }
-
-        const rawBody =
-          await response.text();
-
-        const data =
-          parseResponseBody(
-            rawBody
-          );
-
-        console.log(
-          "PAYMENT CHECKOUT RESPONSE",
-          {
-            status:
-              response.status,
-            body:
-              data,
-            mode,
-          }
-        );
-
-        if (
-          response.status ===
-          401
-        ) {
-          paymentWindow?.close();
-
-          localStorage.removeItem(
-            "access_token"
-          );
-
-          localStorage.removeItem(
-            "user"
-          );
-
-          window.location.href =
-            "/login";
-
-          return;
-        }
-
-        if (
-          !response.ok
-        ) {
-          paymentWindow?.close();
-
-          throw new Error(
-            getErrorMessage(
-              data,
-              `Checkout failed (${response.status}).`
-            )
-          );
-        }
-
-        const checkout =
-          data as CheckoutResponse;
-
-        if (
-          !checkout.authorization_url
-        ) {
-          paymentWindow?.close();
-
-          throw new Error(
-            "No Paystack authorization URL was returned."
-          );
-        }
-
-        if (
-          checkout.reference
-        ) {
-          setPaymentReference(
-            checkout.reference
-          );
-        }
-
-        /*
-         * Send the actual Paystack URL into the
-         * already-opened tab.
-         */
-        if (
-          paymentWindow
-        ) {
-          paymentWindow.location.href =
-            checkout.authorization_url;
-        } else {
-          /*
-           * Popup was blocked. We still open Paystack
-           * in the current tab rather than leaving the
-           * user stuck.
-           */
-          window.location.href =
-            checkout.authorization_url;
-        }
-      } catch (err) {
-        console.error(
-          "PAYMENT START FAILED",
-          err
-        );
-
-        setPaymentState(
-          "error"
-        );
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unable to start payment."
-        );
-
-        setPaying(false);
+    console.log(
+      "CHECKOUT HTTP RESPONSE",
+      {
+        status:
+          response.status,
+        statusText:
+          response.statusText,
+        ok:
+          response.ok,
+        url:
+          response.url,
       }
-    };
+    );
+
+    const rawBody =
+      await response.text();
+
+    console.log(
+      "CHECKOUT RAW RESPONSE",
+      rawBody
+    );
+
+    let data: unknown = null;
+
+    if (rawBody) {
+      try {
+        data =
+          JSON.parse(rawBody);
+      } catch {
+        data = rawBody;
+      }
+    }
+
+    console.log(
+      "CHECKOUT PARSED RESPONSE",
+      data
+    );
+
+    if (
+      response.status === 401
+    ) {
+      localStorage.removeItem(
+        "access_token"
+      );
+
+      localStorage.removeItem(
+        "user"
+      );
+
+      window.location.href =
+        "/login";
+
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        getErrorMessage(
+          data,
+          `Checkout failed (${response.status}).`
+        )
+      );
+    }
+
+    if (
+      !data ||
+      typeof data !==
+        "object"
+    ) {
+      throw new Error(
+        "The checkout server returned an invalid response."
+      );
+    }
+
+    const checkout =
+      data as CheckoutResponse;
+
+    console.log(
+      "PAYSTACK CHECKOUT DATA",
+      checkout
+    );
+
+    if (
+      !checkout.authorization_url
+    ) {
+      throw new Error(
+        "The backend completed checkout but did not return a Paystack authorization URL."
+      );
+    }
+
+    if (
+      checkout.reference
+    ) {
+      setPaymentReference(
+        checkout.reference
+      );
+    }
+
+    /*
+     * Only show the waiting modal once the backend
+     * has successfully created the Paystack payment.
+     */
+    setPaymentState(
+      "waiting"
+    );
+
+    /*
+     * Now open Paystack.
+     *
+     * This is intentionally after the backend request
+     * succeeds so we never leave an empty tab behind.
+     */
+    const paymentWindow =
+      window.open(
+        checkout.authorization_url,
+        "_blank"
+      );
+
+    if (!paymentWindow) {
+      throw new Error(
+        "Your browser blocked the Paystack payment window. Please allow pop-ups for this site."
+      );
+    }
+
+    paymentWindow.focus();
+  } catch (err) {
+    console.error(
+      "PAYMENT START FAILED",
+      err
+    );
+
+    setPaymentState(
+      "error"
+    );
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Unable to start payment."
+    );
+
+    setPaying(false);
+  }
+};
 
   /* =========================================================
      LOADING
