@@ -103,11 +103,14 @@ def remove_cart_item(db: Session, user: User, product_id: UUID) -> Cart:
     return update_cart_item_quantity(db, user, product_id, 0)
 
 
+def clear_cart_items(cart: Cart) -> None:
+    cart.items.clear()
+
+
 def clear_cart(db: Session, user: User) -> Cart:
-    cart = get_or_create_cart(db, user)
-    for item in list(cart.items):
-        db.delete(item)
+    cart = get_cart_with_items(db, user)
+    clear_cart_items(cart)
     cart.updated_at = datetime.now(UTC)
-    db.add(cart)
     db.commit()
-    return get_cart_with_items(db, user)
+    db.refresh(cart)
+    return cart

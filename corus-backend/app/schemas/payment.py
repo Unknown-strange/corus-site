@@ -1,4 +1,13 @@
+from datetime import datetime
+from decimal import Decimal
+
 from pydantic import BaseModel
+
+
+class PaymentReceiptSummary(BaseModel):
+    receipt_number: str
+    amount_ghs: Decimal
+    issued_at: datetime
 
 
 class PaymentVerifyResponse(BaseModel):
@@ -10,3 +19,7 @@ class PaymentVerifyResponse(BaseModel):
     reservation_id: str | None = None
     order_id: str | None = None
     message: str
+    amount_ghs: Decimal | None = None
+    receipt_number: str | None = None
+    issued_at: datetime | None = None
+    receipt: PaymentReceiptSummary | None = None

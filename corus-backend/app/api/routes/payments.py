@@ -1,10 +1,13 @@
+from decimal import Decimal
+
 from fastapi import APIRouter, HTTPException, status
 
 from app.core.config import settings
 from app.core.deps import DbSession
 from app.models.payment import Payment, PaymentPurpose
-from app.schemas.payment import PaymentVerifyResponse
-from app.services.payment_confirmation import verify_and_confirm_payment
+from app.models.receipt import Receipt
+from app.schemas.payment import PaymentReceiptSummary, PaymentVerifyResponse
+from app.services.payment_confirmation import PaymentConfirmResult, verify_and_confirm_payment
 from app.services.payment_redirect import callback_path_for_purpose
 
 router = APIRouter(prefix="/payments", tags=["payments"])
@@ -15,6 +18,56 @@ def _callback_path(db: DbSession, reference: str, purpose: PaymentPurpose | None
         return callback_path_for_purpose(purpose)
     payment = db.query(Payment).filter(Payment.reference == reference).first()
     return callback_path_for_purpose(payment.purpose if payment else None)
+
+
+def _payment_amount_ghs(payment: Payment | None) -> Decimal | None:
+    if payment is None:
+        return None
+    return Decimal(payment.amount_pesewas) / Decimal("100")
+
+
+def _receipt_summary(db: DbSession, payment: Payment | None) -> PaymentReceiptSummary | None:
+    if payment is None:
+        return None
+    receipt = db.query(Receipt).filter(Receipt.payment_id == payment.id).first()
+    if receipt is None:
+        return None
+    return PaymentReceiptSummary(
+        receipt_number=receipt.receipt_number,
+        amount_ghs=receipt.amount_ghs,
+        issued_at=receipt.issued_at,
+    )
+
+
+def _success_response(
+    db: DbSession,
+    reference: str,
+    result: PaymentConfirmResult,
+    *,
+    message: str,
+    booking_id: str | None = None,
+    rental_id: str | None = None,
+    reservation_id: str | None = None,
+    order_id: str | None = None,
+) -> PaymentVerifyResponse:
+    payment = db.query(Payment).filter(Payment.reference == reference).first()
+    receipt = _receipt_summary(db, payment)
+    amount_ghs = receipt.amount_ghs if receipt else _payment_amount_ghs(payment)
+
+    return PaymentVerifyResponse(
+        status="success",
+        reference=reference,
+        callback_path=callback_path_for_purpose(result.purpose),
+        booking_id=booking_id,
+        rental_id=rental_id,
+        reservation_id=reservation_id,
+        order_id=order_id,
+        message=message,
+        amount_ghs=amount_ghs,
+        receipt_number=receipt.receipt_number if receipt else None,
+        issued_at=receipt.issued_at if receipt else None,
+        receipt=receipt,
+    )
 
 
 @router.get("/verify/{reference}", response_model=PaymentVerifyResponse)
@@ -31,44 +84,37 @@ def verify_payment(reference: str, db: DbSession) -> PaymentVerifyResponse:
             message="Payment not confirmed",
         )
 
-    path = callback_path_for_purpose(result.purpose)
-
     if result.purpose == PaymentPurpose.session_deposit and result.booking:
-        return PaymentVerifyResponse(
-            status="success",
-            reference=reference,
-            callback_path=path,
+        return _success_response(
+            db,
+            reference,
+            result,
+            message="Booking confirmed. Pay the remaining balance at the studio.",
             booking_id=str(result.booking.id),
-            message="Booking confirmed",
         )
     if result.purpose == PaymentPurpose.rental_payment and result.rental:
-        return PaymentVerifyResponse(
-            status="success",
-            reference=reference,
-            callback_path=path,
-            rental_id=str(result.rental.id),
+        return _success_response(
+            db,
+            reference,
+            result,
             message="Rental confirmed",
+            rental_id=str(result.rental.id),
         )
     if result.purpose == PaymentPurpose.reservation_deposit and result.reservation:
-        return PaymentVerifyResponse(
-            status="success",
-            reference=reference,
-            callback_path=path,
-            reservation_id=str(result.reservation.id),
+        return _success_response(
+            db,
+            reference,
+            result,
             message="Studio reservation confirmed",
+            reservation_id=str(result.reservation.id),
         )
     if result.purpose == PaymentPurpose.order_payment and result.order:
-        return PaymentVerifyResponse(
-            status="success",
-            reference=reference,
-            callback_path=path,
-            order_id=str(result.order.id),
+        return _success_response(
+            db,
+            reference,
+            result,
             message="Order confirmed",
+            order_id=str(result.order.id),
         )
 
-    return PaymentVerifyResponse(
-        status="success",
-        reference=reference,
-        callback_path=path,
-        message="Payment confirmed",
-    )
+    return _success_response(db, reference, result, message="Payment confirmed")

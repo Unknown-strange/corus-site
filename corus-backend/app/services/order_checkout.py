@@ -2,16 +2,15 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.models.cart_item import CartItem
 from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
 from app.models.payment import Payment, PaymentPurpose, PaymentStatus
 from app.models.product import ProductForSale
 from app.models.user import User
-from app.services.cart import get_cart_with_items
+from app.services.cart import clear_cart_items, get_cart_with_items
 from app.services.order_stock import calculate_line_total, decrement_product_stock
 from app.services.paystack import generate_reference, initialize_transaction
 
@@ -40,7 +39,7 @@ def checkout_order(db: Session, user: User) -> dict:
     )
     product_map = {product.id: product for product in products}
 
-    line_items: list[tuple[CartItem, ProductForSale, Decimal]] = []
+    line_items: list[tuple[ProductForSale, int, Decimal]] = []
     total_ghs = Decimal("0")
 
     for item in cart.items:
@@ -56,7 +55,7 @@ def checkout_order(db: Session, user: User) -> dict:
                 detail=f"Insufficient stock for {product.name}",
             )
         line_total = calculate_line_total(product.price, item.quantity)
-        line_items.append((item, product, line_total))
+        line_items.append((product, item.quantity, line_total))
         total_ghs += line_total
 
     reference = generate_reference()
@@ -70,18 +69,18 @@ def checkout_order(db: Session, user: User) -> dict:
     db.add(order)
     db.flush()
 
-    for cart_item, product, line_total in line_items:
+    for product, quantity, line_total in line_items:
         db.add(
             OrderItem(
                 order_id=order.id,
                 product_id=product.id,
                 product_name=product.name,
                 unit_price_ghs=product.price,
-                quantity=cart_item.quantity,
+                quantity=quantity,
                 line_total_ghs=line_total,
             )
         )
-        decrement_product_stock(db, product, cart_item.quantity)
+        decrement_product_stock(db, product, quantity)
 
     amount_pesewas = int(total_ghs * 100)
     payment = Payment(
@@ -96,8 +95,7 @@ def checkout_order(db: Session, user: User) -> dict:
     )
     db.add(payment)
 
-    for item in list(cart.items):
-        db.delete(item)
+    clear_cart_items(cart)
     cart.updated_at = datetime.now(UTC)
     db.commit()
     db.refresh(order)

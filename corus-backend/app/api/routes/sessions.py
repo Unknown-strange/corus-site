@@ -8,10 +8,16 @@ from app.core.deps import CustomerUser, DbSession
 from app.models.booking import Booking
 from app.models.receipt import Receipt
 from app.models.session_type import SessionType
-from app.schemas.booking import BookingDetailResponse, CheckoutRequest, CheckoutResponse, ReceiptSummary
+from app.schemas.booking import (
+    BookingDetailResponse,
+    BookingSettingsResponse,
+    CheckoutRequest,
+    CheckoutResponse,
+    ReceiptSummary,
+)
 from app.schemas.session import HoldCreateRequest, HoldResponse, SessionTypeResponse, StudioSlotResponse
 from app.services.booking_checkout import checkout_booking, create_hold, release_hold
-from app.services.slot_availability import get_available_slots
+from app.services.slot_availability import get_available_slots, get_booking_settings
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -45,6 +51,11 @@ def _booking_detail(db, booking: Booking) -> BookingDetailResponse:
         slot_ends_at=booking.slot.ends_at,
         receipt=ReceiptSummary.model_validate(receipt) if receipt else None,
     )
+
+
+@router.get("/deposits", response_model=BookingSettingsResponse)
+def list_deposit_amounts(db: DbSession) -> BookingSettingsResponse:
+    return get_booking_settings(db)
 
 
 @router.get("/types", response_model=list[SessionTypeResponse])

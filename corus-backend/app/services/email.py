@@ -58,4 +58,8 @@ def send_email(
         print(f"\n[DEV EMAIL] To: {to_email}\nSubject: {subject}\n{plain_text}\n")
         return True
 
+    logger.error(
+        "Email not sent to %s — SMTP is not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD, and EMAIL_FROM.",
+        to_email,
+    )
     return False
