@@ -1,6 +1,6 @@
 import logging
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from fastapi import HTTPException, status
@@ -71,7 +71,19 @@ def release_hold(db: Session, user: User, hold_id: uuid.UUID) -> None:
     db.commit()
 
 
-def checkout_booking(db: Session, user: User, hold_id: uuid.UUID) -> dict:
+def checkout_booking(
+    db: Session,
+    user: User,
+    hold_id: uuid.UUID,
+    *,
+    pictures_count: int | None = None,
+    picture_pickup_date: date | None = None,
+    accepted_at: datetime | None = None,
+    package_name: str | None = None,
+    package_description: str | None = None,
+    package_price_ghs: Decimal | None = None,
+    package_duration_minutes: int | None = None,
+) -> dict:
     if not user.email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -98,10 +110,15 @@ def checkout_booking(db: Session, user: User, hold_id: uuid.UUID) -> dict:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Slot is no longer available")
 
     deposit = get_session_deposit_ghs(db)
-    total_price = hold.session_type.price_ghs
+    session_type = hold.session_type
+    total_price = package_price_ghs or session_type.price_ghs
     balance_due = total_price - deposit
     if balance_due < 0:
         balance_due = Decimal("0")
+
+    accepted = accepted_at or datetime.now(UTC)
+    if accepted.tzinfo is None:
+        accepted = accepted.replace(tzinfo=UTC)
 
     reference = generate_reference()
     booking = Booking(
@@ -110,6 +127,14 @@ def checkout_booking(db: Session, user: User, hold_id: uuid.UUID) -> dict:
         session_type_id=hold.session_type_id,
         hold_id=hold.id,
         status=BookingStatus.pending_payment,
+        package_name=package_name or session_type.name,
+        package_description=(
+            package_description if package_description is not None else session_type.description
+        ),
+        package_duration_minutes=package_duration_minutes or session_type.duration_minutes,
+        pictures_count=pictures_count,
+        picture_pickup_date=picture_pickup_date,
+        accepted_at=accepted,
         deposit_amount_ghs=deposit,
         total_price_ghs=total_price,
         balance_due_ghs=balance_due,

@@ -7,12 +7,11 @@ from decimal import Decimal
 
 from sqlalchemy.orm import Session, joinedload
 
-from app.models.booking import Booking
+from app.models.booking import Booking, BookingSource
 from app.models.order import Order
 from app.models.payment import Payment, PaymentPurpose
 from app.models.receipt import Receipt, ReceiptTypeEnum
 from app.models.rental_request import RentalRequest
-from app.models.session_type import SessionType
 from app.models.studio_reservation import StudioReservation
 from app.models.studio_slot import StudioSlot
 from app.models.user import User
@@ -36,6 +35,7 @@ PURPOSE_TO_RECEIPT_TYPE = {
     PaymentPurpose.order_payment: ReceiptType.order_payment,
     PaymentPurpose.rental_payment: ReceiptType.rental_payment,
     PaymentPurpose.reservation_deposit: ReceiptType.reservation_deposit,
+    PaymentPurpose.walk_in_offline: ReceiptType.walk_in_session,
 }
 
 
@@ -96,15 +96,90 @@ def document_to_summary(doc: ReceiptDocument) -> dict:
     }
 
 
-def _customer_fields(user: User | None) -> dict[str, str | None]:
-    if user is None:
+def _customer_fields(user: User | None, booking: Booking | None = None) -> dict[str, str | None]:
+    if user is None and booking is None:
         return {"customer_name": None, "customer_email": None, "customer_phone": None}
-    name = f"{user.first_name or ''} {user.last_name or ''}".strip() or None
+
+    name = None
+    if booking and booking.customer_full_name:
+        name = booking.customer_full_name.strip()
+    elif user is not None:
+        name = f"{user.first_name or ''} {user.last_name or ''}".strip() or None
+
     return {
         "customer_name": name,
-        "customer_email": user.email,
-        "customer_phone": user.phone_number,
+        "customer_email": user.email if user else None,
+        "customer_phone": user.phone_number if user else None,
     }
+
+
+def _booking_session_detail(booking: Booking, slot: StudioSlot | None) -> str:
+    parts: list[str] = []
+    if slot:
+        parts.append(
+            f"{slot.starts_at.strftime('%d %b %Y %H:%M')} – {slot.ends_at.strftime('%H:%M UTC')}"
+        )
+    if booking.package_description:
+        parts.append(booking.package_description.strip())
+    if booking.package_duration_minutes:
+        parts.append(f"Duration: {booking.package_duration_minutes} min")
+    if booking.pictures_count is not None:
+        parts.append(f"Pictures: {booking.pictures_count}")
+    if booking.picture_pickup_date:
+        parts.append(f"Picture pickup: {booking.picture_pickup_date.strftime('%d %b %Y')}")
+    if booking.accepted_at:
+        parts.append(f"Accepted: {booking.accepted_at.strftime('%d %b %Y')}")
+    return " · ".join(parts)
+
+
+def _payment_line_description(payment: Payment, booking: Booking) -> str:
+    if payment.purpose == PaymentPurpose.walk_in_offline:
+        if booking.balance_due_ghs <= 0:
+            return "Walk-in payment (paid in full at studio)"
+        return "Walk-in payment (paid at studio)"
+    if booking.booking_source == BookingSource.walk_in:
+        return "Walk-in deposit (paid online)"
+    return "Session deposit (paid online)"
+
+
+def _build_session_booking_document(
+    *,
+    payment: Payment,
+    booking: Booking,
+    slot: StudioSlot | None,
+    receipt_number: str,
+    user: User | None,
+    receipt_type: ReceiptType,
+) -> ReceiptDocument:
+    detail = _booking_session_detail(booking, slot)
+    footer = "Your session is confirmed."
+    if booking.balance_due_ghs > 0:
+        footer += " Pay the remaining balance at the studio."
+    if booking.picture_pickup_date:
+        footer += f" Picture pickup date: {booking.picture_pickup_date.strftime('%d %b %Y')}."
+
+    return ReceiptDocument(
+        receipt_number=receipt_number,
+        receipt_type=receipt_type,
+        issued_at=datetime.now(UTC),
+        payment_reference=payment.reference,
+        **_customer_fields(user, booking),
+        line_items=[
+            ReceiptLineItem(
+                description=booking.display_package_name,
+                detail=detail or None,
+                line_total_ghs=booking.total_price_ghs,
+            ),
+            ReceiptLineItem(
+                description=_payment_line_description(payment, booking),
+                line_total_ghs=booking.deposit_amount_ghs,
+            ),
+        ],
+        amount_paid_ghs=booking.deposit_amount_ghs,
+        total_price_ghs=booking.total_price_ghs,
+        balance_due_ghs=booking.balance_due_ghs,
+        footer_note=footer,
+    )
 
 
 def build_document_from_payment(db: Session, payment: Payment, receipt_number: str) -> ReceiptDocument | None:
@@ -113,40 +188,24 @@ def build_document_from_payment(db: Session, payment: Payment, receipt_number: s
     if receipt_type is None:
         return None
 
-    base = {
-        "receipt_number": receipt_number,
-        "receipt_type": receipt_type,
-        "issued_at": datetime.now(UTC),
-        "payment_reference": payment.reference,
-        **_customer_fields(user),
-    }
-
-    if payment.purpose == PaymentPurpose.session_deposit and payment.booking_id:
+    if payment.purpose in (PaymentPurpose.session_deposit, PaymentPurpose.walk_in_offline) and payment.booking_id:
         booking = db.get(Booking, payment.booking_id)
-        session_type = db.get(SessionType, booking.session_type_id) if booking else None
         slot = db.get(StudioSlot, booking.slot_id) if booking else None
-        if not booking or not session_type:
+        if booking is None:
             return None
-        slot_detail = ""
-        if slot:
-            slot_detail = f"{slot.starts_at.strftime('%d %b %Y %H:%M')} – {slot.ends_at.strftime('%H:%M UTC')}"
-        return ReceiptDocument(
-            **base,
-            line_items=[
-                ReceiptLineItem(
-                    description=session_type.name,
-                    detail=slot_detail or None,
-                    line_total_ghs=booking.total_price_ghs,
-                ),
-                ReceiptLineItem(
-                    description="Session deposit (paid online)",
-                    line_total_ghs=booking.deposit_amount_ghs,
-                ),
-            ],
-            amount_paid_ghs=booking.deposit_amount_ghs,
-            total_price_ghs=booking.total_price_ghs,
-            balance_due_ghs=booking.balance_due_ghs,
-            footer_note="Your session is confirmed. Pay the remaining balance at the studio.",
+        doc_type = (
+            ReceiptType.walk_in_session
+            if payment.purpose == PaymentPurpose.walk_in_offline
+            or booking.booking_source == BookingSource.walk_in
+            else ReceiptType.session_deposit
+        )
+        return _build_session_booking_document(
+            payment=payment,
+            booking=booking,
+            slot=slot,
+            receipt_number=receipt_number,
+            user=user,
+            receipt_type=doc_type,
         )
 
     if payment.purpose == PaymentPurpose.order_payment and payment.order_id:
@@ -318,6 +377,24 @@ def _send_receipt_email(
             admin_plain_text=admin_plain,
             admin_html=admin_html,
         )
+    elif admin_copy:
+        from app.services.notification_service import _admin_recipients
+
+        for admin_email in _admin_recipients(db):
+            dispatch_email(
+                db,
+                to_email=admin_email,
+                subject=admin_subject or subject,
+                plain_text=admin_plain or plain,
+                html=admin_html or html,
+                event_type="receipt_ready_admin",
+                user_id=receipt.user_id,
+                reference_type="receipt",
+                reference_id=receipt.id,
+                force_send=force_send,
+                pdf_attachment=pdf_attachment,
+                send_admin_copy=False,
+            )
     else:
         db.commit()
 

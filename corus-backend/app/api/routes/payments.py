@@ -116,5 +116,13 @@ def verify_payment(reference: str, db: DbSession) -> PaymentVerifyResponse:
             message="Order confirmed",
             order_id=str(result.order.id),
         )
+    if result.purpose == PaymentPurpose.walk_in_offline and result.booking:
+        return _success_response(
+            db,
+            reference,
+            result,
+            message="Walk-in booking confirmed",
+            booking_id=str(result.booking.id),
+        )
 
     return _success_response(db, reference, result, message="Payment confirmed")

@@ -15,6 +15,7 @@ class ReceiptTypeEnum(str, enum.Enum):
     order_payment = "order_payment"
     rental_payment = "rental_payment"
     reservation_deposit = "reservation_deposit"
+    walk_in_session = "walk_in_session"
 
 
 class Receipt(Base):

@@ -39,6 +39,7 @@ PURPOSE_TO_CATEGORY: dict[PaymentPurpose, FinancialCategory] = {
     PaymentPurpose.order_payment: FinancialCategory.order_payment,
     PaymentPurpose.rental_payment: FinancialCategory.rental_payment,
     PaymentPurpose.reservation_deposit: FinancialCategory.reservation_deposit,
+    PaymentPurpose.walk_in_offline: FinancialCategory.session_deposit,
 }
 
 PURPOSE_LABELS: dict[PaymentPurpose, str] = {
@@ -46,6 +47,7 @@ PURPOSE_LABELS: dict[PaymentPurpose, str] = {
     PaymentPurpose.order_payment: "Order payment",
     PaymentPurpose.rental_payment: "Rental payment",
     PaymentPurpose.reservation_deposit: "Reservation deposit",
+    PaymentPurpose.walk_in_offline: "Walk-in session payment",
 }
 
 

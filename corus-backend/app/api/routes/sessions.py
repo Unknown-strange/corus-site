@@ -40,6 +40,8 @@ def _booking_detail(db, booking: Booking) -> BookingDetailResponse:
     return BookingDetailResponse(
         id=booking.id,
         status=booking.status.value,
+        booking_source=booking.booking_source.value,
+        payment_method=booking.payment_method.value if booking.payment_method else None,
         deposit_amount_ghs=booking.deposit_amount_ghs,
         total_price_ghs=booking.total_price_ghs,
         balance_due_ghs=booking.balance_due_ghs,
@@ -47,6 +49,12 @@ def _booking_detail(db, booking: Booking) -> BookingDetailResponse:
         confirmed_at=booking.confirmed_at,
         created_at=booking.created_at,
         session_type_name=booking.session_type.name,
+        package_name=booking.package_name,
+        package_description=booking.package_description,
+        package_duration_minutes=booking.package_duration_minutes,
+        pictures_count=booking.pictures_count,
+        picture_pickup_date=booking.picture_pickup_date,
+        accepted_at=booking.accepted_at,
         slot_starts_at=booking.slot.starts_at,
         slot_ends_at=booking.slot.ends_at,
         receipt=ReceiptSummary.model_validate(receipt) if receipt else None,
@@ -98,7 +106,18 @@ def delete_slot_hold(hold_id: UUID, user: CustomerUser, db: DbSession) -> None:
 
 @router.post("/bookings/checkout", response_model=CheckoutResponse)
 def booking_checkout(payload: CheckoutRequest, user: CustomerUser, db: DbSession) -> CheckoutResponse:
-    result = checkout_booking(db, user, payload.hold_id)
+    result = checkout_booking(
+        db,
+        user,
+        payload.hold_id,
+        pictures_count=payload.pictures_count,
+        picture_pickup_date=payload.picture_pickup_date,
+        accepted_at=payload.accepted_at,
+        package_name=payload.package_name,
+        package_description=payload.package_description,
+        package_price_ghs=payload.package_price_ghs,
+        package_duration_minutes=payload.package_duration_minutes,
+    )
     return CheckoutResponse(**result)
 
 

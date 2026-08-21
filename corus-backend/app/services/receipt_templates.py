@@ -27,6 +27,7 @@ class ReceiptType(str, Enum):
     order_payment = "order_payment"
     rental_payment = "rental_payment"
     reservation_deposit = "reservation_deposit"
+    walk_in_session = "walk_in_session"
 
 
 RECEIPT_TYPE_LABELS = {
@@ -34,6 +35,7 @@ RECEIPT_TYPE_LABELS = {
     ReceiptType.order_payment: "Shop Order",
     ReceiptType.rental_payment: "Equipment Rental",
     ReceiptType.reservation_deposit: "Studio Reservation",
+    ReceiptType.walk_in_session: "Walk-in Session",
 }
 
 

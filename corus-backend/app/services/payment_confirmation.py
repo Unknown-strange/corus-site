@@ -108,6 +108,11 @@ def _result_for_existing_payment(db: Session, payment: Payment) -> PaymentConfir
             purpose=payment.purpose,
             order=db.get(Order, payment.order_id),
         )
+    if payment.purpose == PaymentPurpose.walk_in_offline:
+        return PaymentConfirmResult(
+            purpose=payment.purpose,
+            booking=db.get(Booking, payment.booking_id),
+        )
     return PaymentConfirmResult(purpose=payment.purpose)
 
 
@@ -134,10 +139,20 @@ def _confirm_session_deposit(
     db.commit()
     db.refresh(booking)
     sync_payment_to_ledger(db, payment)
-    issue_receipt(db, payment, send_email=True)
+    issue_receipt(db, payment, send_email=True, admin_copy=True)
     db.commit()
 
     return PaymentConfirmResult(purpose=PaymentPurpose.session_deposit, booking=booking)
+
+
+def confirm_walk_in_offline_payment(db: Session, payment: Payment) -> None:
+    if payment.purpose != PaymentPurpose.walk_in_offline:
+        return
+    if payment.status != PaymentStatus.success:
+        return
+    sync_payment_to_ledger(db, payment)
+    issue_receipt(db, payment, send_email=True, admin_copy=True)
+    db.commit()
 
 
 def _confirm_rental_payment(

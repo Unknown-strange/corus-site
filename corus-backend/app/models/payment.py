@@ -20,6 +20,7 @@ class PaymentPurpose(str, enum.Enum):
     rental_payment = "rental_payment"
     reservation_deposit = "reservation_deposit"
     order_payment = "order_payment"
+    walk_in_offline = "walk_in_offline"
 
 
 class Payment(Base):

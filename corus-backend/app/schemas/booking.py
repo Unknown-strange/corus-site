@@ -1,12 +1,19 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CheckoutRequest(BaseModel):
     hold_id: UUID
+    pictures_count: int | None = Field(default=None, ge=0)
+    picture_pickup_date: date | None = None
+    accepted_at: datetime | None = None
+    package_name: str | None = Field(default=None, max_length=150)
+    package_description: str | None = None
+    package_price_ghs: Decimal | None = Field(default=None, gt=0)
+    package_duration_minutes: int | None = Field(default=None, ge=15, le=480)
 
 
 class CheckoutResponse(BaseModel):
@@ -28,6 +35,8 @@ class ReceiptSummary(BaseModel):
 class BookingDetailResponse(BaseModel):
     id: UUID
     status: str
+    booking_source: str
+    payment_method: str | None
     deposit_amount_ghs: Decimal
     total_price_ghs: Decimal
     balance_due_ghs: Decimal
@@ -35,6 +44,12 @@ class BookingDetailResponse(BaseModel):
     confirmed_at: datetime | None
     created_at: datetime
     session_type_name: str
+    package_name: str | None = None
+    package_description: str | None = None
+    package_duration_minutes: int | None = None
+    pictures_count: int | None = None
+    picture_pickup_date: date | None = None
+    accepted_at: datetime | None = None
     slot_starts_at: datetime
     slot_ends_at: datetime
     receipt: ReceiptSummary | None = None
