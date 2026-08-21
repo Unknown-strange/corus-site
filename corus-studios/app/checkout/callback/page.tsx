@@ -23,61 +23,44 @@ const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:8000";
 
+const PAYMENT_STORAGE_KEY =
+  "corus_payment_result";
+
 type PaymentStatus =
   | "loading"
   | "success"
   | "error";
 
-type ReceiptInfo = {
-  receipt_number?: string;
-  amount_ghs?: string;
-  issued_at?: string;
+type ReceiptSummary = {
+  id: string;
+  receipt_number: string;
+  receipt_type: string;
+  amount_ghs: string;
+  issued_at: string;
 };
 
 type VerifyResponse = {
-  reference?: string;
   status?: string;
+  reference?: string;
+  callback_path?: string;
+
+  booking_id?: string | null;
+  rental_id?: string | null;
+  reservation_id?: string | null;
+  order_id?: string | null;
+
   message?: string;
 
-  receipt?: ReceiptInfo | null;
-
-  receipt_number?: string;
   amount_ghs?: string;
+  receipt_number?: string;
   issued_at?: string;
+
+  receipt?: {
+    receipt_number?: string;
+    amount_ghs?: string;
+    issued_at?: string;
+  } | null;
 };
-
-/* =========================================================
-   RECEIPT HELPERS
-========================================================= */
-
-function getReceipt(
-  data: VerifyResponse
-): ReceiptInfo | null {
-  if (
-    data.receipt &&
-    typeof data.receipt ===
-      "object"
-  ) {
-    return data.receipt;
-  }
-
-  if (
-    data.receipt_number ||
-    data.amount_ghs ||
-    data.issued_at
-  ) {
-    return {
-      receipt_number:
-        data.receipt_number,
-      amount_ghs:
-        data.amount_ghs,
-      issued_at:
-        data.issued_at,
-    };
-  }
-
-  return null;
-}
 
 /* =========================================================
    ERROR MESSAGE
@@ -98,116 +81,115 @@ function getErrorMessage(
     data &&
     typeof data === "object"
   ) {
-    if (
-      "detail" in data
-    ) {
-      const detail =
-        (
-          data as {
-            detail?: unknown;
-          }
-        ).detail;
-
-      if (
-        typeof detail ===
-        "string"
-      ) {
-        return detail;
-      }
-
-      if (
-        Array.isArray(detail)
-      ) {
-        const messages =
-          detail
-            .map((item) => {
-              if (
-                item &&
-                typeof item ===
-                  "object" &&
-                "msg" in item &&
-                typeof (
-                  item as {
-                    msg?: unknown;
-                  }
-                ).msg ===
-                  "string"
-              ) {
-                return (
-                  item as {
-                    msg: string;
-                  }
-                ).msg;
-              }
-
-              return null;
-            })
-            .filter(
-              (
-                message
-              ): message is string =>
-                Boolean(message)
-            );
-
-        if (
-          messages.length >
-          0
-        ) {
-          return messages.join(
-            ", "
-          );
-        }
-      }
-    }
-
-    if (
-      "message" in data &&
-      typeof (
-        data as {
+    const value =
+      data as {
+        detail?: unknown;
+        message?: unknown;
+        error?: {
           message?: unknown;
-        }
-      ).message === "string"
+        };
+      };
+
+    if (
+      typeof value.detail ===
+      "string"
     ) {
-      return (
-        data as {
-          message: string;
-        }
-      ).message;
+      return value.detail;
     }
 
     if (
-      "error" in data
+      Array.isArray(
+        value.detail
+      )
     ) {
-      const errorValue =
-        (
-          data as {
-            error?: unknown;
-          }
-        ).error;
+      const messages =
+        value.detail
+          .map((item) => {
+            if (
+              item &&
+              typeof item ===
+                "object" &&
+              "msg" in item &&
+              typeof (
+                item as {
+                  msg?: unknown;
+                }
+              ).msg ===
+                "string"
+            ) {
+              return (
+                item as {
+                  msg: string;
+                }
+              ).msg;
+            }
+
+            return null;
+          })
+          .filter(
+            (
+              message
+            ): message is string =>
+              Boolean(message)
+          );
 
       if (
-        errorValue &&
-        typeof errorValue ===
-          "object" &&
-        "message" in
-          errorValue &&
-        typeof (
-          errorValue as {
-            message?: unknown;
-          }
-        ).message ===
-          "string"
+        messages.length > 0
       ) {
-        return (
-          errorValue as {
-            message: string;
-          }
-        ).message;
+        return messages.join(
+          ", "
+        );
       }
+    }
+
+    if (
+      typeof value.message ===
+      "string"
+    ) {
+      return value.message;
+    }
+
+    if (
+      typeof value.error
+        ?.message ===
+      "string"
+    ) {
+      return value.error
+        .message;
     }
   }
 
   return fallback;
+}
+
+/* =========================================================
+   SAVE RESULT FOR CHECKOUT
+========================================================= */
+
+function savePaymentResult(
+  status:
+    | "success"
+    | "error",
+  result: {
+    reference?: string;
+    message?: string;
+    receipt?: ReceiptSummary | null;
+    verify?: VerifyResponse | null;
+  }
+) {
+  try {
+    localStorage.setItem(
+      PAYMENT_STORAGE_KEY,
+      JSON.stringify({
+        status,
+        ...result,
+        saved_at:
+          Date.now(),
+      })
+    );
+  } catch {
+    // Ignore storage errors.
+  }
 }
 
 /* =========================================================
@@ -246,7 +228,15 @@ function PaymentCallbackContent() {
     receipt,
     setReceipt,
   ] =
-    useState<ReceiptInfo | null>(
+    useState<ReceiptSummary | null>(
+      null
+    );
+
+  const [
+    verification,
+    setVerification,
+  ] =
+    useState<VerifyResponse | null>(
       null
     );
 
@@ -256,18 +246,12 @@ function PaymentCallbackContent() {
     const verifyPayment =
       async () => {
         /* =========================================
-           NO REFERENCE
+           REFERENCE
         ========================================= */
 
         if (!reference) {
           const errorMessage =
             "No payment reference was provided.";
-
-          if (
-            cancelled
-          ) {
-            return;
-          }
 
           setStatus(
             "error"
@@ -277,25 +261,19 @@ function PaymentCallbackContent() {
             errorMessage
           );
 
-          window.opener?.postMessage(
+          savePaymentResult(
+            "error",
             {
-              type:
-                "CORUS_PAYMENT_RESULT",
-              status:
-                "error",
-              result: {
-                message:
-                  errorMessage,
-              },
-            },
-            window.location.origin
+              message:
+                errorMessage,
+            }
           );
 
           return;
         }
 
         /* =========================================
-           AUTH TOKEN
+           AUTH
         ========================================= */
 
         const token =
@@ -307,12 +285,6 @@ function PaymentCallbackContent() {
           const errorMessage =
             "Your session has expired. Please log in again.";
 
-          if (
-            cancelled
-          ) {
-            return;
-          }
-
           setStatus(
             "error"
           );
@@ -321,100 +293,86 @@ function PaymentCallbackContent() {
             errorMessage
           );
 
-          window.opener?.postMessage(
+          savePaymentResult(
+            "error",
             {
-              type:
-                "CORUS_PAYMENT_RESULT",
-              status:
-                "error",
-              result: {
-                reference,
-                message:
-                  errorMessage,
-              },
-            },
-            window.location.origin
+              reference,
+              message:
+                errorMessage,
+            }
           );
 
           return;
         }
 
-        /* =========================================
-           VERIFY PAYMENT
-        ========================================= */
-
         try {
-          const response =
+          /* =========================================
+             STEP 1 — VERIFY PAYMENT
+
+             GET /payments/verify/{reference}
+          ========================================= */
+
+          const verifyResponse =
             await fetch(
-              `${API_BASE}/payments/verify`,
+              `${API_BASE}/payments/verify/${encodeURIComponent(
+                reference
+              )}`,
               {
-                method:
-                  "POST",
+                method: "GET",
 
                 headers: {
-                  "Content-Type":
-                    "application/json",
-
                   Authorization:
                     `Bearer ${token}`,
                 },
-
-                body:
-                  JSON.stringify({
-                    reference,
-                  }),
               }
             );
 
-          const rawBody =
-            await response.text();
+          const verifyRaw =
+            await verifyResponse.text();
 
-          let data: unknown =
-            null;
+          let verifyBody:
+            unknown = null;
 
-          if (rawBody) {
+          if (
+            verifyRaw
+          ) {
             try {
-              data =
+              verifyBody =
                 JSON.parse(
-                  rawBody
+                  verifyRaw
                 );
             } catch {
-              data =
-                rawBody;
+              verifyBody =
+                verifyRaw;
             }
           }
 
           console.log(
-            "PAYMENT VERIFICATION RESPONSE",
+            "PAYMENT VERIFY RESPONSE",
             {
               status:
-                response.status,
+                verifyResponse.status,
               ok:
-                response.ok,
+                verifyResponse.ok,
               body:
-                data,
+                verifyBody,
               reference,
             }
           );
 
           if (
-            !response.ok
+            !verifyResponse.ok
           ) {
             throw new Error(
               getErrorMessage(
-                data,
-                "Payment verification failed."
+                verifyBody,
+                `Payment verification failed (${verifyResponse.status}).`
               )
             );
           }
 
-          const verifyData =
-            data as VerifyResponse;
-
-          const receiptData =
-            getReceipt(
-              verifyData
-            );
+          const verificationData =
+            verifyBody as VerifyResponse;
 
           if (
             cancelled
@@ -422,8 +380,157 @@ function PaymentCallbackContent() {
             return;
           }
 
+          setVerification(
+            verificationData
+          );
+
+          /* =========================================
+             STEP 2 — GET MY RECEIPTS
+             
+             GET /receipts/me
+          ========================================= */
+
+          let matchingReceipt:
+            | ReceiptSummary
+            | null = null;
+
+          try {
+            const receiptsResponse =
+              await fetch(
+                `${API_BASE}/receipts/me`,
+                {
+                  method: "GET",
+
+                  headers: {
+                    Authorization:
+                      `Bearer ${token}`,
+                  },
+                }
+              );
+
+            const receiptsRaw =
+              await receiptsResponse.text();
+
+            let receiptsBody:
+              unknown = null;
+
+            if (
+              receiptsRaw
+            ) {
+              try {
+                receiptsBody =
+                  JSON.parse(
+                    receiptsRaw
+                  );
+              } catch {
+                receiptsBody =
+                  null;
+              }
+            }
+
+            console.log(
+              "MY RECEIPTS RESPONSE",
+              {
+                status:
+                  receiptsResponse.status,
+                ok:
+                  receiptsResponse.ok,
+                body:
+                  receiptsBody,
+              }
+            );
+
+            if (
+              receiptsResponse.ok &&
+              Array.isArray(
+                receiptsBody
+              )
+            ) {
+              const receipts =
+                receiptsBody as ReceiptSummary[];
+
+              /* -----------------------------------------
+                 Best match: receipt number
+              ----------------------------------------- */
+
+              if (
+                verificationData.receipt_number
+              ) {
+                matchingReceipt =
+                  receipts.find(
+                    (
+                      item
+                    ) =>
+                      item.receipt_number ===
+                      verificationData.receipt_number
+                  ) ||
+                  null;
+              }
+
+              /* -----------------------------------------
+                 Fallback: receipt amount
+              ----------------------------------------- */
+
+              if (
+                !matchingReceipt &&
+                verificationData.amount_ghs
+              ) {
+                matchingReceipt =
+                  receipts.find(
+                    (
+                      item
+                    ) =>
+                      Number(
+                        item.amount_ghs
+                      ) ===
+                      Number(
+                        verificationData.amount_ghs
+                      )
+                  ) ||
+                  null;
+              }
+
+              /* -----------------------------------------
+                 Final fallback: most recent receipt
+                 AFTER successful verification
+              ----------------------------------------- */
+
+              if (
+                !matchingReceipt &&
+                receipts.length > 0
+              ) {
+                matchingReceipt =
+                  [...receipts].sort(
+                    (a, b) =>
+                      new Date(
+                        b.issued_at
+                      ).getTime() -
+                      new Date(
+                        a.issued_at
+                      ).getTime()
+                  )[0];
+              }
+            }
+          } catch (
+            receiptError
+          ) {
+            console.warn(
+              "RECEIPT LOOKUP FAILED",
+              receiptError
+            );
+
+            /*
+             * Receipt lookup failing should not turn
+             * an already verified payment into failure.
+             */
+          }
+
+          /* =========================================
+             SUCCESS
+          ========================================= */
+
           setReceipt(
-            receiptData
+            matchingReceipt
           );
 
           setStatus(
@@ -431,47 +538,62 @@ function PaymentCallbackContent() {
           );
 
           setMessage(
-            verifyData.message ||
+            verificationData.message ||
               "Payment successful. Your payment has been verified."
           );
 
-          /* =========================================
-             SEND RESULT TO CHECKOUT WINDOW
-          ========================================= */
-
-          window.opener?.postMessage(
+          savePaymentResult(
+            "success",
             {
-              type:
-                "CORUS_PAYMENT_RESULT",
+              reference,
 
-              status:
-                "success",
+              message:
+                verificationData.message ||
+                "Payment successful.",
 
-              result: {
-                reference,
+              receipt:
+                matchingReceipt,
 
-                message:
-                  verifyData.message,
-
-                receipt:
-                  receiptData,
-
-                receipt_number:
-                  verifyData.receipt_number,
-
-                amount_ghs:
-                  verifyData.amount_ghs,
-
-                issued_at:
-                  verifyData.issued_at,
-              },
-            },
-
-            window.location.origin
+              verify:
+                verificationData,
+            }
           );
 
           /* =========================================
-             CLOSE CALLBACK TAB
+             postMessage BACKUP
+          ========================================= */
+
+          try {
+            window.opener?.postMessage(
+              {
+                type:
+                  "CORUS_PAYMENT_RESULT",
+
+                status:
+                  "success",
+
+                result: {
+                  reference,
+
+                  message:
+                    verificationData.message ||
+                    "Payment successful.",
+
+                  receipt:
+                    matchingReceipt,
+
+                  verify:
+                    verificationData,
+                },
+              },
+              window.location.origin
+            );
+          } catch {
+            // localStorage remains the main mechanism.
+          }
+
+          /* =========================================
+             CLOSE CALLBACK WINDOW
           ========================================= */
 
           setTimeout(() => {
@@ -506,23 +628,35 @@ function PaymentCallbackContent() {
             errorMessage
           );
 
-          window.opener?.postMessage(
+          savePaymentResult(
+            "error",
             {
-              type:
-                "CORUS_PAYMENT_RESULT",
-
-              status:
-                "error",
-
-              result: {
-                reference,
-                message:
-                  errorMessage,
-              },
-            },
-
-            window.location.origin
+              reference,
+              message:
+                errorMessage,
+            }
           );
+
+          try {
+            window.opener?.postMessage(
+              {
+                type:
+                  "CORUS_PAYMENT_RESULT",
+
+                status:
+                  "error",
+
+                result: {
+                  reference,
+                  message:
+                    errorMessage,
+                },
+              },
+              window.location.origin
+            );
+          } catch {
+            // Ignore.
+          }
         }
       };
 
@@ -623,9 +757,7 @@ function PaymentCallbackContent() {
                 </span>
 
                 <strong>
-                  {
-                    reference
-                  }
+                  {reference}
                 </strong>
 
                 {receipt?.receipt_number && (
@@ -642,7 +774,10 @@ function PaymentCallbackContent() {
                   </>
                 )}
 
-                {receipt?.amount_ghs && (
+                {(
+                  receipt?.amount_ghs ||
+                  verification?.amount_ghs
+                ) && (
                   <>
                     <span>
                       Amount
@@ -651,7 +786,9 @@ function PaymentCallbackContent() {
                     <strong>
                       GH₵
                       {Number(
-                        receipt.amount_ghs
+                        receipt?.amount_ghs ||
+                          verification?.amount_ghs ||
+                          0
                       ).toLocaleString(
                         "en-GH",
                         {
@@ -663,7 +800,10 @@ function PaymentCallbackContent() {
                   </>
                 )}
 
-                {receipt?.issued_at && (
+                {(
+                  receipt?.issued_at ||
+                  verification?.issued_at
+                ) && (
                   <>
                     <span>
                       Issued
@@ -671,7 +811,9 @@ function PaymentCallbackContent() {
 
                     <strong>
                       {new Date(
-                        receipt.issued_at
+                        receipt?.issued_at ||
+                          verification?.issued_at ||
+                          ""
                       ).toLocaleString(
                         "en-GH"
                       )}
@@ -685,8 +827,8 @@ function PaymentCallbackContent() {
                   styles.closeNote
                 }
               >
-                Payment confirmation has been
-                sent back to the checkout window.
+                Payment confirmed. Returning
+                you to checkout...
               </p>
 
               <button
@@ -742,15 +884,6 @@ function PaymentCallbackContent() {
                 </div>
               )}
 
-              <p
-                className={
-                  styles.closeNote
-                }
-              >
-                Please return to the checkout
-                window and try again if necessary.
-              </p>
-
               <button
                 type="button"
                 className={
@@ -773,7 +906,7 @@ function PaymentCallbackContent() {
 }
 
 /* =========================================================
-   PAGE WRAPPER WITH SUSPENSE
+   SUSPENSE FALLBACK
 ========================================================= */
 
 function CallbackLoading() {
