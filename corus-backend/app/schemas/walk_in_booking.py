@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 
 class WalkInPaymentMethod(str, Enum):
@@ -12,9 +12,8 @@ class WalkInPaymentMethod(str, Enum):
 
 
 class WalkInBookingCreateRequest(BaseModel):
-    customer_full_name: str = Field(min_length=1, max_length=200)
-    customer_phone: str = Field(min_length=5, max_length=20)
-    customer_email: EmailStr | None = None
+    customer_full_name: str | None = Field(default=None, max_length=200)
+    customer_phone: str | None = Field(default=None, max_length=20)
     session_type_id: UUID | None = Field(
         default=None,
         description="Optional template package from admin session types",
@@ -31,7 +30,7 @@ class WalkInBookingCreateRequest(BaseModel):
     amount_paid_ghs: Decimal | None = Field(
         default=None,
         gt=0,
-        description="Required for offline payment — cash/transfer amount collected now",
+        description="Required for offline payment — amount you are paying now at the studio",
     )
 
     @model_validator(mode="after")

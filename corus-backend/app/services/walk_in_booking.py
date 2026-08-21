@@ -19,9 +19,16 @@ from app.models.user import User
 from app.schemas.walk_in_booking import WalkInPaymentMethod
 from app.services.paystack import generate_reference, initialize_transaction
 from app.services.payment_confirmation import confirm_walk_in_offline_payment
-from app.services.receipt_service import issue_receipt
 from app.services.slot_availability import get_session_deposit_ghs, slot_is_unavailable
-from app.services.walk_in_customer import ensure_walk_in_customer
+
+
+def _split_full_name(full_name: str) -> tuple[str, str | None]:
+    parts = full_name.strip().split()
+    if not parts:
+        return full_name.strip(), None
+    if len(parts) == 1:
+        return parts[0], None
+    return parts[0], " ".join(parts[1:])
 
 
 def _resolve_session_type_id(
@@ -57,6 +64,39 @@ def _resolve_session_type_id(
     return fallback.id
 
 
+def _apply_customer_profile(
+    db: Session,
+    user: User,
+    *,
+    customer_full_name: str | None,
+    customer_phone: str | None,
+) -> tuple[str, str]:
+    profile_name = f"{user.first_name or ''} {user.last_name or ''}".strip()
+    display_name = (customer_full_name or profile_name or user.username or "").strip()
+    if not display_name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Full name is required",
+        )
+
+    phone = (customer_phone or user.phone_number or "").strip().replace(" ", "")
+    if len(phone) < 5:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phone number is required",
+        )
+
+    if customer_full_name:
+        first_name, last_name = _split_full_name(customer_full_name)
+        user.first_name = first_name
+        user.last_name = last_name
+    if customer_phone:
+        user.phone_number = phone
+    db.add(user)
+    db.flush()
+    return display_name, phone
+
+
 def _amounts_for_walk_in(
     db: Session,
     *,
@@ -83,10 +123,9 @@ def _amounts_for_walk_in(
 def create_walk_in_booking(
     db: Session,
     *,
-    staff_user: User,
-    customer_full_name: str,
-    customer_phone: str,
-    customer_email: str | None,
+    user: User,
+    customer_full_name: str | None,
+    customer_phone: str | None,
     session_type_id: uuid.UUID | None,
     package_name: str,
     package_description: str | None,
@@ -102,15 +141,14 @@ def create_walk_in_booking(
     if slot_is_unavailable(db, slot_id):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Slot is not available")
 
-    resolved_session_type_id = _resolve_session_type_id(db, session_type_id, package_name)
-    customer = ensure_walk_in_customer(
+    display_name, _phone = _apply_customer_profile(
         db,
-        full_name=customer_full_name,
-        phone=customer_phone,
-        email=customer_email,
-        created_by_id=staff_user.id,
+        user,
+        customer_full_name=customer_full_name,
+        customer_phone=customer_phone,
     )
 
+    resolved_session_type_id = _resolve_session_type_id(db, session_type_id, package_name)
     deposit, total_price, balance_due = _amounts_for_walk_in(
         db,
         total_price=package_price_ghs,
@@ -124,7 +162,7 @@ def create_walk_in_booking(
 
     reference = generate_reference()
     booking = Booking(
-        user_id=customer.id,
+        user_id=user.id,
         slot_id=slot_id,
         session_type_id=resolved_session_type_id,
         booking_source=BookingSource.walk_in,
@@ -133,7 +171,7 @@ def create_walk_in_booking(
             if payment_method == WalkInPaymentMethod.offline
             else BookingPaymentMethod.online
         ),
-        customer_full_name=customer_full_name.strip(),
+        customer_full_name=display_name,
         package_name=package_name.strip(),
         package_description=package_description,
         package_duration_minutes=package_duration_minutes,
@@ -156,7 +194,7 @@ def create_walk_in_booking(
 
     if payment_method == WalkInPaymentMethod.offline:
         payment = Payment(
-            user_id=customer.id,
+            user_id=user.id,
             booking_id=booking.id,
             reference=reference,
             amount_pesewas=int(deposit * 100),
@@ -164,7 +202,7 @@ def create_walk_in_booking(
             status=PaymentStatus.success,
             purpose=PaymentPurpose.walk_in_offline,
             idempotency_key=reference,
-            paystack_response={"method": "offline", "recorded_by": str(staff_user.id)},
+            paystack_response={"method": "offline", "submitted_by": str(user.id)},
         )
         db.add(payment)
         db.commit()
@@ -180,11 +218,17 @@ def create_walk_in_booking(
             "total_price_ghs": total_price,
             "balance_due_ghs": balance_due,
             "receipt_number": receipt.receipt_number if receipt else "",
-            "message": "Walk-in booking recorded and receipt sent.",
+            "message": "Walk-in booking submitted. Receipt sent to your email.",
         }
 
+    if not user.email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email required for online payment",
+        )
+
     payment = Payment(
-        user_id=customer.id,
+        user_id=user.id,
         booking_id=booking.id,
         reference=reference,
         amount_pesewas=int(deposit * 100),
@@ -197,20 +241,14 @@ def create_walk_in_booking(
     db.commit()
     db.refresh(booking)
 
-    if not customer.email:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Customer email is required for online walk-in payment",
-        )
-
     if settings.paystack_configured:
         paystack_data = initialize_transaction(
-            email=customer.email,
+            email=user.email,
             amount_pesewas=int(deposit * 100),
             reference=reference,
             metadata={
                 "booking_id": str(booking.id),
-                "user_id": str(customer.id),
+                "user_id": str(user.id),
                 "purpose": PaymentPurpose.session_deposit.value,
                 "booking_source": BookingSource.walk_in.value,
             },
@@ -235,7 +273,9 @@ def create_walk_in_booking(
     }
 
 
-def get_walk_in_booking_detail(db: Session, booking_id: uuid.UUID) -> Booking | None:
+def get_walk_in_booking_for_user(
+    db: Session, booking_id: uuid.UUID, user_id: uuid.UUID
+) -> Booking | None:
     return (
         db.query(Booking)
         .options(
@@ -244,6 +284,10 @@ def get_walk_in_booking_detail(db: Session, booking_id: uuid.UUID) -> Booking | 
             joinedload(Booking.user),
             joinedload(Booking.receipts),
         )
-        .filter(Booking.id == booking_id, Booking.booking_source == BookingSource.walk_in)
+        .filter(
+            Booking.id == booking_id,
+            Booking.user_id == user_id,
+            Booking.booking_source == BookingSource.walk_in,
+        )
         .first()
     )
