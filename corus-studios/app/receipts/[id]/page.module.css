@@ -1,0 +1,1038 @@
+.page {
+  min-height: 100vh;
+
+  padding:
+    45px
+    7%
+    70px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f7f8fa 0%,
+      #eceef1 100%
+    );
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+.container {
+  width: 100%;
+
+  max-width:
+    920px;
+
+  margin:
+    0 auto;
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topBar {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    15px;
+
+  margin-bottom:
+    20px;
+}
+
+.backLink {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    7px;
+
+  color:
+    #344054;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+
+  text-decoration:
+    none;
+
+  transition:
+    color 0.2s ease;
+}
+
+.backLink:hover {
+  color:
+    #ff5100;
+}
+
+.actions {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+}
+
+.primaryButton,
+.secondaryButton {
+  height:
+    40px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  padding:
+    0 14px;
+
+  border-radius:
+    8px;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+
+  text-decoration:
+    none;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.primaryButton {
+  border:
+    1px solid
+    #ff5100;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+}
+
+.primaryButton:hover {
+  background:
+    #e84f00;
+
+  border-color:
+    #e84f00;
+
+  transform:
+    translateY(-1px);
+}
+
+.secondaryButton {
+  border:
+    1px solid
+    #d0d5dd;
+
+  background:
+    #ffffff;
+
+  color:
+    #344054;
+}
+
+.secondaryButton:hover {
+  border-color:
+    #ff5100;
+
+  background:
+    #fff8f4;
+
+  color:
+    #ff5100;
+}
+
+/* =========================================================
+   RECEIPT CARD
+========================================================= */
+
+.receiptCard {
+  padding:
+    34px;
+
+  border:
+    1px solid
+    #e7eaee;
+
+  border-radius:
+    20px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 10px 30px
+      rgba(
+        16,
+        24,
+        40,
+        0.055
+      );
+}
+
+.receiptHeader {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    space-between;
+
+  gap:
+    20px;
+
+  padding-bottom:
+    25px;
+
+  border-bottom:
+    1px solid
+    #eef0f3;
+}
+
+.eyebrow {
+  display:
+    inline-flex;
+
+  margin-bottom:
+    8px;
+
+  padding:
+    5px
+    10px;
+
+  border-radius:
+    999px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.9px;
+
+  text-transform:
+    uppercase;
+}
+
+.receiptHeader h1 {
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    clamp(
+      2rem,
+      4vw,
+      2.7rem
+    );
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    -1px;
+}
+
+.receiptHeader p {
+  margin:
+    7px
+    0
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    12px;
+}
+
+.successBadge {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    6px;
+
+  padding:
+    8px
+    12px;
+
+  border-radius:
+    999px;
+
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+}
+
+/* =========================================================
+   META
+========================================================= */
+
+.receiptMeta {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    14px;
+
+  padding:
+    22px
+    0;
+}
+
+.receiptMeta > div {
+  min-width:
+    0;
+
+  padding:
+    12px;
+
+  border-radius:
+    10px;
+
+  background:
+    #f9fafb;
+}
+
+.receiptMeta span {
+  display:
+    block;
+
+  margin-bottom:
+    5px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.7px;
+
+  text-transform:
+    uppercase;
+}
+
+.receiptMeta strong {
+  display:
+    block;
+
+  color:
+    #344054;
+
+  font-size:
+    11px;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.4;
+
+  word-break:
+    break-word;
+}
+
+/* =========================================================
+   CUSTOMER
+========================================================= */
+
+.customer {
+  padding:
+    20px
+    0;
+
+  border-top:
+    1px solid
+    #eef0f3;
+}
+
+.customer h2,
+.itemsSection h2 {
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    15px;
+
+  font-weight:
+    750;
+}
+
+.customerGrid {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    10px;
+
+  margin-top:
+    12px;
+}
+
+.customerGrid > div {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    7px;
+
+  min-width:
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    10px;
+}
+
+.customerGrid svg {
+  flex:
+    0 0 auto;
+
+  color:
+    #ff5100;
+}
+
+.customerGrid span {
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+}
+
+/* =========================================================
+   ITEMS
+========================================================= */
+
+.itemsSection {
+  padding:
+    20px
+    0;
+
+  border-top:
+    1px solid
+    #eef0f3;
+}
+
+.sectionTitle {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    7px;
+
+  margin-bottom:
+    12px;
+
+  color:
+    #ff5100;
+}
+
+.items {
+  border:
+    1px solid
+    #eef0f4;
+
+  border-radius:
+    10px;
+
+  overflow:
+    hidden;
+}
+
+.item {
+  display:
+    grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    50px
+    130px;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+
+  padding:
+    13px
+    14px;
+
+  border-bottom:
+    1px solid
+    #eef0f4;
+}
+
+.item:last-child {
+  border-bottom:
+    none;
+}
+
+.itemMain {
+  min-width:
+    0;
+}
+
+.itemMain strong {
+  display:
+    block;
+
+  color:
+    #344054;
+
+  font-size:
+    11px;
+
+  font-weight:
+    750;
+}
+
+.itemMain span {
+  display:
+    block;
+
+  margin-top:
+    4px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    9px;
+}
+
+.itemQty {
+  color:
+    #667085;
+
+  font-size:
+    10px;
+
+  text-align:
+    center;
+}
+
+.itemPrice {
+  color:
+    #101828;
+
+  font-size:
+    11px;
+
+  font-weight:
+    750;
+
+  text-align:
+    right;
+}
+
+/* =========================================================
+   TOTALS
+========================================================= */
+
+.totals {
+  max-width:
+    430px;
+
+  margin-left:
+    auto;
+
+  padding-top:
+    22px;
+}
+
+.totalRow {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    15px;
+
+  padding:
+    7px
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    11px;
+}
+
+.totalRow strong {
+  color:
+    #344054;
+
+  font-weight:
+    700;
+}
+
+.balance {
+  color:
+    #ff5100 !important;
+}
+
+.grandTotal {
+  margin-top:
+    8px;
+
+  padding-top:
+    13px;
+
+  border-top:
+    1px solid
+    #eef0f4;
+
+  color:
+    #101828;
+
+  font-size:
+    13px;
+
+  font-weight:
+    750;
+}
+
+.grandTotal strong {
+  color:
+    #ff5100;
+
+  font-size:
+    20px;
+
+  font-weight:
+    800;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.receiptFooter {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    6px;
+
+  margin-top:
+    25px;
+
+  padding-top:
+    18px;
+
+  border-top:
+    1px solid
+    #eef0f3;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    9px;
+}
+
+/* =========================================================
+   STATE
+========================================================= */
+
+.stateCard {
+  width:
+    100%;
+
+  max-width:
+    560px;
+
+  min-height:
+    280px;
+
+  margin:
+    60px
+    auto;
+
+  padding:
+    40px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    1px solid
+    #e7eaee;
+
+  border-radius:
+    18px;
+
+  background:
+    #ffffff;
+
+  text-align:
+    center;
+
+  box-shadow:
+    0 10px 28px
+      rgba(
+        16,
+        24,
+        40,
+        0.05
+      );
+}
+
+.stateIcon {
+  width:
+    58px;
+
+  height:
+    58px;
+
+  margin-bottom:
+    15px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border-radius:
+    16px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+}
+
+.stateIcon svg {
+  animation:
+    spin
+    1s
+    linear
+    infinite;
+}
+
+.stateCard h1 {
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    22px;
+}
+
+.stateCard p {
+  max-width:
+    400px;
+
+  margin:
+    8px
+    0
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.6;
+}
+
+.errorCard .errorIcon {
+  width:
+    54px;
+
+  height:
+    54px;
+
+  margin-bottom:
+    14px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border-radius:
+    50%;
+
+  background:
+    #fff2f0;
+
+  color:
+    #b42318;
+
+  font-size:
+    22px;
+
+  font-weight:
+    800;
+}
+
+@keyframes spin {
+  to {
+    transform:
+      rotate(
+        360deg
+      );
+  }
+}
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+  .page {
+    padding:
+      0;
+
+    background:
+      #ffffff;
+  }
+
+  .topBar,
+  .actions,
+  .backLink {
+    display:
+      none;
+  }
+
+  .receiptCard {
+    border:
+      none;
+
+    box-shadow:
+      none;
+
+    padding:
+      0;
+  }
+
+  .receiptHeader {
+    padding-top:
+      0;
+  }
+
+  .receiptHeader h1 {
+    font-size:
+      28px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 750px) {
+  .page {
+    padding:
+      30px
+      15px
+      50px;
+  }
+
+  .receiptCard {
+    padding:
+      24px
+      18px;
+  }
+
+  .receiptHeader {
+    flex-direction:
+      column;
+  }
+
+  .receiptMeta {
+    grid-template-columns:
+      1fr;
+  }
+
+  .customerGrid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .item {
+    grid-template-columns:
+      minmax(0, 1fr)
+      40px
+      100px;
+  }
+}
+
+@media (max-width: 500px) {
+  .topBar {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+  .actions {
+    width:
+      100%;
+  }
+
+  .actions button {
+    flex:
+      1;
+  }
+
+  .receiptHeader h1 {
+    font-size:
+      2rem;
+  }
+
+  .item {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      5px;
+  }
+
+  .itemQty,
+  .itemPrice {
+    text-align:
+      left;
+  }
+
+  .totals {
+    max-width:
+      100%;
+  }
+}

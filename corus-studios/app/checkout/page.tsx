@@ -18,12 +18,15 @@ import {
   ShieldCheck,
   ShoppingBag,
   XCircle,
+  Printer,
+  ReceiptText,
 } from "lucide-react";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 import api from "@/lib/api";
+
 import type {
   CartResponse,
 } from "@/lib/types";
@@ -42,7 +45,9 @@ type PaymentState =
   | "error";
 
 type ReceiptInfo = {
+  id?: string;
   receipt_number?: string;
+  receipt_type?: string;
   amount_ghs?: string;
   issued_at?: string;
 };
@@ -50,9 +55,6 @@ type ReceiptInfo = {
 type PaymentResult = {
   reference?: string;
   receipt?: ReceiptInfo | null;
-  receipt_number?: string;
-  amount_ghs?: string;
-  issued_at?: string;
   message?: string;
 };
 
@@ -92,6 +94,13 @@ type ErrorResponse = {
     message?: unknown;
   };
 };
+
+const PAYMENT_STORAGE_KEY =
+  "corus_payment_result";
+
+/* =========================================================
+   HELPERS
+========================================================= */
 
 function parseResponseBody(
   rawBody: string
@@ -151,7 +160,8 @@ function getErrorMessage(
                 item as {
                   msg?: unknown;
                 }
-              ).msg === "string"
+              ).msg ===
+                "string"
             ) {
               return (
                 item as {
@@ -170,7 +180,7 @@ function getErrorMessage(
           );
 
       if (
-        messages.length
+        messages.length > 0
       ) {
         return messages.join(
           ", "
@@ -190,7 +200,8 @@ function getErrorMessage(
         ?.message ===
       "string"
     ) {
-      return errorData.error.message;
+      return errorData.error
+        .message;
     }
   }
 
@@ -214,17 +225,29 @@ function formatDate(
   return date.toLocaleDateString(
     "en-GH",
     {
-      weekday:
-        "short",
-      month:
-        "short",
-      day:
-        "numeric",
-      year:
-        "numeric",
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     }
   );
 }
+
+function formatMoney(
+  value: number
+): string {
+  return value.toLocaleString(
+    "en-GH",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  );
+}
+
+/* =========================================================
+   CHECKOUT PAGE
+========================================================= */
 
 export default function CheckoutPage() {
   const [mode, setMode] =
@@ -293,13 +316,19 @@ export default function CheckoutPage() {
   useEffect(() => {
     const loadCheckout =
       async () => {
+        /* =========================================
+           BOOKING
+        ========================================= */
+
         try {
           const bookingRaw =
             sessionStorage.getItem(
               "booking_checkout"
             );
 
-          if (bookingRaw) {
+          if (
+            bookingRaw
+          ) {
             const booking =
               JSON.parse(
                 bookingRaw
@@ -316,7 +345,9 @@ export default function CheckoutPage() {
                 "booking"
               );
 
-              setLoading(false);
+              setLoading(
+                false
+              );
 
               return;
             }
@@ -327,13 +358,19 @@ export default function CheckoutPage() {
           );
         }
 
+        /* =========================================
+           RENTAL
+        ========================================= */
+
         try {
           const rentalRaw =
             sessionStorage.getItem(
               "rental_checkout"
             );
 
-          if (rentalRaw) {
+          if (
+            rentalRaw
+          ) {
             const rental =
               JSON.parse(
                 rentalRaw
@@ -350,7 +387,9 @@ export default function CheckoutPage() {
                 "rental"
               );
 
-              setLoading(false);
+              setLoading(
+                false
+              );
 
               return;
             }
@@ -361,9 +400,9 @@ export default function CheckoutPage() {
           );
         }
 
-        /* -----------------------------------------
+        /* =========================================
            STORE
-        ----------------------------------------- */
+        ========================================= */
 
         const token =
           localStorage.getItem(
@@ -375,7 +414,9 @@ export default function CheckoutPage() {
             "Please log in to continue."
           );
 
-          setLoading(false);
+          setLoading(
+            false
+          );
 
           return;
         }
@@ -437,7 +478,9 @@ export default function CheckoutPage() {
               : "Unable to load your cart."
           );
         } finally {
-          setLoading(false);
+          setLoading(
+            false
+          );
         }
       };
 
@@ -445,72 +488,206 @@ export default function CheckoutPage() {
   }, []);
 
   /* =========================================================
-     LISTEN FOR PAYMENT RESULT FROM CALLBACK TAB
+     PAYMENT RESULT LISTENER
   ========================================================= */
 
   useEffect(() => {
-    const handleMessage = (
-      event: MessageEvent
-    ) => {
-      if (
-        event.origin !==
-        window.location.origin
-      ) {
-        return;
-      }
+    const applyPaymentResult =
+      (value: unknown) => {
+        if (
+          !value ||
+          typeof value !==
+            "object"
+        ) {
+          return;
+        }
 
-      if (
-        event.data?.type !==
-        "CORUS_PAYMENT_RESULT"
-      ) {
-        return;
-      }
+        const data =
+          value as {
+            status?: string;
+            reference?: string;
+            receipt?: ReceiptInfo | null;
+            message?: string;
+          };
 
-      const result =
-        event.data
-          .result as
-          | PaymentResult
-          | undefined;
+        if (
+          !data.status
+        ) {
+          return;
+        }
 
-      if (
-        result?.reference
-      ) {
-        setPaymentReference(
-          result.reference
-        );
-      }
+        if (
+          data.reference
+        ) {
+          setPaymentReference(
+            data.reference
+          );
+        }
 
-      setPaymentResult(
-        result || null
-      );
+        setPaymentResult({
+          reference:
+            data.reference,
 
-      if (
-        event.data.status ===
-        "success"
-      ) {
-        setPaymentState(
+          receipt:
+            data.receipt,
+
+          message:
+            data.message,
+        });
+
+        if (
+          data.status ===
           "success"
-        );
-        setPaying(false);
+        ) {
+          setPaymentState(
+            "success"
+          );
 
-        sessionStorage.removeItem(
-          "booking_checkout"
-        );
+          setPaying(
+            false
+          );
 
-        sessionStorage.removeItem(
-          "rental_checkout"
-        );
-      } else {
-        setPaymentState(
+          sessionStorage.removeItem(
+            "booking_checkout"
+          );
+
+          sessionStorage.removeItem(
+            "rental_checkout"
+          );
+
+          setError(
+            null
+          );
+        }
+
+        if (
+          data.status ===
           "error"
+        ) {
+          setPaymentState(
+            "error"
+          );
+
+          setPaying(
+            false
+          );
+
+          setError(
+            data.message ||
+              "Payment verification failed."
+          );
+        }
+      };
+
+    /* =========================================
+       postMessage
+    ========================================= */
+
+    const handleMessage =
+      (
+        event: MessageEvent
+      ) => {
+        if (
+          event.origin !==
+          window.location.origin
+        ) {
+          return;
+        }
+
+        if (
+          event.data?.type !==
+          "CORUS_PAYMENT_RESULT"
+        ) {
+          return;
+        }
+
+        const result =
+          event.data?.result;
+
+        applyPaymentResult({
+          ...(result &&
+          typeof result ===
+            "object"
+            ? result
+            : {}),
+
+          status:
+            event.data.status,
+        });
+      };
+
+    /* =========================================
+       STORAGE
+    ========================================= */
+
+    const handleStorage =
+      (
+        event: StorageEvent
+      ) => {
+        if (
+          event.key !==
+            PAYMENT_STORAGE_KEY ||
+          !event.newValue
+        ) {
+          return;
+        }
+
+        try {
+          applyPaymentResult(
+            JSON.parse(
+              event.newValue
+            )
+          );
+        } catch {
+          // Ignore malformed data.
+        }
+      };
+
+    /* =========================================
+       READ EXISTING RESULT
+    ========================================= */
+
+    try {
+      const existing =
+        localStorage.getItem(
+          PAYMENT_STORAGE_KEY
         );
-        setPaying(false);
+
+      if (
+        existing
+      ) {
+        const parsed =
+          JSON.parse(
+            existing
+          );
+
+        if (
+          parsed?.saved_at &&
+          Date.now() -
+            parsed.saved_at <
+            10 * 60 * 1000
+        ) {
+          applyPaymentResult(
+            parsed
+          );
+        } else {
+          localStorage.removeItem(
+            PAYMENT_STORAGE_KEY
+          );
+        }
       }
-    };
+    } catch {
+      // Ignore storage errors.
+    }
 
     window.addEventListener(
       "message",
       handleMessage
+    );
+
+    window.addEventListener(
+      "storage",
+      handleStorage
     );
 
     return () => {
@@ -518,270 +695,536 @@ export default function CheckoutPage() {
         "message",
         handleMessage
       );
+
+      window.removeEventListener(
+        "storage",
+        handleStorage
+      );
     };
   }, []);
+
+  /* =========================================================
+     PRINT RECEIPT
+  ========================================================= */
+
+  const printReceipt =
+    () => {
+      if (
+        !paymentResult
+      ) {
+        return;
+      }
+
+      const receipt =
+        paymentResult.receipt;
+
+      const reference =
+        paymentResult.reference ||
+        paymentReference ||
+        "";
+
+      const amount =
+        receipt?.amount_ghs
+          ? Number(
+              receipt.amount_ghs
+            ).toLocaleString(
+              "en-GH",
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }
+            )
+          : "";
+
+      const issued =
+        receipt?.issued_at
+          ? new Date(
+              receipt.issued_at
+            ).toLocaleString(
+              "en-GH"
+            )
+          : "";
+
+      const printWindow =
+        window.open(
+          "",
+          "_blank",
+          "width=700,height=800"
+        );
+
+      if (
+        !printWindow
+      ) {
+        return;
+      }
+
+      printWindow.document.write(`
+        <!doctype html>
+
+        <html>
+          <head>
+            <title>
+              Corus Studios Receipt
+            </title>
+
+            <style>
+              body {
+                font-family:
+                  Arial,
+                  Helvetica,
+                  sans-serif;
+
+                margin: 0;
+
+                padding: 40px;
+
+                color: #111827;
+
+                background: #ffffff;
+              }
+
+              .receipt {
+                max-width: 560px;
+
+                margin: 0 auto;
+              }
+
+              .brand {
+                color: #ff5100;
+
+                font-size: 12px;
+
+                font-weight: 800;
+
+                letter-spacing: 2px;
+
+                text-transform:
+                  uppercase;
+              }
+
+              h1 {
+                margin:
+                  8px 0 4px;
+
+                font-size: 30px;
+              }
+
+              .sub {
+                color: #667085;
+
+                margin-bottom: 30px;
+              }
+
+              .line {
+                border-top:
+                  1px solid
+                  #e5e7eb;
+
+                margin: 20px 0;
+              }
+
+              .row {
+                display: flex;
+
+                justify-content:
+                  space-between;
+
+                gap: 20px;
+
+                padding: 10px 0;
+              }
+
+              .label {
+                color: #667085;
+              }
+
+              .value {
+                font-weight: 700;
+
+                text-align:
+                  right;
+
+                word-break:
+                  break-word;
+              }
+
+              .total {
+                font-size: 20px;
+              }
+
+              .footer {
+                margin-top: 35px;
+
+                color: #98a2b3;
+
+                font-size: 12px;
+
+                text-align:
+                  center;
+              }
+
+              @media print {
+                body {
+                  padding: 20px;
+                }
+              }
+            </style>
+          </head>
+
+          <body>
+            <div class="receipt">
+              <div class="brand">
+                Corus Studios
+              </div>
+
+              <h1>
+                Payment Receipt
+              </h1>
+
+              <div class="sub">
+                Thank you for your payment.
+              </div>
+
+              <div class="line"></div>
+
+              <div class="row">
+                <span class="label">
+                  Reference
+                </span>
+
+                <span class="value">
+                  ${reference || "N/A"}
+                </span>
+              </div>
+
+              ${
+                receipt?.receipt_number
+                  ? `
+                    <div class="row">
+                      <span class="label">
+                        Receipt
+                      </span>
+
+                      <span class="value">
+                        ${receipt.receipt_number}
+                      </span>
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${
+                amount
+                  ? `
+                    <div class="row total">
+                      <span class="label">
+                        Amount Paid
+                      </span>
+
+                      <span class="value">
+                        GH₵${amount}
+                      </span>
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${
+                issued
+                  ? `
+                    <div class="row">
+                      <span class="label">
+                        Issued
+                      </span>
+
+                      <span class="value">
+                        ${issued}
+                      </span>
+                    </div>
+                  `
+                  : ""
+              }
+
+              <div class="line"></div>
+
+              <div class="footer">
+                Corus Studios
+              </div>
+            </div>
+          </body>
+        </html>
+      `);
+
+      printWindow.document.close();
+
+      printWindow.focus();
+
+      printWindow.print();
+    };
 
   /* =========================================================
      PROCEED TO PAYMENT
   ========================================================= */
 
-const proceedToPayment = async () => {
-  const token =
-    localStorage.getItem("access_token");
-
-  if (!token) {
-    setError(
-      "Please log in to continue."
-    );
-    return;
-  }
-
-  try {
-    setPaying(true);
-    setError(null);
-    setPaymentResult(null);
-
-    let response: Response;
-
-    console.log(
-      "STARTING PAYMENT",
-      {
-        mode,
-        apiBase:
-          process.env.NEXT_PUBLIC_API_URL,
-      }
-    );
-
-    /* =========================================
-       BOOKING
-    ========================================= */
-
-    if (
-      mode === "booking" &&
-      bookingCheckout
-    ) {
-      console.log(
-        "CALLING BOOKING CHECKOUT",
-        {
-          hold_id:
-            bookingCheckout.hold_id,
-        }
-      );
-
-      response =
-        await api.sessions.checkoutBooking(
-          {
-            hold_id:
-              bookingCheckout.hold_id,
-          },
-          token
+  const proceedToPayment =
+    async () => {
+      const token =
+        localStorage.getItem(
+          "access_token"
         );
-    }
 
-    /* =========================================
-       RENTAL
-    ========================================= */
-
-    else if (
-      mode === "rental" &&
-      rentalCheckout
-    ) {
-      console.log(
-        "CALLING RENTAL CHECKOUT",
-        {
-          equipment_id:
-            rentalCheckout.equipment_id,
-          start_date:
-            rentalCheckout.start_date,
-          end_date:
-            rentalCheckout.end_date,
-        }
-      );
-
-      response =
-        await api.rentals.checkout(
-          {
-            equipment_id:
-              rentalCheckout.equipment_id,
-            start_date:
-              rentalCheckout.start_date,
-            end_date:
-              rentalCheckout.end_date,
-          },
-          token
-        );
-    }
-
-    /* =========================================
-       STORE
-    ========================================= */
-
-    else {
-      if (
-        !cart ||
-        cart.items.length === 0
-      ) {
+      if (!token) {
         setError(
-          "Your cart is empty."
+          "Please log in to continue."
         );
-        setPaying(false);
+
         return;
       }
 
-      console.log(
-        "CALLING STORE CHECKOUT"
-      );
-
-      response =
-        await api.orders.checkout(
-          token
-        );
-    }
-
-    console.log(
-      "CHECKOUT HTTP RESPONSE",
-      {
-        status:
-          response.status,
-        statusText:
-          response.statusText,
-        ok:
-          response.ok,
-        url:
-          response.url,
-      }
-    );
-
-    const rawBody =
-      await response.text();
-
-    console.log(
-      "CHECKOUT RAW RESPONSE",
-      rawBody
-    );
-
-    let data: unknown = null;
-
-    if (rawBody) {
       try {
-        data =
-          JSON.parse(rawBody);
-      } catch {
-        data = rawBody;
+        /* -----------------------------------------
+           CLEAR PREVIOUS PAYMENT RESULT
+        ----------------------------------------- */
+
+        try {
+          localStorage.removeItem(
+            PAYMENT_STORAGE_KEY
+          );
+        } catch {
+          // Ignore.
+        }
+
+        setPaying(
+          true
+        );
+
+        setError(
+          null
+        );
+
+        setPaymentResult(
+          null
+        );
+
+        setPaymentState(
+          "idle"
+        );
+
+        let response:
+          Response;
+
+        console.log(
+          "STARTING PAYMENT",
+          {
+            mode,
+            apiBase:
+              process.env
+                .NEXT_PUBLIC_API_URL,
+          }
+        );
+
+        /* =========================================
+           BOOKING
+        ========================================= */
+
+        if (
+          mode ===
+            "booking" &&
+          bookingCheckout
+        ) {
+          response =
+            await api.sessions.checkoutBooking(
+              {
+                hold_id:
+                  bookingCheckout.hold_id,
+              },
+              token
+            );
+        }
+
+        /* =========================================
+           RENTAL
+        ========================================= */
+
+        else if (
+          mode ===
+            "rental" &&
+          rentalCheckout
+        ) {
+          response =
+            await api.rentals.checkout(
+              {
+                equipment_id:
+                  rentalCheckout.equipment_id,
+
+                start_date:
+                  rentalCheckout.start_date,
+
+                end_date:
+                  rentalCheckout.end_date,
+              },
+              token
+            );
+        }
+
+        /* =========================================
+           STORE
+        ========================================= */
+
+        else {
+          if (
+            !cart ||
+            cart.items.length ===
+              0
+          ) {
+            setError(
+              "Your cart is empty."
+            );
+
+            setPaying(
+              false
+            );
+
+            return;
+          }
+
+          response =
+            await api.orders.checkout(
+              token
+            );
+        }
+
+        console.log(
+          "CHECKOUT HTTP RESPONSE",
+          {
+            status:
+              response.status,
+            ok:
+              response.ok,
+            url:
+              response.url,
+          }
+        );
+
+        const rawBody =
+          await response.text();
+
+        const data =
+          parseResponseBody(
+            rawBody
+          );
+
+        console.log(
+          "CHECKOUT RESPONSE",
+          data
+        );
+
+        if (
+          response.status ===
+          401
+        ) {
+          localStorage.removeItem(
+            "access_token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
+
+          window.location.href =
+            "/login";
+
+          return;
+        }
+
+        if (
+          !response.ok
+        ) {
+          throw new Error(
+            getErrorMessage(
+              data,
+              `Checkout failed (${response.status}).`
+            )
+          );
+        }
+
+        if (
+          !data ||
+          typeof data !==
+            "object"
+        ) {
+          throw new Error(
+            "The checkout server returned an invalid response."
+          );
+        }
+
+        const checkout =
+          data as CheckoutResponse;
+
+        if (
+          !checkout.authorization_url
+        ) {
+          throw new Error(
+            "The backend completed checkout but did not return a Paystack authorization URL."
+          );
+        }
+
+        if (
+          checkout.reference
+        ) {
+          setPaymentReference(
+            checkout.reference
+          );
+        }
+
+        /* =========================================
+           SHOW WAITING MODAL
+        ========================================= */
+
+        setPaymentState(
+          "waiting"
+        );
+
+        /* =========================================
+           OPEN PAYSTACK
+        ========================================= */
+
+        const paymentWindow =
+          window.open(
+            checkout.authorization_url,
+            "_blank"
+          );
+
+        if (
+          !paymentWindow
+        ) {
+          throw new Error(
+            "Your browser blocked the Paystack payment window. Please allow pop-ups for this site."
+          );
+        }
+
+        paymentWindow.focus();
+      } catch (err) {
+        console.error(
+          "PAYMENT START FAILED",
+          err
+        );
+
+        setPaymentState(
+          "error"
+        );
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Unable to start payment."
+        );
+
+        setPaying(
+          false
+        );
       }
-    }
-
-    console.log(
-      "CHECKOUT PARSED RESPONSE",
-      data
-    );
-
-    if (
-      response.status === 401
-    ) {
-      localStorage.removeItem(
-        "access_token"
-      );
-
-      localStorage.removeItem(
-        "user"
-      );
-
-      window.location.href =
-        "/login";
-
-      return;
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        getErrorMessage(
-          data,
-          `Checkout failed (${response.status}).`
-        )
-      );
-    }
-
-    if (
-      !data ||
-      typeof data !==
-        "object"
-    ) {
-      throw new Error(
-        "The checkout server returned an invalid response."
-      );
-    }
-
-    const checkout =
-      data as CheckoutResponse;
-
-    console.log(
-      "PAYSTACK CHECKOUT DATA",
-      checkout
-    );
-
-    if (
-      !checkout.authorization_url
-    ) {
-      throw new Error(
-        "The backend completed checkout but did not return a Paystack authorization URL."
-      );
-    }
-
-    if (
-      checkout.reference
-    ) {
-      setPaymentReference(
-        checkout.reference
-      );
-    }
-
-    /*
-     * Only show the waiting modal once the backend
-     * has successfully created the Paystack payment.
-     */
-    setPaymentState(
-      "waiting"
-    );
-
-    /*
-     * Now open Paystack.
-     *
-     * This is intentionally after the backend request
-     * succeeds so we never leave an empty tab behind.
-     */
-    const paymentWindow =
-      window.open(
-        checkout.authorization_url,
-        "_blank"
-      );
-
-    if (!paymentWindow) {
-      throw new Error(
-        "Your browser blocked the Paystack payment window. Please allow pop-ups for this site."
-      );
-    }
-
-    paymentWindow.focus();
-  } catch (err) {
-    console.error(
-      "PAYMENT START FAILED",
-      err
-    );
-
-    setPaymentState(
-      "error"
-    );
-
-    setError(
-      err instanceof Error
-        ? err.message
-        : "Unable to start payment."
-    );
-
-    setPaying(false);
-  }
-};
+    };
 
   /* =========================================================
      LOADING
@@ -810,6 +1253,10 @@ const proceedToPayment = async () => {
       </>
     );
   }
+
+  /* =========================================================
+     TOTALS
+  ========================================================= */
 
   const storeTotal =
     Number.parseFloat(
@@ -864,10 +1311,6 @@ const proceedToPayment = async () => {
           bookingCheckout.price_ghs
         )
       : 0;
-
-  /* =========================================================
-     COMMON CHECKOUT HEADER
-  ========================================================= */
 
   const heading =
     mode === "booking"
@@ -1024,11 +1467,9 @@ const proceedToPayment = async () => {
                         />
 
                         <span>
-                          {
-                            formatDate(
-                              bookingCheckout.slot_starts_at
-                            )
-                          }
+                          {formatDate(
+                            bookingCheckout.slot_starts_at
+                          )}
                         </span>
                       </div>
 
@@ -1053,8 +1494,7 @@ const proceedToPayment = async () => {
                                 "2-digit",
                             }
                           )}{" "}
-                          -
-                          {" "}
+                          -{" "}
                           {new Date(
                             bookingCheckout.slot_ends_at
                           ).toLocaleTimeString(
@@ -1076,12 +1516,8 @@ const proceedToPayment = async () => {
                       }
                     >
                       GH₵
-                      {bookingPrice.toLocaleString(
-                        "en-GH",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                      {formatMoney(
+                        bookingPrice
                       )}
                     </strong>
                   </article>
@@ -1156,12 +1592,8 @@ const proceedToPayment = async () => {
 
                     <strong>
                       GH₵
-                      {bookingPrice.toLocaleString(
-                        "en-GH",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                      {formatMoney(
+                        bookingPrice
                       )}
                     </strong>
                   </div>
@@ -1262,8 +1694,7 @@ const proceedToPayment = async () => {
                           {formatDate(
                             rentalCheckout.start_date
                           )}{" "}
-                          -
-                          {" "}
+                          -{" "}
                           {formatDate(
                             rentalCheckout.end_date
                           )}
@@ -1283,8 +1714,7 @@ const proceedToPayment = async () => {
                           {
                             rentalCheckout.pickup_time
                           }{" "}
-                          -
-                          {" "}
+                          -{" "}
                           {
                             rentalCheckout.dropoff_time
                           }
@@ -1298,12 +1728,8 @@ const proceedToPayment = async () => {
                       }
                     >
                       GH₵
-                      {rentalTotal.toLocaleString(
-                        "en-GH",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                      {formatMoney(
+                        rentalTotal
                       )}
                     </strong>
                   </article>
@@ -1340,12 +1766,8 @@ const proceedToPayment = async () => {
 
                     <strong>
                       GH₵
-                      {rentalRate.toLocaleString(
-                        "en-GH",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                      {formatMoney(
+                        rentalRate
                       )}
                     </strong>
                   </div>
@@ -1381,12 +1803,8 @@ const proceedToPayment = async () => {
 
                     <strong>
                       GH₵
-                      {rentalTotal.toLocaleString(
-                        "en-GH",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                      {formatMoney(
+                        rentalTotal
                       )}
                     </strong>
                   </div>
@@ -1574,12 +1992,8 @@ const proceedToPayment = async () => {
 
                     <strong>
                       GH₵
-                      {storeTotal.toLocaleString(
-                        "en-GH",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                      {formatMoney(
+                        storeTotal
                       )}
                     </strong>
                   </div>
@@ -1601,12 +2015,8 @@ const proceedToPayment = async () => {
 
                     <strong>
                       GH₵
-                      {storeTotal.toLocaleString(
-                        "en-GH",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                      {formatMoney(
+                        storeTotal
                       )}
                     </strong>
                   </div>
@@ -1633,7 +2043,9 @@ const proceedToPayment = async () => {
               </section>
             )}
 
-          {/* EMPTY STORE */}
+          {/* =================================================
+              EMPTY STORE
+          ================================================= */}
 
           {mode ===
             "store" &&
@@ -1645,10 +2057,15 @@ const proceedToPayment = async () => {
                   styles.empty
                 }
               >
-                <ShoppingBag
-                  size={28}
-                  color="#ff5100"
-                />
+                <div
+                  className={
+                    styles.emptyIcon
+                  }
+                >
+                  <ShoppingBag
+                    size={28}
+                  />
+                </div>
 
                 <h2>
                   Your cart is empty
@@ -1673,7 +2090,7 @@ const proceedToPayment = async () => {
       </main>
 
       {/* =====================================================
-          PAYMENT WAITING MODAL
+          PAYMENT MODAL
       ===================================================== */}
 
       {paymentState !==
@@ -1682,12 +2099,19 @@ const proceedToPayment = async () => {
           className={
             styles.modalOverlay
           }
+          role="dialog"
+          aria-modal="true"
+          aria-label="Payment status"
         >
           <div
             className={
               styles.paymentModal
             }
           >
+            {/* ===============================================
+                WAITING
+            =============================================== */}
+
             {paymentState ===
               "waiting" && (
               <>
@@ -1704,8 +2128,8 @@ const proceedToPayment = async () => {
                 </h2>
 
                 <p>
-                  Paystack has been opened in
-                  a new tab.
+                  Paystack has been opened
+                  in a new tab.
                 </p>
 
                 <p
@@ -1714,8 +2138,9 @@ const proceedToPayment = async () => {
                   }
                 >
                   Complete your payment there.
-                  We'll automatically update this
-                  window when Paystack confirms it.
+                  We'll automatically update
+                  this window when Paystack
+                  confirms it.
                 </p>
 
                 <div
@@ -1724,10 +2149,15 @@ const proceedToPayment = async () => {
                   }
                 >
                   <span />
+
                   Waiting for confirmation...
                 </div>
               </>
             )}
+
+            {/* ===============================================
+                SUCCESS
+            =============================================== */}
 
             {paymentState ===
               "success" && (
@@ -1749,74 +2179,132 @@ const proceedToPayment = async () => {
                   successfully verified.
                 </p>
 
-                {paymentReference && (
-                  <div
-                    className={
-                      styles.receiptBox
-                    }
-                  >
-                    <span>
-                      Reference
-                    </span>
+                <div
+                  className={
+                    styles.receiptBox
+                  }
+                >
+                  <span>
+                    Reference
+                  </span>
 
-                    <strong>
-                      {
-                        paymentReference
-                      }
-                    </strong>
+                  <strong>
+                    {paymentReference ||
+                      "Unavailable"}
+                  </strong>
 
-                    {paymentResult
-                      ?.receipt
-                      ?.receipt_number && (
-                      <>
-                        <span>
-                          Receipt
-                        </span>
+                  {paymentResult
+                    ?.receipt
+                    ?.receipt_number && (
+                    <>
+                      <span>
+                        Receipt
+                      </span>
 
-                        <strong>
+                      <strong>
+                        {
+                          paymentResult
+                            .receipt
+                            .receipt_number
+                        }
+                      </strong>
+                    </>
+                  )}
+
+                  {paymentResult
+                    ?.receipt
+                    ?.amount_ghs && (
+                    <>
+                      <span>
+                        Amount
+                      </span>
+
+                      <strong>
+                        GH₵
+                        {Number(
+                          paymentResult
+                            .receipt
+                            .amount_ghs
+                        ).toLocaleString(
+                          "en-GH",
                           {
-                            paymentResult
-                              .receipt
-                              ?.receipt_number
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           }
-                        </strong>
-                      </>
-                    )}
+                        )}
+                      </strong>
+                    </>
+                  )}
 
-                    {paymentResult
-                      ?.receipt
-                      ?.amount_ghs && (
-                      <>
-                        <span>
-                          Amount
-                        </span>
+                  {paymentResult
+                    ?.receipt
+                    ?.issued_at && (
+                    <>
+                      <span>
+                        Issued
+                      </span>
 
-                        <strong>
-                          GH₵
-                          {Number(
-                            paymentResult
-                              .receipt
-                              ?.amount_ghs
-                          ).toLocaleString(
-                            "en-GH",
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )}
-                        </strong>
-                      </>
-                    )}
-                  </div>
-                )}
+                      <strong>
+                        {new Date(
+                          paymentResult
+                            .receipt
+                            .issued_at
+                        ).toLocaleString(
+                          "en-GH"
+                        )}
+                      </strong>
+                    </>
+                  )}
+                </div>
+
+                <div
+                  className={
+                    styles.modalReceiptActions
+                  }
+                >
+                  {paymentResult
+                    ?.receipt?.id && (
+                    <Link
+                      href={`/receipts/${paymentResult.receipt.id}`}
+                      className={
+                        styles.modalPrimary
+                      }
+                    >
+                      <ReceiptText
+                        size={16}
+                      />
+
+                      View Receipt
+                    </Link>
+                  )}
+
+                  {paymentResult
+                    ?.receipt && (
+                    <button
+                      type="button"
+                      className={
+                        styles.receiptButton
+                      }
+                      onClick={
+                        printReceipt
+                      }
+                    >
+                      <Printer
+                        size={16}
+                      />
+
+                      Print Receipt
+                    </button>
+                  )}
+                </div>
 
                 <p
                   className={
                     styles.modalSecondary
                   }
                 >
-                  You can close this window or
-                  continue to your account.
+                  Your payment has been
+                  verified successfully.
                 </p>
 
                 <div
@@ -1862,6 +2350,10 @@ const proceedToPayment = async () => {
                 </div>
               </>
             )}
+
+            {/* ===============================================
+                ERROR
+            =============================================== */}
 
             {paymentState ===
               "error" && (
