@@ -1,169 +1,1087 @@
-/* "My Requests" — the customer's studio reservation requests and their status. */
-
 .page {
-  min-height: 10dvh;
-  background: #d9d9d9;
-  font-family: Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+
+  padding:
+    52px
+    7%
+    70px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f7f8fa 0%,
+      #eceef1 100%
+    );
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
-.band {
-  padding: 2rem 1.25rem 1.5rem;
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+  width: 100%;
+
+  max-width: 1080px;
+
+  margin:
+    0
+    auto
+    30px;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 25px;
+}
+
+.eyebrow {
+  display: inline-flex;
+
+  align-items: center;
+
+  margin-bottom: 7px;
+
+  padding:
+    5px
+    10px;
+
+  border-radius:
+    999px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.9px;
+
+  text-transform:
+    uppercase;
 }
 
 .heading {
   margin: 0;
-  color: #000000;
-  font-size: clamp(1.6rem, 4.5vw, 3rem);
-  font-weight: 700;
-  text-align: center;
-  text-transform: uppercase;
+
+  color:
+    #101828;
+
+  font-size:
+    clamp(
+      2rem,
+      4vw,
+      2.7rem
+    );
+
+  font-weight:
+    800;
+
+  line-height:
+    1.05;
+
+  letter-spacing:
+    -1px;
 }
+
+.subheading {
+  margin:
+    7px
+    0
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+}
+
+.headerButton {
+  min-height:
+    42px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  padding:
+    0
+    15px;
+
+  border:
+    1px solid
+    #ff5100;
+
+  border-radius:
+    9px;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  font-family:
+    inherit;
+
+  font-size:
+    11px;
+
+  font-weight:
+    800;
+
+  text-decoration:
+    none;
+
+  white-space:
+    nowrap;
+
+  transition:
+    background
+      0.2s ease,
+    transform
+      0.2s ease;
+}
+
+.headerButton:hover {
+  background:
+    #e84f00;
+
+  transform:
+    translateY(-1px);
+}
+
+/* =========================================================
+   LIST
+========================================================= */
 
 .list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  max-width: 66rem;
-  margin: 0 auto;
-  padding: 1.5rem 1.25rem 3.5rem;
+  width: 100%;
+
+  max-width: 1080px;
+
+  margin:
+    0
+    auto;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    14px;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 1.25rem 1.5rem;
-  background: #ffffff;
+/* =========================================================
+   REQUEST CARD
+========================================================= */
+
+.card {
+  position:
+    relative;
+
+  padding:
+    20px;
+
+  border:
+    1px solid
+    #e7eaee;
+
+  border-radius:
+    16px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 8px 24px
+      rgba(
+        16,
+        24,
+        40,
+        0.045
+      );
+
+  transition:
+    border-color
+      0.2s ease,
+    box-shadow
+      0.2s ease,
+    transform
+      0.2s ease;
 }
 
-.details {
-  min-width: 0;
+.card:hover {
+  border-color:
+    #dfe3e8;
+
+  box-shadow:
+    0 12px 28px
+      rgba(
+        16,
+        24,
+        40,
+        0.07
+      );
+
+  transform:
+    translateY(
+      -2px
+    );
+}
+
+.cardTop {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  gap:
+    11px;
+}
+
+.cardIcon {
+  width:
+    42px;
+
+  height:
+    42px;
+
+  flex:
+    0 0 auto;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border-radius:
+    12px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+}
+
+.cardTitleArea {
+  min-width:
+    0;
+
+  flex:
+    1;
+}
+
+.cardLabel {
+  display:
+    block;
+
+  margin-bottom:
+    3px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.8px;
+
+  text-transform:
+    uppercase;
 }
 
 .purpose {
-  margin: 0;
-  color: #000000;
-  font-size: 1.15rem;
-  font-weight: 700;
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    17px;
+
+  font-weight:
+    750;
+
+  line-height:
+    1.25;
 }
 
-.when {
-  margin: 0.25rem 0 0;
-  color: #000000;
-  font-size: 1rem;
-}
-
-/* Times are italic in the design, the date is not */
-.time {
-  font-style: italic;
-}
-
-.reason {
-  margin: 0.4rem 0 0;
-  color: #6f6f6f;
-  font-size: 0.9rem;
-}
+/* =========================================================
+   STATUS
+========================================================= */
 
 .badge {
-  flex: 0 0 auto;
-  min-width: 9.5rem;
-  padding: 0.6rem 1rem;
-  font-size: 1.05rem;
-  font-weight: 700;
-  text-align: center;
+  flex:
+    0 0 auto;
+
+  min-width:
+    78px;
+
+  min-height:
+    29px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    0
+    10px;
+
+  border-radius:
+    999px;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  text-align:
+    center;
+
+  white-space:
+    nowrap;
 }
 
 .positive {
-  background: #ff5100;
-  color: #000000;
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
 }
 
 .negative {
-  background: #000000;
-  color: #ffffff;
+  background:
+    #111111;
+
+  color:
+    #ffffff;
 }
 
 .waiting {
-  background: #8a8a8a;
-  color: #ffffff;
+  background:
+    #eceef1;
+
+  color:
+    #555555;
 }
 
-/* ── Empty, checking and signed-out states ───────────────────── */
+/* =========================================================
+   DETAILS
+========================================================= */
 
-.message {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 3rem 1.25rem 4rem;
-  color: #333333;
-  font-size: 1.05rem;
-  text-align: center;
+.cardDetails {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    10px;
+
+  margin-top:
+    18px;
+
+  padding-top:
+    16px;
+
+  border-top:
+    1px solid
+    #eef0f3;
 }
 
-.messageTitle {
-  margin: 0 0 0.75rem;
-  color: #000000;
-  font-size: 1.35rem;
-  font-weight: 700;
+.detail {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  gap:
+    8px;
+
+  color:
+    #667085;
 }
 
-.messageLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 8rem;
-  height: 2.75rem;
-  margin-top: 1.5rem;
-  padding: 0 1.75rem;
-  background: #ff5100;
-  color: #ffffff;
-  font-weight: 700;
-  text-decoration: none;
+.detail svg {
+  flex:
+    0 0 auto;
+
+  margin-top:
+    2px;
+
+  color:
+    #ff5100;
 }
 
-.messageLink:hover {
-  background: #e64900;
+.detail div {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    3px;
 }
 
-.messageLink:focus-visible {
-  outline: 2px solid #ff5100;
-  outline-offset: 3px;
+.detailLabel {
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.7px;
+
+  text-transform:
+    uppercase;
 }
 
-.notice {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 0.85rem 1rem;
-  border: 1px solid #ffc7ad;
-  background: #ffe9de;
-  color: #7a2e00;
-  font-size: 0.95rem;
-  text-align: center;
+.detail strong {
+  color:
+    #344054;
+
+  font-size:
+    11px;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.35;
 }
 
-@media (max-width: 34rem) {
-  .row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+/* =========================================================
+   NOTES
+========================================================= */
+
+.notes {
+  margin-top:
+    13px;
+
+  padding:
+    10px
+    11px;
+
+  border-radius:
+    9px;
+
+  background:
+    #fafafa;
+}
+
+.notes span {
+  display:
+    block;
+
+  margin-bottom:
+    4px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.7px;
+
+  text-transform:
+    uppercase;
+}
+
+.notes p {
+  margin:
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    10px;
+
+  line-height:
+    1.5;
+}
+
+/* =========================================================
+   REJECTION
+========================================================= */
+
+.rejection {
+  margin-top:
+    13px;
+
+  padding:
+    10px
+    11px;
+
+  border:
+    1px solid
+    #ffd6d2;
+
+  border-radius:
+    9px;
+
+  background:
+    #fff2f0;
+}
+
+.rejection strong {
+  display:
+    block;
+
+  margin-bottom:
+    3px;
+
+  color:
+    #b42318;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+}
+
+.rejection p {
+  margin:
+    0;
+
+  color:
+    #b42318;
+
+  font-size:
+    10px;
+
+  line-height:
+    1.45;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.cardFooter {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
+
+  margin-top:
+    16px;
+
+  padding-top:
+    12px;
+
+  border-top:
+    1px solid
+    #eef0f3;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    9px;
+}
+
+/* =========================================================
+   STATE CARDS
+========================================================= */
+
+.stateCard {
+  width: 100%;
+
+  max-width:
+    560px;
+
+  min-height:
+    300px;
+
+  margin:
+    40px
+    auto
+    0;
+
+  padding:
+    40px
+    25px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    1px solid
+    #e7eaee;
+
+  border-radius:
+    18px;
+
+  background:
+    #ffffff;
+
+  text-align:
+    center;
+
+  box-shadow:
+    0 8px 24px
+      rgba(
+        16,
+        24,
+        40,
+        0.045
+      );
+}
+
+.stateIcon {
+  width:
+    58px;
+
+  height:
+    58px;
+
+  margin-bottom:
+    14px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border-radius:
+    16px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+}
+
+.stateCard h2 {
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    21px;
+}
+
+.stateCard p {
+  max-width:
+    410px;
+
+  margin:
+    9px
+    auto
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.6;
+}
+
+.errorCard {
+  border-color:
+    #ffd6d2;
+}
+
+.errorIcon {
+  width:
+    54px;
+
+  height:
+    54px;
+
+  margin-bottom:
+    13px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border-radius:
+    50%;
+
+  background:
+    #fff2f0;
+
+  color:
+    #b42318;
+
+  font-size:
+    22px;
+
+  font-weight:
+    800;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.primaryButton,
+.secondaryButton {
+  margin-top:
+    20px;
+
+  min-width:
+    155px;
+
+  height:
+    43px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  padding:
+    0
+    20px;
+
+  border-radius:
+    9px;
+
+  font-family:
+    inherit;
+
+  font-size:
+    11px;
+
+  font-weight:
+    800;
+
+  text-decoration:
+    none;
+
+  cursor:
+    pointer;
+}
+
+.primaryButton {
+  border:
+    1px solid
+    #ff5100;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  transition:
+    background
+      0.2s ease,
+    transform
+      0.2s ease;
+}
+
+.primaryButton:hover {
+  background:
+    #e84f00;
+
+  transform:
+    translateY(
+      -1px
+    );
+}
+
+.secondaryButton {
+  border:
+    1px solid
+    #d0d5dd;
+
+  background:
+    #ffffff;
+
+  color:
+    #344054;
+
+  transition:
+    background
+      0.2s ease,
+    border-color
+      0.2s ease;
+}
+
+.secondaryButton:hover {
+  border-color:
+    #ff5100;
+
+  background:
+    #fff8f4;
+
+  color:
+    #ff5100;
+}
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.spinner {
+  width:
+    25px;
+
+  height:
+    25px;
+
+  margin-bottom:
+    15px;
+
+  border:
+    3px solid
+    #ffe0d2;
+
+  border-top-color:
+    #ff5100;
+
+  border-radius:
+    50%;
+
+  animation:
+    spin
+    0.8s
+    linear
+    infinite;
+}
+
+@keyframes spin {
+  to {
+    transform:
+      rotate(
+        360deg
+      );
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .page {
+    padding:
+      40px
+      5%
+      60px;
+  }
+
+  .list {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .page {
+    padding:
+      28px
+      16px
+      45px;
+  }
+
+  .header {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+
+    margin-bottom:
+      22px;
+  }
+
+  .heading {
+    font-size:
+      2rem;
+  }
+
+  .headerButton {
+    width:
+      100%;
+  }
+
+  .card {
+    padding:
+      16px;
+  }
+
+  .cardTop {
+    align-items:
+      flex-start;
+
+    flex-wrap:
+      wrap;
   }
 
   .badge {
-    width: 100%;
+    margin-left:
+      auto;
+  }
+
+  .cardDetails {
+    grid-template-columns:
+      1fr;
+  }
+
+  .stateCard {
+    margin-top:
+      20px;
+
+    padding:
+      32px
+      20px;
   }
 }
 
-.messageLink {
-  color: var(--orange, #ffffff);
-  text-decoration: underline;
-  font-weight: 600;
-}
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
 
-.messageLink:hover {
-  color: #c2410c;
-}
+@media (max-width: 400px) {
+  .purpose {
+    font-size:
+      15px;
+  }
 
-.rejectionReason {
-  color: #dc3545;
-  font-weight: 500;
+  .cardTop {
+    gap:
+      9px;
+  }
+
+  .cardIcon {
+    width:
+      38px;
+
+    height:
+      38px;
+  }
+
+  .badge {
+    min-width:
+      70px;
+
+    padding:
+      0 8px;
+
+    font-size:
+      8px;
+  }
 }
