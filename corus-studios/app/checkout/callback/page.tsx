@@ -26,6 +26,13 @@ const API_BASE =
 const PAYMENT_STORAGE_KEY =
   "corus_payment_result";
 
+const CHECKOUT_CONTEXT_KEYS = [
+  "corus_checkout_intent",
+  "booking_checkout",
+  "rental_checkout",
+  "store_checkout_selection",
+];
+
 type PaymentStatus =
   | "loading"
   | "success"
@@ -189,6 +196,20 @@ function savePaymentResult(
     );
   } catch {
     // Ignore storage errors.
+  }
+}
+
+function clearCheckoutContextInThisTab() {
+  for (
+    const key of CHECKOUT_CONTEXT_KEYS
+  ) {
+    try {
+      sessionStorage.removeItem(
+        key
+      );
+    } catch {
+      // Ignore storage errors.
+    }
   }
 }
 
@@ -559,6 +580,8 @@ function PaymentCallbackContent() {
             }
           );
 
+          clearCheckoutContextInThisTab();
+
           /* =========================================
              postMessage BACKUP
           ========================================= */
@@ -636,6 +659,8 @@ function PaymentCallbackContent() {
                 errorMessage,
             }
           );
+
+          clearCheckoutContextInThisTab();
 
           try {
             window.opener?.postMessage(

@@ -33,21 +33,28 @@
     auto
     30px;
 
-  display: flex;
+  display:
+    flex;
 
-  align-items: flex-end;
+  align-items:
+    flex-end;
 
-  justify-content: space-between;
+  justify-content:
+    space-between;
 
-  gap: 25px;
+  gap:
+    25px;
 }
 
 .eyebrow {
-  display: inline-flex;
+  display:
+    inline-flex;
 
-  align-items: center;
+  align-items:
+    center;
 
-  margin-bottom: 7px;
+  margin-bottom:
+    7px;
 
   padding:
     5px
@@ -76,7 +83,8 @@
 }
 
 .heading {
-  margin: 0;
+  margin:
+    0;
 
   color:
     #101828;
@@ -114,7 +122,19 @@
     1.5;
 }
 
-.headerButton {
+.headerActions {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+}
+
+.headerButton,
+.refreshButton {
   min-height:
     42px;
 
@@ -134,24 +154,14 @@
     0
     15px;
 
-  border:
-    1px solid
-    #ff5100;
-
   border-radius:
     9px;
-
-  background:
-    #ff5100;
-
-  color:
-    #ffffff;
 
   font-family:
     inherit;
 
   font-size:
-    11px;
+    10px;
 
   font-weight:
     800;
@@ -162,11 +172,30 @@
   white-space:
     nowrap;
 
+  cursor:
+    pointer;
+
   transition:
     background
       0.2s ease,
+    border-color
+      0.2s ease,
     transform
+      0.2s ease,
+    color
       0.2s ease;
+}
+
+.headerButton {
+  border:
+    1px solid
+    #ff5100;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
 }
 
 .headerButton:hover {
@@ -174,7 +203,32 @@
     #e84f00;
 
   transform:
-    translateY(-1px);
+    translateY(
+      -1px
+    );
+}
+
+.refreshButton {
+  border:
+    1px solid
+    #d0d5dd;
+
+  background:
+    #ffffff;
+
+  color:
+    #344054;
+}
+
+.refreshButton:hover {
+  border-color:
+    #ff5100;
+
+  background:
+    #fff8f4;
+
+  color:
+    #ff5100;
 }
 
 /* =========================================================
@@ -182,9 +236,11 @@
 ========================================================= */
 
 .list {
-  width: 100%;
+  width:
+    100%;
 
-  max-width: 1080px;
+  max-width:
+    1080px;
 
   margin:
     0
@@ -207,7 +263,7 @@
 }
 
 /* =========================================================
-   REQUEST CARD
+   CARD
 ========================================================= */
 
 .card {
@@ -228,13 +284,15 @@
     #ffffff;
 
   box-shadow:
-    0 8px 24px
-      rgba(
-        16,
-        24,
-        40,
-        0.045
-      );
+    0
+    8px
+    24px
+    rgba(
+      16,
+      24,
+      40,
+      0.045
+    );
 
   transition:
     border-color
@@ -250,18 +308,25 @@
     #dfe3e8;
 
   box-shadow:
-    0 12px 28px
-      rgba(
-        16,
-        24,
-        40,
-        0.07
-      );
+    0
+    12px
+    28px
+    rgba(
+      16,
+      24,
+      40,
+      0.07
+    );
 
   transform:
     translateY(
       -2px
     );
+}
+
+.cardApproved {
+  border-color:
+    #ffd5c2;
 }
 
 .cardTop {
@@ -283,7 +348,9 @@
     42px;
 
   flex:
-    0 0 auto;
+    0
+    0
+    auto;
 
   display:
     flex;
@@ -353,12 +420,14 @@
 }
 
 /* =========================================================
-   STATUS
+   BADGES
 ========================================================= */
 
 .badge {
   flex:
-    0 0 auto;
+    0
+    0
+    auto;
 
   min-width:
     78px;
@@ -374,6 +443,9 @@
 
   justify-content:
     center;
+
+  gap:
+    5px;
 
   padding:
     0
@@ -466,7 +538,9 @@
 
 .detail svg {
   flex:
-    0 0 auto;
+    0
+    0
+    auto;
 
   margin-top:
     2px;
@@ -518,6 +592,498 @@
 
   line-height:
     1.35;
+}
+
+/* =========================================================
+   PAYMENT PANEL
+========================================================= */
+
+.paymentPanel {
+  margin-top:
+    15px;
+
+  padding:
+    15px;
+
+  border:
+    1px solid
+    #ffd6c5;
+
+  border-radius:
+    13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fffaf7 0%,
+      #fff4ed 100%
+    );
+}
+
+.paymentHeader {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
+
+  margin-bottom:
+    13px;
+}
+
+.paymentEyebrow {
+  display:
+    block;
+
+  color:
+    #ff5100;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.8px;
+
+  text-transform:
+    uppercase;
+}
+
+.paymentHeader h3 {
+  margin:
+    3px
+    0
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    14px;
+
+  font-weight:
+    800;
+}
+
+.approvedCheck {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
+
+  padding:
+    5px
+    8px;
+
+  border-radius:
+    999px;
+
+  background:
+    #eafaf0;
+
+  color:
+    #027a48;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  text-transform:
+    uppercase;
+}
+
+.amountGrid {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    8px;
+}
+
+.amountItem {
+  min-width:
+    0;
+
+  padding:
+    9px;
+
+  border:
+    1px solid
+    #f1ded5;
+
+  border-radius:
+    9px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.7
+    );
+}
+
+.amountItem span {
+  display:
+    block;
+
+  margin-bottom:
+    4px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    7px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.5px;
+
+  text-transform:
+    uppercase;
+}
+
+.amountItem strong {
+  display:
+    block;
+
+  color:
+    #101828;
+
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+}
+
+.amountItem .balance {
+  color:
+    #ff5100;
+}
+
+.paymentDeadline {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  flex-wrap:
+    wrap;
+
+  gap:
+    5px;
+
+  margin-top:
+    10px;
+
+  color:
+    #667085;
+
+  font-size:
+    9px;
+}
+
+.paymentDeadline svg {
+  color:
+    #ff5100;
+}
+
+.paymentDeadline strong {
+  color:
+    #344054;
+}
+
+.paymentAction {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
+
+  margin-top:
+    13px;
+
+  padding-top:
+    13px;
+
+  border-top:
+    1px solid
+    #f0dfd6;
+}
+
+.paymentActionText {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  color:
+    #ff5100;
+}
+
+.paymentActionText > div {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    2px;
+}
+
+.paymentActionText strong {
+  color:
+    #101828;
+
+  font-size:
+    10px;
+}
+
+.paymentActionText span {
+  color:
+    #667085;
+
+  font-size:
+    8px;
+
+  line-height:
+    1.45;
+}
+
+.payButton,
+.payButtonFull {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    6px;
+
+  min-height:
+    40px;
+
+  padding:
+    0
+    14px;
+
+  border:
+    1px solid
+    #ff5100;
+
+  border-radius:
+    9px;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+
+  white-space:
+    nowrap;
+
+  transition:
+    background
+      0.2s ease,
+    transform
+      0.2s ease,
+    box-shadow
+      0.2s ease;
+}
+
+.payButton:hover,
+.payButtonFull:hover {
+  background:
+    #e84f00;
+
+  box-shadow:
+    0
+    5px
+    14px
+    rgba(
+      255,
+      81,
+      0,
+      0.15
+    );
+
+  transform:
+    translateY(
+      -1px
+    );
+}
+
+.paidNotice {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  margin-top:
+    13px;
+
+  padding-top:
+    13px;
+
+  border-top:
+    1px solid
+    #f0dfd6;
+
+  color:
+    #027a48;
+}
+
+.paidNotice > div {
+  min-width:
+    0;
+
+  flex:
+    1;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    2px;
+}
+
+.paidNotice strong {
+  color:
+    #101828;
+
+  font-size:
+    10px;
+}
+
+.paidNotice span {
+  color:
+    #667085;
+
+  font-size:
+    8px;
+}
+
+.receiptButton {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    5px;
+
+  min-height:
+    34px;
+
+  padding:
+    0
+    10px;
+
+  border:
+    1px solid
+    #d0d5dd;
+
+  border-radius:
+    8px;
+
+  background:
+    #ffffff;
+
+  color:
+    #344054;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  text-decoration:
+    none;
+
+  white-space:
+    nowrap;
+}
+
+.receiptButton:hover {
+  border-color:
+    #ff5100;
+
+  color:
+    #ff5100;
 }
 
 /* =========================================================
@@ -599,16 +1165,24 @@
     #fff2f0;
 }
 
-.rejection strong {
+.rejectionTitle {
   display:
-    block;
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
 
   margin-bottom:
     3px;
 
   color:
     #b42318;
+}
 
+.rejectionTitle strong {
   font-size:
     9px;
 
@@ -669,7 +1243,8 @@
 ========================================================= */
 
 .stateCard {
-  width: 100%;
+  width:
+    100%;
 
   max-width:
     560px;
@@ -712,13 +1287,15 @@
     center;
 
   box-shadow:
-    0 8px 24px
-      rgba(
-        16,
-        24,
-        40,
-        0.045
-      );
+    0
+    8px
+    24px
+    rgba(
+      16,
+      24,
+      40,
+      0.045
+    );
 }
 
 .stateIcon {
@@ -821,7 +1398,7 @@
 }
 
 /* =========================================================
-   BUTTONS
+   GENERAL BUTTONS
 ========================================================= */
 
 .primaryButton,
@@ -958,11 +1535,624 @@
     infinite;
 }
 
+/* =========================================================
+   PAYMENT MODAL
+========================================================= */
+
+.modalOverlay {
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    9999;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    20px;
+
+  background:
+    rgba(
+      16,
+      24,
+      40,
+      0.55
+    );
+
+  backdrop-filter:
+    blur(5px);
+}
+
+.paymentModal {
+  position:
+    relative;
+
+  width:
+    100%;
+
+  max-width:
+    460px;
+
+  padding:
+    30px;
+
+  border:
+    1px solid
+    #eaecf0;
+
+  border-radius:
+    20px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0
+    25px
+    70px
+    rgba(
+      16,
+      24,
+      40,
+      0.22
+    );
+
+  text-align:
+    center;
+
+  animation:
+    modalIn
+    0.2s
+    ease;
+}
+
+.modalClose {
+  position:
+    absolute;
+
+  top:
+    14px;
+
+  right:
+    14px;
+
+  width:
+    32px;
+
+  height:
+    32px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    none;
+
+  border-radius:
+    8px;
+
+  background:
+    #f9fafb;
+
+  color:
+    #667085;
+
+  cursor:
+    pointer;
+}
+
+.modalClose:hover {
+  background:
+    #f2f4f7;
+
+  color:
+    #101828;
+}
+
+.modalIcon {
+  width:
+    64px;
+
+  height:
+    64px;
+
+  margin:
+    0
+    auto
+    18px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border-radius:
+    18px;
+}
+
+.modalLoading {
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+}
+
+.modalWaiting {
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+}
+
+.modalSuccess {
+  background:
+    #eafaf0;
+
+  color:
+    #12b76a;
+}
+
+.modalError {
+  background:
+    #fff2f0;
+
+  color:
+    #d92d20;
+}
+
+.paymentModal h2 {
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    23px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    -0.4px;
+}
+
+.modalText {
+  max-width:
+    380px;
+
+  margin:
+    10px
+    auto
+    18px;
+
+  color:
+    #667085;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.65;
+}
+
+.modalLoadingBox,
+.verificationBox {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    8px;
+
+  padding:
+    12px;
+
+  border:
+    1px solid
+    #f1e1d8;
+
+  border-radius:
+    10px;
+
+  background:
+    #fffaf7;
+
+  color:
+    #667085;
+
+  font-size:
+    10px;
+}
+
+.verificationBox {
+  color:
+    #ff5100;
+}
+
+.modalSummary {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    8px;
+
+  margin:
+    16px
+    0;
+
+  text-align:
+    left;
+}
+
+.modalSummary > div {
+  padding:
+    10px;
+
+  border:
+    1px solid
+    #eef0f4;
+
+  border-radius:
+    10px;
+
+  background:
+    #f9fafb;
+}
+
+.modalSummary span,
+.successBox span {
+  display:
+    block;
+
+  margin-bottom:
+    4px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.6px;
+
+  text-transform:
+    uppercase;
+}
+
+.modalSummary strong {
+  display:
+    block;
+
+  color:
+    #344054;
+
+  font-size:
+    10px;
+
+  word-break:
+    break-word;
+}
+
+.openPaystackButton,
+.payButtonFull {
+  width:
+    100%;
+
+  min-height:
+    44px;
+
+  margin-top:
+    14px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  border:
+    1px solid
+    #ff5100;
+
+  border-radius:
+    9px;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+}
+
+.openPaystackButton:hover,
+.payButtonFull:hover {
+  background:
+    #e84f00;
+}
+
+.modalSecondary {
+  min-height:
+    42px;
+
+  margin-top:
+    9px;
+
+  padding:
+    0
+    16px;
+
+  border:
+    1px solid
+    #d0d5dd;
+
+  border-radius:
+    9px;
+
+  background:
+    #ffffff;
+
+  color:
+    #344054;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+}
+
+.modalSecondary:hover {
+  border-color:
+    #ff5100;
+
+  background:
+    #fff8f4;
+
+  color:
+    #ff5100;
+}
+
+.successBox {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    9px;
+
+  margin:
+    16px
+    0;
+
+  padding:
+    13px;
+
+  border:
+    1px solid
+    #c6f0d5;
+
+  border-radius:
+    11px;
+
+  background:
+    #f2fcf5;
+
+  text-align:
+    left;
+}
+
+.successBox > div {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    15px;
+}
+
+.successBox strong {
+  color:
+    #027a48;
+
+  font-size:
+    10px;
+
+  text-align:
+    right;
+
+  word-break:
+    break-word;
+}
+
+.modalActions {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  margin-top:
+    12px;
+}
+
+.receiptButtonLarge {
+  flex:
+    1;
+
+  min-height:
+    43px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  border:
+    1px solid
+    #ff5100;
+
+  border-radius:
+    9px;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  text-decoration:
+    none;
+}
+
+.receiptButtonLarge:hover {
+  background:
+    #e84f00;
+}
+
+.modalActions .modalSecondary {
+  flex:
+    1;
+
+  margin-top:
+    0;
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+.spin {
+  animation:
+    spin
+    0.8s
+    linear
+    infinite;
+}
+
 @keyframes spin {
   to {
     transform:
       rotate(
         360deg
+      );
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity:
+      0;
+
+    transform:
+      translateY(
+        10px
+      )
+      scale(
+        0.98
+      );
+  }
+
+  to {
+    opacity:
+      1;
+
+    transform:
+      translateY(
+        0
+      )
+      scale(
+        1
       );
   }
 }
@@ -1008,14 +2198,20 @@
       22px;
   }
 
+  .headerActions {
+    width:
+      100%;
+  }
+
+  .refreshButton,
+  .headerButton {
+    flex:
+      1;
+  }
+
   .heading {
     font-size:
       2rem;
-  }
-
-  .headerButton {
-    width:
-      100%;
   }
 
   .card {
@@ -1024,9 +2220,6 @@
   }
 
   .cardTop {
-    align-items:
-      flex-start;
-
     flex-wrap:
       wrap;
   }
@@ -1041,6 +2234,24 @@
       1fr;
   }
 
+  .amountGrid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .paymentAction {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+  }
+
+  .payButton {
+    width:
+      100%;
+  }
+
   .stateCard {
     margin-top:
       20px;
@@ -1048,6 +2259,31 @@
     padding:
       32px
       20px;
+  }
+
+  .paymentModal {
+    padding:
+      25px
+      18px;
+
+    border-radius:
+      17px;
+  }
+
+  .modalSummary {
+    grid-template-columns:
+      1fr;
+  }
+
+  .modalActions {
+    flex-direction:
+      column;
+  }
+
+  .receiptButtonLarge,
+  .modalActions .modalSecondary {
+    width:
+      100%;
   }
 }
 
@@ -1079,9 +2315,21 @@
       70px;
 
     padding:
-      0 8px;
+      0
+      8px;
 
     font-size:
       8px;
+  }
+
+  .headerActions {
+    flex-direction:
+      column;
+  }
+
+  .refreshButton,
+  .headerButton {
+    width:
+      100%;
   }
 }

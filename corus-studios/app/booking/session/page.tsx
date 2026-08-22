@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 
 import Navbar from "@/components/Navbar";
-import Booking from "@/components/Booking";
+import BookingTabs from "@/components/BookingTabs";
 import Map from "@/components/Map";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title:
     "Book a Session | Corus Studios",
+
   description:
-    "Book a photography session at Corus Studios.",
+    "Book a photography session online or create a walk-in booking at Corus Studios.",
 };
 
 function getTodayIso() {
@@ -47,7 +48,7 @@ export default function BookingSessionPage() {
       <Navbar />
 
       <main>
-        <Booking
+        <BookingTabs
           todayIso={
             todayIso
           }

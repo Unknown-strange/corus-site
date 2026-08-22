@@ -4,9 +4,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import {
-  useRouter,
-} from "next/navigation";
 import Image from "next/image";
 
 import {
@@ -15,6 +12,7 @@ import {
   Plus,
   ShoppingBag,
   Trash2,
+  Camera,
 } from "lucide-react";
 
 import styles from "./Cart.module.css";
@@ -58,264 +56,303 @@ type Props = {
   category?: string;
 };
 
+type ApiError = {
+  detail?: unknown;
+  message?: unknown;
+};
+
+function getErrorMessage(
+  data: unknown,
+  fallback: string
+): string {
+  if (
+    typeof data === "string" &&
+    data.trim()
+  ) {
+    return data;
+  }
+
+  if (
+    data &&
+    typeof data === "object"
+  ) {
+    const value =
+      data as ApiError;
+
+    if (
+      typeof value.detail ===
+      "string"
+    ) {
+      return value.detail;
+    }
+
+    if (
+      Array.isArray(value.detail)
+    ) {
+      const messages =
+        value.detail
+          .map((item) => {
+            if (
+              item &&
+              typeof item ===
+                "object" &&
+              "msg" in item &&
+              typeof (
+                item as {
+                  msg?: unknown;
+                }
+              ).msg === "string"
+            ) {
+              return (
+                item as {
+                  msg: string;
+                }
+              ).msg;
+            }
+
+            return null;
+          })
+          .filter(
+            (
+              item
+            ): item is string =>
+              Boolean(item)
+          );
+
+      if (
+        messages.length > 0
+      ) {
+        return messages.join(
+          ", "
+        );
+      }
+    }
+
+    if (
+      typeof value.message ===
+      "string"
+    ) {
+      return value.message;
+    }
+  }
+
+  return fallback;
+}
+
 export default function Cart({
   category = "store",
 }: Props) {
-  const router = useRouter();
+  const [
+    items,
+    setItems,
+  ] = useState<CartItem[]>(
+    []
+  );
 
-  const [items, setItems] =
-    useState<CartItem[]>([]);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    error,
+    setError,
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const [error, setError] =
-    useState<string | null>(
-      null
-    );
+  const [
+    updatingId,
+    setUpdatingId,
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const [updatingId, setUpdatingId] =
-    useState<string | null>(
-      null
-    );
+  const isRentals =
+    category === "rentals";
 
   const categoryDisplay =
     category.charAt(0).toUpperCase() +
     category.slice(1);
 
   /* =========================================================
-     LOAD CART
+     LOAD STORE CART
   ========================================================= */
 
-  const fetchCart = async () => {
-    try {
-      setError(null);
+  const fetchCart =
+    async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const token =
-        localStorage.getItem(
-          "access_token"
-        );
-
-      if (!token) {
-        setError(
-          "Please log in to view your cart."
-        );
-        return;
-      }
-
-      const response =
-        await fetch(
-          `${API_BASE}/cart`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      if (
-        response.status === 401
-      ) {
-        setError(
-          "Session expired. Please log in again."
-        );
-        return;
-      }
-
-      if (
-        response.status === 403
-      ) {
-        setError(
-          "Customer access is required to use the cart."
-        );
-        return;
-      }
-
-      const raw =
-        await response.text();
-
-      let data: unknown =
-        null;
-
-      if (raw) {
-        try {
-          data = JSON.parse(raw);
-        } catch {
-          data = raw;
+        /*
+         * IMPORTANT:
+         *
+         * /cart is the store/product cart.
+         *
+         * Rental reservations are not stored there.
+         * Therefore the Rentals tab must never call /cart.
+         */
+        if (isRentals) {
+          setItems([]);
+          return;
         }
-      }
 
-      if (!response.ok) {
-        throw new Error(
-          getErrorMessage(
-            data,
-            "Failed to load cart."
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
+
+        if (!token) {
+          setError(
+            "Please log in to view your cart."
+          );
+          return;
+        }
+
+        const response =
+          await fetch(
+            `${API_BASE}/cart`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        if (
+          response.status ===
+          401
+        ) {
+          localStorage.removeItem(
+            "access_token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
+
+          window.location.href =
+            "/login";
+
+          return;
+        }
+
+        if (
+          response.status ===
+          403
+        ) {
+          setError(
+            "Customer access is required to use the cart."
+          );
+
+          return;
+        }
+
+        const raw =
+          await response.text();
+
+        let data: unknown =
+          null;
+
+        if (raw) {
+          try {
+            data =
+              JSON.parse(raw);
+          } catch {
+            data = raw;
+          }
+        }
+
+        if (
+          !response.ok
+        ) {
+          throw new Error(
+            getErrorMessage(
+              data,
+              "Failed to load cart."
+            )
+          );
+        }
+
+        const cart =
+          data as ApiCartResponse;
+
+        const mapped: CartItem[] =
+          Array.isArray(
+            cart.items
           )
-        );
-      }
+            ? cart.items.map(
+                (item) => ({
+                  productId:
+                    item.product_id,
 
-      const cart =
-        data as ApiCartResponse;
+                  name:
+                    item.product_name,
 
-      const mapped: CartItem[] =
-        cart.items.map(
-          (item) => ({
-            productId:
-              item.product_id,
-            name:
-              item.product_name,
-            price:
-              Number.parseFloat(
-                item.unit_price_ghs
-              ) || 0,
-            image:
-              item.image_url ||
-              "/images/placeholder.png",
-            quantity:
-              item.quantity,
-            stock:
-              Number.isFinite(
-                item.stock
+                  price:
+                    Number.parseFloat(
+                      item.unit_price_ghs
+                    ) || 0,
+
+                  image:
+                    item.image_url ||
+                    "/images/placeholder.png",
+
+                  quantity:
+                    item.quantity,
+
+                  stock:
+                    Number.isFinite(
+                      item.stock
+                    )
+                      ? item.stock
+                      : 0,
+
+                  lineTotal:
+                    Number.parseFloat(
+                      item.line_total_ghs
+                    ) || 0,
+
+                  selected:
+                    true,
+
+                  slug:
+                    item.product_slug,
+                })
               )
-                ? item.stock
-                : 0,
-            lineTotal:
-              Number.parseFloat(
-                item.line_total_ghs
-              ) || 0,
-            selected:
-              true,
-            slug:
-              item.product_slug,
-          })
+            : [];
+
+        setItems(
+          mapped
+        );
+      } catch (
+        err
+      ) {
+        console.error(
+          "CART LOAD FAILED:",
+          err
         );
 
-      setItems(mapped);
-    } catch (err) {
-      console.error(
-        "CART LOAD FAILED:",
-        err
-      );
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to load cart."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+        setError(
+          err instanceof
+            Error
+            ? err.message
+            : "Failed to load cart."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
   useEffect(() => {
     fetchCart();
-  }, []);
-
-  /* =========================================================
-     API ERROR HELPER
-  ========================================================= */
-
-  function getErrorMessage(
-    data: unknown,
-    fallback: string
-  ): string {
-    if (
-      typeof data ===
-        "string" &&
-      data.trim()
-    ) {
-      return data;
-    }
-
-    if (
-      data &&
-      typeof data ===
-        "object"
-    ) {
-      if (
-        "detail" in data
-      ) {
-        const detail =
-          (
-            data as {
-              detail?: unknown;
-            }
-          ).detail;
-
-        if (
-          typeof detail ===
-          "string"
-        ) {
-          return detail;
-        }
-
-        if (
-          Array.isArray(detail)
-        ) {
-          const messages =
-            detail
-              .map(
-                (item) => {
-                  if (
-                    item &&
-                    typeof item ===
-                      "object" &&
-                    "msg" in
-                      item &&
-                    typeof (
-                      item as {
-                        msg?: unknown;
-                      }
-                    ).msg ===
-                      "string"
-                  ) {
-                    return (
-                      item as {
-                        msg: string;
-                      }
-                    ).msg;
-                  }
-
-                  return null;
-                }
-              )
-              .filter(
-                (
-                  value
-                ): value is string =>
-                  Boolean(value)
-              );
-
-          if (
-            messages.length
-          ) {
-            return messages.join(
-              ", "
-            );
-          }
-        }
-      }
-
-      if (
-        "message" in data &&
-        typeof (
-          data as {
-            message?: unknown;
-          }
-        ).message ===
-          "string"
-      ) {
-        return (
-          data as {
-            message: string;
-          }
-        ).message;
-      }
-    }
-
-    return fallback;
-  }
+  }, [
+    category,
+  ]);
 
   /* =========================================================
      UPDATE QUANTITY
@@ -336,6 +373,7 @@ export default function Cart({
         setUpdatingId(
           productId
         );
+
         setError(null);
 
         const token =
@@ -347,6 +385,7 @@ export default function Cart({
           setError(
             "Please log in to update your cart."
           );
+
           return;
         }
 
@@ -356,12 +395,15 @@ export default function Cart({
             {
               method:
                 "PATCH",
+
               headers: {
                 "Content-Type":
                   "application/json",
+
                 Authorization:
                   `Bearer ${token}`,
               },
+
               body:
                 JSON.stringify({
                   quantity,
@@ -385,6 +427,24 @@ export default function Cart({
         }
 
         if (
+          response.status ===
+          401
+        ) {
+          localStorage.removeItem(
+            "access_token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
+
+          window.location.href =
+            "/login";
+
+          return;
+        }
+
+        if (
           !response.ok
         ) {
           throw new Error(
@@ -396,19 +456,24 @@ export default function Cart({
         }
 
         await fetchCart();
-      } catch (err) {
+      } catch (
+        err
+      ) {
         console.error(
           "CART UPDATE FAILED:",
           err
         );
 
         setError(
-          err instanceof Error
+          err instanceof
+            Error
             ? err.message
             : "Failed to update quantity."
         );
       } finally {
-        setUpdatingId(null);
+        setUpdatingId(
+          null
+        );
       }
     };
 
@@ -424,6 +489,7 @@ export default function Cart({
         setUpdatingId(
           productId
         );
+
         setError(null);
 
         const token =
@@ -435,6 +501,7 @@ export default function Cart({
           setError(
             "Please log in to update your cart."
           );
+
           return;
         }
 
@@ -444,6 +511,7 @@ export default function Cart({
             {
               method:
                 "DELETE",
+
               headers: {
                 Authorization:
                   `Bearer ${token}`,
@@ -467,6 +535,24 @@ export default function Cart({
         }
 
         if (
+          response.status ===
+          401
+        ) {
+          localStorage.removeItem(
+            "access_token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
+
+          window.location.href =
+            "/login";
+
+          return;
+        }
+
+        if (
           !response.ok
         ) {
           throw new Error(
@@ -478,19 +564,24 @@ export default function Cart({
         }
 
         await fetchCart();
-      } catch (err) {
+      } catch (
+        err
+      ) {
         console.error(
           "CART DELETE FAILED:",
           err
         );
 
         setError(
-          err instanceof Error
+          err instanceof
+            Error
             ? err.message
             : "Failed to remove item."
         );
       } finally {
-        setUpdatingId(null);
+        setUpdatingId(
+          null
+        );
       }
     };
 
@@ -499,7 +590,9 @@ export default function Cart({
   ========================================================= */
 
   const toggleSelected =
-    (productId: string) => {
+    (
+      productId: string
+    ) => {
       setItems(
         (current) =>
           current.map(
@@ -523,40 +616,6 @@ export default function Cart({
         item.selected
     );
 
-  const selectedCount =
-    items
-      .filter(
-        (item) =>
-          item.selected
-      )
-      .reduce(
-        (sum, item) =>
-          sum +
-          item.quantity,
-        0
-      );
-
-  const selectedTotal =
-    items
-      .filter(
-        (item) =>
-          item.selected
-      )
-      .reduce(
-        (sum, item) =>
-          sum +
-          item.lineTotal,
-        0
-      );
-
-  const totalItems =
-    items.reduce(
-      (sum, item) =>
-        sum +
-        item.quantity,
-      0
-    );
-
   const selectAll =
     () => {
       setItems(
@@ -571,6 +630,45 @@ export default function Cart({
       );
     };
 
+  const selectedItems =
+    items.filter(
+      (item) =>
+        item.selected
+    );
+
+  const selectedCount =
+    selectedItems.reduce(
+      (
+        total,
+        item
+      ) =>
+        total +
+        item.quantity,
+      0
+    );
+
+  const selectedTotal =
+    selectedItems.reduce(
+      (
+        total,
+        item
+      ) =>
+        total +
+        item.lineTotal,
+      0
+    );
+
+  const totalItems =
+    items.reduce(
+      (
+        total,
+        item
+      ) =>
+        total +
+        item.quantity,
+      0
+    );
+
   /* =========================================================
      CHECKOUT
   ========================================================= */
@@ -578,18 +676,63 @@ export default function Cart({
   const handleCheckout =
     () => {
       if (
-        selectedCount ===
+        selectedCount <=
         0
       ) {
         setError(
           "Please select at least one item before checkout."
         );
+
         return;
       }
 
-      router.push(
-        "/checkout"
+      /*
+       * Explicitly mark this as a store checkout so stale
+       * booking/rental contexts cannot take over /checkout.
+       */
+      sessionStorage.removeItem(
+        "booking_checkout"
       );
+
+      sessionStorage.removeItem(
+        "rental_checkout"
+      );
+
+      sessionStorage.removeItem(
+        "store_checkout_selection"
+      );
+
+      sessionStorage.setItem(
+        "corus_checkout_intent",
+        "store"
+      );
+
+      /*
+       * Keep selected items available to the checkout page.
+       *
+       * IMPORTANT:
+       * The current backend /orders/checkout endpoint checks
+       * the customer's backend cart. It does not yet accept
+       * selected product IDs. Therefore this preserves the
+       * frontend selection state without falsely claiming that
+       * it changes the server-side order.
+       */
+      sessionStorage.setItem(
+        "store_checkout_selection",
+        JSON.stringify(
+          selectedItems.map(
+            (item) => ({
+              product_id:
+                item.productId,
+              quantity:
+                item.quantity,
+            })
+          )
+        )
+      );
+
+      window.location.href =
+        "/checkout";
     };
 
   /* =========================================================
@@ -597,7 +740,9 @@ export default function Cart({
   ========================================================= */
 
   const formatMoney =
-    (value: number) =>
+    (
+      value: number
+    ) =>
       `GH₵${value.toLocaleString(
         "en-GH",
         {
@@ -607,10 +752,114 @@ export default function Cart({
       )}`;
 
   /* =========================================================
+     RENTAL EMPTY/INFORMATION STATE
+  ========================================================= */
+
+  if (
+    isRentals
+  ) {
+    return (
+      <section
+        className={
+          styles.cartSection
+        }
+      >
+        <div
+          className={
+            styles.cartShell
+          }
+        >
+          <header
+            className={
+              styles.header
+            }
+          >
+            <div>
+              <span
+                className={
+                  styles.badge
+                }
+              >
+                Rentals
+              </span>
+
+              <h1>
+                Your Rentals
+              </h1>
+
+              <p>
+                Rental checkout is handled
+                directly from each rental.
+              </p>
+            </div>
+
+            <div
+              className={
+                styles.count
+              }
+            >
+              <Camera
+                size={20}
+              />
+            </div>
+          </header>
+
+          <div
+            className={
+              styles.messageCard
+            }
+          >
+            <div
+              className={
+                styles.emptyIcon
+              }
+            >
+              <Camera
+                size={28}
+              />
+            </div>
+
+            <span
+              className={
+                styles.messageLabel
+              }
+            >
+              Rental Checkout
+            </span>
+
+            <h2>
+              No rental cart items
+            </h2>
+
+            <p>
+              Choose a rental, select
+              your pickup and drop-off
+              dates, then continue to
+              checkout from the rental
+              details page.
+            </p>
+
+            <a
+              href="/rentals"
+              className={
+                styles.browseButton
+              }
+            >
+              Browse Rentals
+            </a>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /* =========================================================
      LOADING
   ========================================================= */
 
-  if (loading) {
+  if (
+    loading
+  ) {
     return (
       <section
         className={
@@ -642,7 +891,8 @@ export default function Cart({
 
   if (
     error &&
-    items.length === 0
+    items.length ===
+      0
   ) {
     return (
       <section
@@ -670,17 +920,30 @@ export default function Cart({
           <p>
             {error}
           </p>
+
+          <button
+            type="button"
+            className={
+              styles.retryButton
+            }
+            onClick={
+              fetchCart
+            }
+          >
+            Try Again
+          </button>
         </div>
       </section>
     );
   }
 
   /* =========================================================
-     EMPTY
+     EMPTY STORE
   ========================================================= */
 
   if (
-    items.length === 0
+    items.length ===
+    0
   ) {
     return (
       <section
@@ -708,7 +971,7 @@ export default function Cart({
               styles.messageLabel
             }
           >
-            {categoryDisplay}
+            Store
           </span>
 
           <h2>
@@ -716,17 +979,25 @@ export default function Cart({
           </h2>
 
           <p>
-            Add something from the{" "}
-            {categoryDisplay.toLowerCase()}{" "}
-            to get started.
+            Add something from the
+            store to get started.
           </p>
+
+          <a
+            href="/store"
+            className={
+              styles.browseButton
+            }
+          >
+            Browse Store
+          </a>
         </div>
       </section>
     );
   }
 
   /* =========================================================
-     MAIN
+     STORE CART
   ========================================================= */
 
   return (
@@ -740,9 +1011,7 @@ export default function Cart({
           styles.cartShell
         }
       >
-        {/* ===============================================
-            HEADER
-        =============================================== */}
+        {/* HEADER */}
 
         <header
           className={
@@ -755,7 +1024,7 @@ export default function Cart({
                 styles.badge
               }
             >
-              {categoryDisplay}
+              Store
             </span>
 
             <h1>
@@ -781,9 +1050,7 @@ export default function Cart({
           </div>
         </header>
 
-        {/* ===============================================
-            SELECT ALL
-        =============================================== */}
+        {/* SELECT ALL */}
 
         <div
           className={
@@ -817,9 +1084,7 @@ export default function Cart({
               )}
             </span>
 
-            <span>
-              Select all items
-            </span>
+            Select all items
           </button>
 
           <span
@@ -832,9 +1097,7 @@ export default function Cart({
           </span>
         </div>
 
-        {/* ===============================================
-            ERROR
-        =============================================== */}
+        {/* ERROR */}
 
         {error && (
           <div
@@ -846,9 +1109,7 @@ export default function Cart({
           </div>
         )}
 
-        {/* ===============================================
-            ITEMS
-        =============================================== */}
+        {/* ITEMS */}
 
         <div
           className={
@@ -892,9 +1153,7 @@ export default function Cart({
                       item.selected
                         ? "Deselect"
                         : "Select"
-                    } ${
-                      item.name
-                    }`}
+                    } ${item.name}`}
                   >
                     {item.selected && (
                       <Check
@@ -934,13 +1193,11 @@ export default function Cart({
                         styles.productType
                       }
                     >
-                      Product
+                      Store Product
                     </span>
 
                     <h2>
-                      {
-                        item.name
-                      }
+                      {item.name}
                     </h2>
 
                     <p>
@@ -1078,9 +1335,7 @@ export default function Cart({
           )}
         </div>
 
-        {/* ===============================================
-            SUMMARY
-        =============================================== */}
+        {/* SUMMARY */}
 
         <footer
           className={

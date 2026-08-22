@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   CalendarDays,
   Clock3,
@@ -13,6 +19,8 @@ import {
   XCircle,
   RefreshCw,
   RotateCcw,
+  AlertTriangle,
+  Info,
 } from "lucide-react";
 
 import NavbarAdmin from "@/components/NavbarAdmin";
@@ -28,19 +36,13 @@ const API_BASE =
    TYPES
 ========================================================= */
 
-type RentalType = "studio" | "gadget";
+type RentalType =
+  | "studio"
+  | "gadget";
 
 type ReservationStatus =
   | "pending"
   | "approved"
-  | "rejected";
-
-type GadgetStatus =
-  | "pending"
-  | "active"
-  | "approved"
-  | "completed"
-  | "returned"
   | "rejected";
 
 type StudioReservation = {
@@ -88,53 +90,83 @@ type CustomerResponse = {
   last_name: string;
 };
 
+type ModalType =
+  | "approve"
+  | "reject"
+  | "returned"
+  | "error"
+  | null;
+
 /* =========================================================
    HELPERS
 ========================================================= */
 
-function formatMoney(value: string | number) {
+function formatMoney(
+  value: string | number
+) {
   const amount = Number(value);
 
-  if (Number.isNaN(amount)) {
+  if (!Number.isFinite(amount)) {
     return `GH₵${value}`;
   }
 
-  return `GH₵${amount.toLocaleString("en-GH", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return `GH₵${amount.toLocaleString(
+    "en-GH",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  )}`;
 }
 
-function formatDate(value: string) {
+function formatDate(
+  value: string
+) {
   if (!value) return "—";
 
   const date = new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return value;
   }
 
-  return date.toLocaleDateString("en-GH", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return date.toLocaleDateString(
+    "en-GH",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  );
 }
 
-function formatTime(value: string) {
+function formatTime(
+  value: string
+) {
   if (!value) return "—";
 
   const date = new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return value;
   }
 
-  return date.toLocaleTimeString("en-GH", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  return date.toLocaleTimeString(
+    "en-GH",
+    {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }
+  );
 }
 
 function formatDateRange(
@@ -145,15 +177,139 @@ function formatDateRange(
     return "—";
   }
 
-  return `${formatDate(start)} – ${formatDate(
-    end
+  return `${formatDate(
+    start
+  )} – ${formatDate(end)}`;
+}
+
+function shortUserId(
+  id: string
+) {
+  if (!id) {
+    return "Unknown customer";
+  }
+
+  return `Customer ${id.slice(
+    0,
+    8
   )}`;
 }
 
-function shortUserId(id: string) {
-  if (!id) return "Unknown customer";
+function getErrorMessage(
+  data: unknown,
+  fallback: string
+) {
+  if (
+    typeof data ===
+      "string" &&
+    data.trim()
+  ) {
+    return data;
+  }
 
-  return `Customer ${id.slice(0, 8)}`;
+  if (
+    data &&
+    typeof data ===
+      "object"
+  ) {
+    const value =
+      data as {
+        detail?: unknown;
+        message?: unknown;
+        error?: {
+          message?: unknown;
+        };
+      };
+
+    if (
+      typeof value.detail ===
+      "string"
+    ) {
+      return value.detail;
+    }
+
+    if (
+      Array.isArray(
+        value.detail
+      )
+    ) {
+      const messages =
+        value.detail
+          .map((item) => {
+            if (
+              item &&
+              typeof item ===
+                "object" &&
+              "msg" in item &&
+              typeof (
+                item as {
+                  msg?: unknown;
+                }
+              ).msg ===
+                "string"
+            ) {
+              return (
+                item as {
+                  msg: string;
+                }
+              ).msg;
+            }
+
+            return null;
+          })
+          .filter(
+            (
+              item
+            ): item is string =>
+              Boolean(item)
+          );
+
+      if (
+        messages.length > 0
+      ) {
+        return messages.join(
+          ", "
+        );
+      }
+    }
+
+    if (
+      typeof value.message ===
+      "string"
+    ) {
+      return value.message;
+    }
+
+    if (
+      typeof value.error
+        ?.message ===
+      "string"
+    ) {
+      return value.error
+        .message;
+    }
+  }
+
+  return fallback;
+}
+
+async function getResponseData(
+  response: Response
+) {
+  const raw =
+    await response.text();
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(
+      raw
+    );
+  } catch {
+    return raw;
+  }
 }
 
 /* =========================================================
@@ -161,33 +317,163 @@ function shortUserId(id: string) {
 ========================================================= */
 
 export default function RentalsPage() {
-  const [activeTab, setActiveTab] =
-    useState<RentalType>("studio");
+  const [
+    activeTab,
+    setActiveTab,
+  ] =
+    useState<RentalType>(
+      "studio"
+    );
 
-  const [reservations, setReservations] =
-    useState<StudioReservation[]>([]);
+  const [
+    reservations,
+    setReservations,
+  ] =
+    useState<
+      StudioReservation[]
+    >([]);
 
-  const [gadgetRentals, setGadgetRentals] =
-    useState<GadgetRental[]>([]);
+  const [
+    gadgetRentals,
+    setGadgetRentals,
+  ] =
+    useState<GadgetRental[]>(
+      []
+    );
 
-  const [customerNames, setCustomerNames] =
-    useState<Record<string, string>>({});
+  const [
+    customerNames,
+    setCustomerNames,
+  ] =
+    useState<
+      Record<string, string>
+    >({});
 
-  const [loading, setLoading] =
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(true);
 
-  const [refreshing, setRefreshing] =
+  const [
+    refreshing,
+    setRefreshing,
+  ] =
     useState(false);
 
-  const [error, setError] =
-    useState<string | null>(null);
+  const [
+    error,
+    setError,
+  ] =
+    useState<string | null>(
+      null
+    );
 
-  const [actionId, setActionId] =
-    useState<string | null>(null);
+  const [
+    actionId,
+    setActionId,
+  ] =
+    useState<string | null>(
+      null
+    );
 
-  /* =======================================================
+  /* =========================================================
+     MODAL STATE
+  ========================================================= */
+
+  const [
+    modalType,
+    setModalType,
+  ] =
+    useState<ModalType>(
+      null
+    );
+
+  const [
+    modalReservation,
+    setModalReservation,
+  ] =
+    useState<
+      StudioReservation | null
+    >(null);
+
+  const [
+    modalRental,
+    setModalRental,
+  ] =
+    useState<
+      GadgetRental | null
+    >(null);
+
+  const [
+    approvedPrice,
+    setApprovedPrice,
+  ] =
+    useState("");
+
+  const [
+    rejectionReason,
+    setRejectionReason,
+  ] =
+    useState("");
+
+  const [
+    modalError,
+    setModalError,
+  ] =
+    useState<string | null>(
+      null
+    );
+
+  /* =========================================================
+     MODAL HELPERS
+  ========================================================= */
+
+  const closeModal = () => {
+    if (actionId) {
+      return;
+    }
+
+    setModalType(
+      null
+    );
+
+    setModalReservation(
+      null
+    );
+
+    setModalRental(
+      null
+    );
+
+    setApprovedPrice(
+      ""
+    );
+
+    setRejectionReason(
+      ""
+    );
+
+    setModalError(
+      null
+    );
+  };
+
+  const openErrorModal = (
+    message: string
+  ) => {
+    setModalType(
+      "error"
+    );
+
+    setModalError(
+      message
+    );
+  };
+
+  /* =========================================================
      AUTH
-  ======================================================= */
+  ========================================================= */
 
   const getToken = () => {
     const token =
@@ -196,69 +482,73 @@ export default function RentalsPage() {
       );
 
     if (!token) {
-      window.location.href = "/login";
+      window.location.href =
+        "/login";
+
       return null;
     }
 
     return token;
   };
 
-  /* =======================================================
+  /* =========================================================
      FETCH CUSTOMER
-     Gadget rental response only contains user_id,
-     so we enrich it with the customer endpoint.
-  ======================================================= */
+  ========================================================= */
 
-  const fetchCustomerName = useCallback(
-    async (
-      userId: string,
-      token: string
-    ) => {
-      try {
-        const response = await fetch(
-          `${API_BASE}/admin/customers/${userId}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-              Accept:
-                "application/json",
-            },
+  const fetchCustomerName =
+    useCallback(
+      async (
+        userId: string,
+        token: string
+      ) => {
+        try {
+          const response =
+            await fetch(
+              `${API_BASE}/admin/customers/${userId}`,
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`,
+                  Accept:
+                    "application/json",
+                },
+              }
+            );
+
+          if (!response.ok) {
+            return null;
           }
-        );
 
-        if (!response.ok) {
+          const data =
+            (await response.json()) as CustomerResponse;
+
+          const fullName =
+            `${data.first_name || ""} ${
+              data.last_name || ""
+            }`.trim();
+
+          return (
+            fullName ||
+            data.username ||
+            data.email ||
+            null
+          );
+        } catch {
           return null;
         }
+      },
+      []
+    );
 
-        const data =
-          (await response.json()) as CustomerResponse;
-
-        const fullName =
-          `${data.first_name || ""} ${
-            data.last_name || ""
-          }`.trim();
-
-        return (
-          fullName ||
-          data.username ||
-          data.email ||
-          null
-        );
-      } catch {
-        return null;
-      }
-    },
-    []
-  );
-
-  /* =======================================================
+  /* =========================================================
      FETCH STUDIO RESERVATIONS
-  ======================================================= */
+  ========================================================= */
 
   const fetchReservations =
     useCallback(
-      async (token: string) => {
+      async (
+        token: string
+      ) => {
         const response =
           await fetch(
             `${API_BASE}/admin/reservations?page=1&limit=100`,
@@ -273,44 +563,65 @@ export default function RentalsPage() {
           );
 
         if (
-          response.status === 401
+          response.status ===
+          401
         ) {
           localStorage.removeItem(
             "access_token"
           );
+
           localStorage.removeItem(
             "user"
           );
+
           window.location.href =
             "/login";
+
           return;
         }
 
+        const data =
+          await getResponseData(
+            response
+          );
+
         if (!response.ok) {
           throw new Error(
-            "Failed to load studio reservations."
+            getErrorMessage(
+              data,
+              `Failed to load studio reservations (${response.status}).`
+            )
           );
         }
 
-        const data =
-          await response.json();
-
         setReservations(
-          Array.isArray(data?.items)
-            ? data.items
+          Array.isArray(
+            (
+              data as {
+                items?: unknown;
+              }
+            )?.items
+          )
+            ? (
+                data as {
+                  items: StudioReservation[];
+                }
+              ).items
             : []
         );
       },
       []
     );
 
-  /* =======================================================
+  /* =========================================================
      FETCH GADGET RENTALS
-  ======================================================= */
+  ========================================================= */
 
   const fetchGadgetRentals =
     useCallback(
-      async (token: string) => {
+      async (
+        token: string
+      ) => {
         const response =
           await fetch(
             `${API_BASE}/admin/rentals?page=1&limit=100`,
@@ -325,38 +636,56 @@ export default function RentalsPage() {
           );
 
         if (
-          response.status === 401
+          response.status ===
+          401
         ) {
           localStorage.removeItem(
             "access_token"
           );
+
           localStorage.removeItem(
             "user"
           );
+
           window.location.href =
             "/login";
+
           return;
         }
 
+        const data =
+          await getResponseData(
+            response
+          );
+
         if (!response.ok) {
           throw new Error(
-            "Failed to load gadget rentals."
+            getErrorMessage(
+              data,
+              `Failed to load gadget rentals (${response.status}).`
+            )
           );
         }
 
-        const data =
-          await response.json();
-
         const items: GadgetRental[] =
-          Array.isArray(data?.items)
-            ? data.items
+          Array.isArray(
+            (
+              data as {
+                items?: unknown;
+              }
+            )?.items
+          )
+            ? (
+                data as {
+                  items: GadgetRental[];
+                }
+              ).items
             : [];
 
-        setGadgetRentals(items);
+        setGadgetRentals(
+          items
+        );
 
-        /*
-         * Enrich user IDs with customer names.
-         */
         const uniqueUserIds = [
           ...new Set(
             items
@@ -371,7 +700,9 @@ export default function RentalsPage() {
         const nameEntries =
           await Promise.all(
             uniqueUserIds.map(
-              async (userId) => {
+              async (
+                userId
+              ) => {
                 const name =
                   await fetchCustomerName(
                     userId,
@@ -395,133 +726,243 @@ export default function RentalsPage() {
           )
         );
       },
-      [fetchCustomerName]
+      [
+        fetchCustomerName,
+      ]
     );
 
-  /* =======================================================
+  /* =========================================================
      LOAD ALL DATA
-  ======================================================= */
+  ========================================================= */
 
-  const loadData = useCallback(
-    async (
-      showFullLoader = true
-    ) => {
-      try {
-        if (showFullLoader) {
-          setLoading(true);
+  const loadData =
+    useCallback(
+      async (
+        showFullLoader = true
+      ) => {
+        try {
+          if (
+            showFullLoader
+          ) {
+            setLoading(
+              true
+            );
+          }
+
+          setError(
+            null
+          );
+
+          const token =
+            getToken();
+
+          if (!token) {
+            return;
+          }
+
+          await Promise.all([
+            fetchReservations(
+              token
+            ),
+            fetchGadgetRentals(
+              token
+            ),
+          ]);
+        } catch (
+          err
+        ) {
+          console.error(
+            "RENTALS LOAD FAILED",
+            err
+          );
+
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load rental data."
+          );
+        } finally {
+          setLoading(
+            false
+          );
+
+          setRefreshing(
+            false
+          );
         }
-
-        setError(null);
-
-        const token =
-          getToken();
-
-        if (!token) {
-          return;
-        }
-
-        await Promise.all([
-          fetchReservations(token),
-          fetchGadgetRentals(token),
-        ]);
-      } catch (err) {
-        console.error(err);
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load rental data."
-        );
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    [
-      fetchReservations,
-      fetchGadgetRentals,
-    ]
-  );
+      },
+      [
+        fetchReservations,
+        fetchGadgetRentals,
+      ]
+    );
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  /* =======================================================
+  /* =========================================================
      REFRESH
-  ======================================================= */
+  ========================================================= */
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
+  const handleRefresh =
+    async () => {
+      setRefreshing(
+        true
+      );
 
-    await loadData(false);
-  };
+      await loadData(
+        false
+      );
+    };
 
-  /* =======================================================
-     STUDIO APPROVE
-  ======================================================= */
+  /* =========================================================
+     OPEN APPROVE
+  ========================================================= */
 
-  const handleApprove =
-    async (
+  const openApproveModal =
+    (
       reservation: StudioReservation
     ) => {
-      const priceInput =
-        window.prompt(
-          `Enter the approved price for ${reservation.customer_name} (GH₵):`,
-          reservation.approved_price_ghs ||
-            ""
-        );
+      setModalReservation(
+        reservation
+      );
 
+      setApprovedPrice(
+        reservation.approved_price_ghs ||
+          ""
+      );
+
+      setModalError(
+        null
+      );
+
+      setModalType(
+        "approve"
+      );
+    };
+
+  /* =========================================================
+     OPEN REJECT
+  ========================================================= */
+
+  const openRejectModal =
+    (
+      reservation: StudioReservation
+    ) => {
+      setModalReservation(
+        reservation
+      );
+
+      setRejectionReason(
+        ""
+      );
+
+      setModalError(
+        null
+      );
+
+      setModalType(
+        "reject"
+      );
+    };
+
+  /* =========================================================
+     OPEN RETURN
+  ========================================================= */
+
+  const openReturnedModal =
+    (
+      rental: GadgetRental
+    ) => {
+      setModalRental(
+        rental
+      );
+
+      setModalError(
+        null
+      );
+
+      setModalType(
+        "returned"
+      );
+    };
+
+  /* =========================================================
+     APPROVE RESERVATION
+  ========================================================= */
+
+  const confirmApprove =
+    async () => {
       if (
-        priceInput === null
+        !modalReservation
       ) {
         return;
       }
 
-      const approvedPrice =
-        Number(priceInput);
+      const price =
+        Number(
+          approvedPrice
+        );
 
       if (
         !Number.isFinite(
-          approvedPrice
+          price
         ) ||
-        approvedPrice < 0
+        price < 0
       ) {
-        window.alert(
+        setModalError(
           "Please enter a valid approved price."
         );
+
         return;
       }
 
       const token =
         getToken();
 
-      if (!token) return;
+      if (!token) {
+        return;
+      }
 
       try {
         setActionId(
-          reservation.id
+          modalReservation.id
         );
-        setError(null);
+
+        setModalError(
+          null
+        );
 
         const response =
           await fetch(
-            `${API_BASE}/admin/reservations/${reservation.id}/approve`,
+            `${API_BASE}/admin/reservations/${modalReservation.id}/approve`,
             {
-              method: "PATCH",
+              method:
+                "PATCH",
+
               headers: {
                 Authorization:
                   `Bearer ${token}`,
+
                 "Content-Type":
                   "application/json",
+
                 Accept:
                   "application/json",
               },
-              body: JSON.stringify({
-                approved_price_ghs:
-                  approvedPrice,
-              }),
+
+              body:
+                JSON.stringify({
+                  approved_price_ghs:
+                    price,
+                }),
             }
+          );
+
+        const data =
+          await getResponseData(
+            response
           );
 
         if (
@@ -531,112 +972,133 @@ export default function RentalsPage() {
           localStorage.removeItem(
             "access_token"
           );
+
           localStorage.removeItem(
             "user"
           );
+
           window.location.href =
             "/login";
+
           return;
         }
 
         if (!response.ok) {
-          const errorData =
-            await response
-              .json()
-              .catch(() => null);
-
           throw new Error(
-            errorData?.detail ||
-              "Failed to approve reservation."
+            getErrorMessage(
+              data,
+              `Failed to approve reservation (${response.status}).`
+            )
           );
         }
 
         const updated =
-          (await response.json()) as StudioReservation;
+          data as StudioReservation;
 
         setReservations(
-          (current) =>
+          (
+            current
+          ) =>
             current.map(
-              (item) =>
+              (
+                item
+              ) =>
                 item.id ===
-                reservation.id
+                modalReservation.id
                   ? updated
                   : item
             )
         );
-      } catch (err) {
-        console.error(err);
 
-        setError(
+        closeModal();
+      } catch (
+        err
+      ) {
+        console.error(
+          "APPROVE RESERVATION FAILED",
+          err
+        );
+
+        setModalError(
           err instanceof Error
             ? err.message
             : "Failed to approve reservation."
         );
       } finally {
-        setActionId(null);
+        setActionId(
+          null
+        );
       }
     };
 
-  /* =======================================================
-     STUDIO REJECT
-  ======================================================= */
+  /* =========================================================
+     REJECT RESERVATION
+  ========================================================= */
 
-  const handleReject =
-    async (
-      reservation: StudioReservation
-    ) => {
-      const reason =
-        window.prompt(
-          "Enter the reason for rejecting this reservation:"
-        );
-
+  const confirmReject =
+    async () => {
       if (
-        reason === null
+        !modalReservation
       ) {
         return;
       }
 
-      const trimmedReason =
-        reason.trim();
+      const reason =
+        rejectionReason.trim();
 
-      if (
-        !trimmedReason
-      ) {
-        window.alert(
+      if (!reason) {
+        setModalError(
           "A rejection reason is required."
         );
+
         return;
       }
 
       const token =
         getToken();
 
-      if (!token) return;
+      if (!token) {
+        return;
+      }
 
       try {
         setActionId(
-          reservation.id
+          modalReservation.id
         );
-        setError(null);
+
+        setModalError(
+          null
+        );
 
         const response =
           await fetch(
-            `${API_BASE}/admin/reservations/${reservation.id}/reject`,
+            `${API_BASE}/admin/reservations/${modalReservation.id}/reject`,
             {
-              method: "PATCH",
+              method:
+                "PATCH",
+
               headers: {
                 Authorization:
                   `Bearer ${token}`,
+
                 "Content-Type":
                   "application/json",
+
                 Accept:
                   "application/json",
               },
-              body: JSON.stringify({
-                rejection_reason:
-                  trimmedReason,
-              }),
+
+              body:
+                JSON.stringify({
+                  rejection_reason:
+                    reason,
+                }),
             }
+          );
+
+        const data =
+          await getResponseData(
+            response
           );
 
         if (
@@ -646,92 +1108,113 @@ export default function RentalsPage() {
           localStorage.removeItem(
             "access_token"
           );
+
           localStorage.removeItem(
             "user"
           );
+
           window.location.href =
             "/login";
+
           return;
         }
 
         if (!response.ok) {
-          const errorData =
-            await response
-              .json()
-              .catch(() => null);
-
           throw new Error(
-            errorData?.detail ||
-              "Failed to reject reservation."
+            getErrorMessage(
+              data,
+              `Failed to reject reservation (${response.status}).`
+            )
           );
         }
 
         const updated =
-          (await response.json()) as StudioReservation;
+          data as StudioReservation;
 
         setReservations(
-          (current) =>
+          (
+            current
+          ) =>
             current.map(
-              (item) =>
+              (
+                item
+              ) =>
                 item.id ===
-                reservation.id
+                modalReservation.id
                   ? updated
                   : item
             )
         );
-      } catch (err) {
-        console.error(err);
 
-        setError(
+        closeModal();
+      } catch (
+        err
+      ) {
+        console.error(
+          "REJECT RESERVATION FAILED",
+          err
+        );
+
+        setModalError(
           err instanceof Error
             ? err.message
             : "Failed to reject reservation."
         );
       } finally {
-        setActionId(null);
+        setActionId(
+          null
+        );
       }
     };
 
-  /* =======================================================
-     MARK GADGET RETURNED
-  ======================================================= */
+  /* =========================================================
+     MARK RETURNED
+  ========================================================= */
 
-  const handleReturned =
-    async (
-      rental: GadgetRental
-    ) => {
-      const confirmed =
-        window.confirm(
-          `Mark "${rental.equipment_name}" as returned?`
-        );
-
-      if (!confirmed) {
+  const confirmReturned =
+    async () => {
+      if (
+        !modalRental
+      ) {
         return;
       }
 
       const token =
         getToken();
 
-      if (!token) return;
+      if (!token) {
+        return;
+      }
 
       try {
         setActionId(
-          rental.id
+          modalRental.id
         );
-        setError(null);
+
+        setModalError(
+          null
+        );
 
         const response =
           await fetch(
-            `${API_BASE}/admin/rentals/${rental.id}/returned`,
+            `${API_BASE}/admin/rentals/${modalRental.id}/returned`,
             {
-              method: "PATCH",
+              method:
+                "PATCH",
+
               headers: {
                 Authorization:
                   `Bearer ${token}`,
+
                 Accept:
                   "application/json",
               },
             }
+          );
+
+        const data =
+          await getResponseData(
+            response
           );
 
         if (
@@ -741,55 +1224,68 @@ export default function RentalsPage() {
           localStorage.removeItem(
             "access_token"
           );
+
           localStorage.removeItem(
             "user"
           );
+
           window.location.href =
             "/login";
+
           return;
         }
 
         if (!response.ok) {
-          const errorData =
-            await response
-              .json()
-              .catch(() => null);
-
           throw new Error(
-            errorData?.detail ||
-              "Failed to mark rental as returned."
+            getErrorMessage(
+              data,
+              `Failed to mark rental as returned (${response.status}).`
+            )
           );
         }
 
         const updated =
-          (await response.json()) as GadgetRental;
+          data as GadgetRental;
 
         setGadgetRentals(
-          (current) =>
+          (
+            current
+          ) =>
             current.map(
-              (item) =>
+              (
+                item
+              ) =>
                 item.id ===
-                rental.id
+                modalRental.id
                   ? updated
                   : item
             )
         );
-      } catch (err) {
-        console.error(err);
 
-        setError(
+        closeModal();
+      } catch (
+        err
+      ) {
+        console.error(
+          "MARK RETURNED FAILED",
+          err
+        );
+
+        setModalError(
           err instanceof Error
             ? err.message
             : "Failed to mark rental as returned."
         );
       } finally {
-        setActionId(null);
+        setActionId(
+          null
+        );
       }
     };
 
-  /* =======================================================
+  /* =========================================================
      STATS
-  ======================================================= */
+  ========================================================= */
 
   const studioPending =
     reservations.filter(
@@ -844,10 +1340,6 @@ export default function RentalsPage() {
         )
     ).length;
 
-  /* =======================================================
-     DISPLAY DATA
-  ======================================================= */
-
   const studioItems =
     useMemo(
       () =>
@@ -862,25 +1354,32 @@ export default function RentalsPage() {
       [gadgetRentals]
     );
 
+  /* =========================================================
+     RENDER
+  ========================================================= */
+
   return (
     <>
       <NavbarAdmin />
 
       <main
-        className={styles.page}
+        className={
+          styles.page
+        }
       >
         <div
           className={
             styles.container
           }
         >
-
           {/* =================================================
               HERO
           ================================================= */}
 
           <section
-            className={styles.hero}
+            className={
+              styles.hero
+            }
           >
             <div
               className={
@@ -908,9 +1407,10 @@ export default function RentalsPage() {
                   styles.subtitle
                 }
               >
-                Review incoming studio reservations
-                and equipment rentals, approve new
-                requests, and track returned equipment.
+                Review incoming studio
+                reservations and equipment
+                rentals, approve new requests,
+                and track returned equipment.
               </p>
             </div>
 
@@ -919,7 +1419,6 @@ export default function RentalsPage() {
                 styles.heroStats
               }
             >
-
               <div
                 className={
                   styles.statBox
@@ -960,7 +1459,7 @@ export default function RentalsPage() {
               </div>
 
               {activeTab ===
-                "studio" ? (
+              "studio" ? (
                 <>
                   <div
                     className={`${styles.smallStat} ${styles.pendingStat}`}
@@ -1053,34 +1552,45 @@ export default function RentalsPage() {
           </section>
 
           {/* =================================================
-              ERROR
+              ERROR BANNER
           ================================================= */}
 
           {error && (
             <div
-              style={{
-                marginBottom:
-                  "16px",
-                padding:
-                  "12px 14px",
-                border:
-                  "1px solid #fecdca",
-                borderRadius:
-                  "10px",
-                background:
-                  "#fff3f2",
-                color:
-                  "#b42318",
-                fontSize:
-                  "12px",
-              }}
+              className={
+                styles.errorBanner
+              }
             >
-              {error}
+              <AlertTriangle
+                size={18}
+              />
+
+              <div>
+                <strong>
+                  Something went wrong
+                </strong>
+
+                <span>
+                  {error}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setError(
+                    null
+                  )
+                }
+                aria-label="Dismiss error"
+              >
+                <X size={16} />
+              </button>
             </div>
           )}
 
           {/* =================================================
-              CONTENT CARD
+              MAIN CARD
           ================================================= */}
 
           <section
@@ -1088,7 +1598,6 @@ export default function RentalsPage() {
               styles.rentalCard
             }
           >
-
             <div
               className={
                 styles.cardHeader
@@ -1129,13 +1638,9 @@ export default function RentalsPage() {
               </div>
 
               <div
-                style={{
-                  display:
-                    "flex",
-                  alignItems:
-                    "center",
-                  gap: "8px",
-                }}
+                className={
+                  styles.headerControls
+                }
               >
                 <button
                   type="button"
@@ -1145,42 +1650,17 @@ export default function RentalsPage() {
                   disabled={
                     refreshing
                   }
-                  style={{
-                    display:
-                      "inline-flex",
-                    alignItems:
-                      "center",
-                    gap: "6px",
-                    height:
-                      "37px",
-                    padding:
-                      "0 11px",
-                    border:
-                      "1px solid #d0d5dd",
-                    borderRadius:
-                      "9px",
-                    background:
-                      "#fff",
-                    color:
-                      "#344054",
-                    cursor:
-                      "pointer",
-                    fontFamily:
-                      "inherit",
-                    fontSize:
-                      "10px",
-                    fontWeight:
-                      700,
-                  }}
+                  className={
+                    styles.refreshButton
+                  }
                 >
                   <RefreshCw
                     size={15}
-                    style={{
-                      animation:
-                        refreshing
-                          ? "spin .8s linear infinite"
-                          : undefined,
-                    }}
+                    className={
+                      refreshing
+                        ? styles.spin
+                        : ""
+                    }
                   />
 
                   Refresh
@@ -1264,7 +1744,7 @@ export default function RentalsPage() {
             ) : activeTab ===
               "studio" ? (
               /* =================================================
-                  STUDIO LIST
+                  STUDIO
               ================================================= */
 
               studioItems.length ===
@@ -1457,7 +1937,7 @@ export default function RentalsPage() {
                                 reservation.id
                               }
                               onClick={() =>
-                                handleReject(
+                                openRejectModal(
                                   reservation
                                 )
                               }
@@ -1479,7 +1959,7 @@ export default function RentalsPage() {
                                 reservation.id
                               }
                               onClick={() =>
-                                handleApprove(
+                                openApproveModal(
                                   reservation
                                 )
                               }
@@ -1518,7 +1998,7 @@ export default function RentalsPage() {
               )
             ) : (
               /* =================================================
-                  GADGET LIST
+                  GADGET
               ================================================= */
 
               gadgetItems.length ===
@@ -1609,8 +2089,7 @@ export default function RentalsPage() {
                               }
                             >
                               {customerNames[
-                                rental
-                                  .user_id
+                                rental.user_id
                               ] ||
                                 shortUserId(
                                   rental.user_id
@@ -1691,11 +2170,8 @@ export default function RentalsPage() {
                                   : styles.pending
                               }`}
                             >
-                              {isReturned ? (
-                                <CheckCircle2
-                                  size={12}
-                                />
-                              ) : isActive ? (
+                              {isReturned ||
+                              isActive ? (
                                 <CheckCircle2
                                   size={12}
                                 />
@@ -1719,16 +2195,9 @@ export default function RentalsPage() {
                             }
                           >
                             <span
-                              style={{
-                                color:
-                                  "#101828",
-                                fontSize:
-                                  "11px",
-                                fontWeight:
-                                  700,
-                                marginRight:
-                                  "4px",
-                              }}
+                              className={
+                                styles.rentalPrice
+                              }
                             >
                               {formatMoney(
                                 rental.total_price_ghs
@@ -1747,7 +2216,7 @@ export default function RentalsPage() {
                                     rental.id
                                   }
                                   onClick={() =>
-                                    handleReturned(
+                                    openReturnedModal(
                                       rental
                                     )
                                   }
@@ -1772,6 +2241,628 @@ export default function RentalsPage() {
           </section>
         </div>
       </main>
+
+      {/* =========================================================
+          MODALS
+      ========================================================= */}
+
+      {modalType && (
+        <div
+          className={
+            styles.modalOverlay
+          }
+          role="presentation"
+          onMouseDown={(
+            event
+          ) => {
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              closeModal();
+            }
+          }}
+        >
+          <div
+            className={
+              styles.modal
+            }
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rental-modal-title"
+          >
+            {/* =================================================
+                APPROVE
+            ================================================= */}
+
+            {modalType ===
+              "approve" &&
+              modalReservation && (
+                <>
+                  <div
+                    className={`${styles.modalIcon} ${styles.modalIconSuccess}`}
+                  >
+                    <CheckCircle2
+                      size={26}
+                    />
+                  </div>
+
+                  <h2
+                    id="rental-modal-title"
+                  >
+                    Approve reservation
+                  </h2>
+
+                  <p
+                    className={
+                      styles.modalDescription
+                    }
+                  >
+                    You're approving the studio
+                    reservation for{" "}
+                    <strong>
+                      {
+                        modalReservation.customer_name
+                      }
+                    </strong>
+                    .
+                  </p>
+
+                  <div
+                    className={
+                      styles.modalInfoBox
+                    }
+                  >
+                    <div>
+                      <span>
+                        Requested date
+                      </span>
+
+                      <strong>
+                        {formatDate(
+                          modalReservation.requested_start
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Requested time
+                      </span>
+
+                      <strong>
+                        {formatTime(
+                          modalReservation.requested_start
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Session
+                      </span>
+
+                      <strong>
+                        {
+                          modalReservation.purpose
+                        }
+                      </strong>
+                    </div>
+                  </div>
+
+                  <label
+                    className={
+                      styles.modalField
+                    }
+                  >
+                    <span>
+                      Approved price
+                    </span>
+
+                    <div
+                      className={
+                        styles.currencyInput
+                      }
+                    >
+                      <span>
+                        GH₵
+                      </span>
+
+                      <input
+                        type="number"
+                        value={
+                          approvedPrice
+                        }
+                        min="0"
+                        step="0.01"
+                        onChange={(
+                          event
+                        ) =>
+                          setApprovedPrice(
+                            event.target
+                              .value
+                          )
+                        }
+                        placeholder="0.00"
+                        autoFocus
+                      />
+                    </div>
+                  </label>
+
+                  {modalError && (
+                    <div
+                      className={
+                        styles.modalError
+                      }
+                    >
+                      <AlertTriangle
+                        size={16}
+                      />
+
+                      <span>
+                        {
+                          modalError
+                        }
+                      </span>
+                    </div>
+                  )}
+
+                  <div
+                    className={
+                      styles.modalActions
+                    }
+                  >
+                    <button
+                      type="button"
+                      className={
+                        styles.cancelButton
+                      }
+                      onClick={
+                        closeModal
+                      }
+                      disabled={
+                        Boolean(
+                          actionId
+                        )
+                      }
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      className={
+                        styles.confirmButton
+                      }
+                      onClick={
+                        confirmApprove
+                      }
+                      disabled={
+                        Boolean(
+                          actionId
+                        )
+                      }
+                    >
+                      {actionId ? (
+                        <>
+                          <RefreshCw
+                            size={15}
+                            className={
+                              styles.spin
+                            }
+                          />
+
+                          Approving...
+                        </>
+                      ) : (
+                        <>
+                          <Check
+                            size={16}
+                          />
+
+                          Approve Reservation
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+
+            {/* =================================================
+                REJECT
+            ================================================= */}
+
+            {modalType ===
+              "reject" &&
+              modalReservation && (
+                <>
+                  <div
+                    className={`${styles.modalIcon} ${styles.modalIconDanger}`}
+                  >
+                    <XCircle
+                      size={26}
+                    />
+                  </div>
+
+                  <h2
+                    id="rental-modal-title"
+                  >
+                    Reject reservation
+                  </h2>
+
+                  <p
+                    className={
+                      styles.modalDescription
+                    }
+                  >
+                    Please provide a reason for
+                    rejecting{" "}
+                    <strong>
+                      {
+                        modalReservation.customer_name
+                      }
+                    </strong>
+                    's reservation.
+                  </p>
+
+                  <div
+                    className={
+                      styles.modalInfoBox
+                    }
+                  >
+                    <div>
+                      <span>
+                        Date
+                      </span>
+
+                      <strong>
+                        {formatDate(
+                          modalReservation.requested_start
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Session
+                      </span>
+
+                      <strong>
+                        {
+                          modalReservation.purpose
+                        }
+                      </strong>
+                    </div>
+                  </div>
+
+                  <label
+                    className={
+                      styles.modalField
+                    }
+                  >
+                    <span>
+                      Rejection reason
+                    </span>
+
+                    <textarea
+                      value={
+                        rejectionReason
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setRejectionReason(
+                          event.target
+                            .value
+                        )
+                      }
+                      placeholder="Explain why this reservation is being rejected..."
+                      rows={4}
+                      autoFocus
+                    />
+                  </label>
+
+                  {modalError && (
+                    <div
+                      className={
+                        styles.modalError
+                      }
+                    >
+                      <AlertTriangle
+                        size={16}
+                      />
+
+                      <span>
+                        {
+                          modalError
+                        }
+                      </span>
+                    </div>
+                  )}
+
+                  <div
+                    className={
+                      styles.modalActions
+                    }
+                  >
+                    <button
+                      type="button"
+                      className={
+                        styles.cancelButton
+                      }
+                      onClick={
+                        closeModal
+                      }
+                      disabled={
+                        Boolean(
+                          actionId
+                        )
+                      }
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      className={
+                        styles.dangerButton
+                      }
+                      onClick={
+                        confirmReject
+                      }
+                      disabled={
+                        Boolean(
+                          actionId
+                        )
+                      }
+                    >
+                      {actionId ? (
+                        <>
+                          <RefreshCw
+                            size={15}
+                            className={
+                              styles.spin
+                            }
+                          />
+
+                          Rejecting...
+                        </>
+                      ) : (
+                        <>
+                          <X
+                            size={16}
+                          />
+
+                          Reject Reservation
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+
+            {/* =================================================
+                RETURN
+            ================================================= */}
+
+            {modalType ===
+              "returned" &&
+              modalRental && (
+                <>
+                  <div
+                    className={`${styles.modalIcon} ${styles.modalIconSuccess}`}
+                  >
+                    <RotateCcw
+                      size={26}
+                    />
+                  </div>
+
+                  <h2
+                    id="rental-modal-title"
+                  >
+                    Mark equipment as returned?
+                  </h2>
+
+                  <p
+                    className={
+                      styles.modalDescription
+                    }
+                  >
+                    This will mark{" "}
+                    <strong>
+                      {
+                        modalRental.equipment_name
+                      }
+                    </strong>{" "}
+                    as returned.
+                  </p>
+
+                  <div
+                    className={
+                      styles.modalInfoBox
+                    }
+                  >
+                    <div>
+                      <span>
+                        Customer
+                      </span>
+
+                      <strong>
+                        {customerNames[
+                          modalRental.user_id
+                        ] ||
+                          shortUserId(
+                            modalRental.user_id
+                          )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Rental period
+                      </span>
+
+                      <strong>
+                        {formatDateRange(
+                          modalRental.start_date,
+                          modalRental.end_date
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Rental total
+                      </span>
+
+                      <strong>
+                        {formatMoney(
+                          modalRental.total_price_ghs
+                        )}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {modalError && (
+                    <div
+                      className={
+                        styles.modalError
+                      }
+                    >
+                      <AlertTriangle
+                        size={16}
+                      />
+
+                      <span>
+                        {
+                          modalError
+                        }
+                      </span>
+                    </div>
+                  )}
+
+                  <div
+                    className={
+                      styles.modalActions
+                    }
+                  >
+                    <button
+                      type="button"
+                      className={
+                        styles.cancelButton
+                      }
+                      onClick={
+                        closeModal
+                      }
+                      disabled={
+                        Boolean(
+                          actionId
+                        )
+                      }
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      className={
+                        styles.confirmButton
+                      }
+                      onClick={
+                        confirmReturned
+                      }
+                      disabled={
+                        Boolean(
+                          actionId
+                        )
+                      }
+                    >
+                      {actionId ? (
+                        <>
+                          <RefreshCw
+                            size={15}
+                            className={
+                              styles.spin
+                            }
+                          />
+
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2
+                            size={16}
+                          />
+
+                          Mark Returned
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+
+            {/* =================================================
+                ERROR
+            ================================================= */}
+
+            {modalType ===
+              "error" && (
+              <>
+                <div
+                  className={`${styles.modalIcon} ${styles.modalIconDanger}`}
+                >
+                  <AlertTriangle
+                    size={26}
+                  />
+                </div>
+
+                <h2
+                  id="rental-modal-title"
+                >
+                  Something went wrong
+                </h2>
+
+                <p
+                  className={
+                    styles.modalDescription
+                  }
+                >
+                  We couldn't complete that
+                  action.
+                </p>
+
+                <div
+                  className={
+                    styles.modalErrorLarge
+                  }
+                >
+                  {modalError ||
+                    "An unexpected error occurred."}
+                </div>
+
+                <div
+                  className={
+                    styles.modalActions
+                  }
+                >
+                  <button
+                    type="button"
+                    className={
+                      styles.confirmButton
+                    }
+                    onClick={
+                      closeModal
+                    }
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>

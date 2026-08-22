@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,7 +20,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 import api from "@/lib/api";
-import type { CatalogProduct } from "@/lib/types";
+
+import type {
+  CatalogProduct,
+} from "@/lib/types";
 
 import styles from "./page.module.css";
 
@@ -48,16 +55,18 @@ function getErrorMessage(
 
   if (
     data &&
-    typeof data === "object"
+    typeof data ===
+      "object"
   ) {
     if (
       "detail" in data
     ) {
-      const detail = (
-        data as {
-          detail?: unknown;
-        }
-      ).detail;
+      const detail =
+        (
+          data as {
+            detail?: unknown;
+          }
+        ).detail;
 
       if (
         typeof detail ===
@@ -67,32 +76,38 @@ function getErrorMessage(
       }
 
       if (
-        Array.isArray(detail)
+        Array.isArray(
+          detail
+        )
       ) {
         const messages =
           detail
-            .map((item) => {
-              if (
-                item &&
-                typeof item ===
-                  "object" &&
-                "msg" in item &&
-                typeof (
-                  item as {
-                    msg?: unknown;
-                  }
-                ).msg ===
-                  "string"
-              ) {
-                return (
-                  item as {
-                    msg: string;
-                  }
-                ).msg;
-              }
+            .map(
+              (
+                item
+              ) => {
+                if (
+                  item &&
+                  typeof item ===
+                    "object" &&
+                  "msg" in item &&
+                  typeof (
+                    item as {
+                      msg?: unknown;
+                    }
+                  ).msg ===
+                    "string"
+                ) {
+                  return (
+                    item as {
+                      msg: string;
+                    }
+                  ).msg;
+                }
 
-              return null;
-            })
+                return null;
+              }
+            )
             .filter(
               (
                 message
@@ -101,7 +116,8 @@ function getErrorMessage(
             );
 
         if (
-          messages.length > 0
+          messages.length >
+          0
         ) {
           return messages.join(
             ", "
@@ -133,28 +149,41 @@ function getErrorMessage(
 export default function StoreProductPage({
   params,
 }: PageProps) {
-  const [product, setProduct] =
-    useState<CatalogProduct | null>(
-      null
-    );
+  const [
+    product,
+    setProduct,
+  ] =
+    useState<
+      CatalogProduct | null
+    >(null);
 
-  const [quantity, setQuantity] =
-    useState(1);
+  const [
+    quantity,
+    setQuantity,
+  ] = useState(1);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
   const [
     actionLoading,
     setActionLoading,
   ] = useState(false);
 
-  const [error, setError] =
-    useState<string | null>(
-      null
-    );
+  const [
+    error,
+    setError,
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const [notice, setNotice] =
+  const [
+    notice,
+    setNotice,
+  ] =
     useState("");
 
   /* =========================================================
@@ -167,7 +196,9 @@ export default function StoreProductPage({
     const loadProduct =
       async () => {
         try {
-          const { id } =
+          const {
+            id,
+          } =
             await params;
 
           const response =
@@ -183,31 +214,47 @@ export default function StoreProductPage({
             );
           }
 
-          const data: CatalogProduct =
-            await response.json();
+          const data =
+            (await response.json()) as CatalogProduct;
 
-          if (!mounted) {
+          if (
+            !mounted
+          ) {
             return;
           }
 
-          setProduct(data);
+          setProduct(
+            data
+          );
 
           if (
-            data.stock > 0
+            data.stock >
+            0
           ) {
-            setQuantity(1);
+            setQuantity(
+              1
+            );
           }
-        } catch (err) {
-          if (mounted) {
+        } catch (
+          err
+        ) {
+          if (
+            mounted
+          ) {
             setError(
-              err instanceof Error
+              err instanceof
+                Error
                 ? err.message
                 : "Failed to load product."
             );
           }
         } finally {
-          if (mounted) {
-            setLoading(false);
+          if (
+            mounted
+          ) {
+            setLoading(
+              false
+            );
           }
         }
       };
@@ -225,7 +272,9 @@ export default function StoreProductPage({
 
   const addToCart =
     async () => {
-      if (!product) {
+      if (
+        !product
+      ) {
         return;
       }
 
@@ -234,7 +283,9 @@ export default function StoreProductPage({
           "access_token"
         );
 
-      if (!token) {
+      if (
+        !token
+      ) {
         setNotice(
           "Please log in to add products to your cart."
         );
@@ -243,15 +294,22 @@ export default function StoreProductPage({
       }
 
       try {
-        setActionLoading(true);
+        setActionLoading(
+          true
+        );
+
         setNotice("");
-        setError(null);
+
+        setError(
+          null
+        );
 
         const response =
           await api.cart.addItem(
             {
               product_id:
                 product.id,
+
               quantity,
             },
             token
@@ -260,12 +318,16 @@ export default function StoreProductPage({
         const rawBody =
           await response
             .text()
-            .catch(() => "");
+            .catch(
+              () => ""
+            );
 
-        let data: unknown =
-          null;
+        let data:
+          unknown = null;
 
-        if (rawBody) {
+        if (
+          rawBody
+        ) {
           try {
             data =
               JSON.parse(
@@ -295,16 +357,9 @@ export default function StoreProductPage({
           return;
         }
 
-        if (!response.ok) {
-          console.error(
-            "ADD TO CART FAILED",
-            {
-              status:
-                response.status,
-              body: data,
-            }
-          );
-
+        if (
+          !response.ok
+        ) {
           throw new Error(
             getErrorMessage(
               data,
@@ -316,32 +371,31 @@ export default function StoreProductPage({
         setNotice(
           `${product.name} was added to your cart.`
         );
-      } catch (err) {
+      } catch (
+        err
+      ) {
         setNotice(
-          err instanceof Error
+          err instanceof
+            Error
             ? err.message
             : "Unable to add item to cart."
         );
       } finally {
-        setActionLoading(false);
+        setActionLoading(
+          false
+        );
       }
     };
 
   /* =========================================================
      BUY NOW
-
-     1. Read current cart
-     2. If product exists -> PATCH quantity
-     3. If product does not exist -> POST item
-     4. Redirect to /checkout
-
-     /checkout is responsible for POST /orders/checkout
-     and redirecting to Paystack.
   ========================================================= */
 
   const buyNow =
     async () => {
-      if (!product) {
+      if (
+        !product
+      ) {
         return;
       }
 
@@ -350,7 +404,9 @@ export default function StoreProductPage({
           "access_token"
         );
 
-      if (!token) {
+      if (
+        !token
+      ) {
         setNotice(
           "Please log in before checking out."
         );
@@ -359,13 +415,19 @@ export default function StoreProductPage({
       }
 
       try {
-        setActionLoading(true);
-        setNotice("");
-        setError(null);
+        setActionLoading(
+          true
+        );
 
-        /* -----------------------------------------
-           GET CURRENT CART
-        ----------------------------------------- */
+        setNotice("");
+
+        setError(
+          null
+        );
+
+        /* =============================================
+           GET STORE CART
+        ============================================= */
 
         const cartResponse =
           await api.cart.get(
@@ -396,30 +458,25 @@ export default function StoreProductPage({
           const rawBody =
             await cartResponse
               .text()
-              .catch(() => "");
+              .catch(
+                () => ""
+              );
 
           let cartError:
             unknown = rawBody;
 
-          if (rawBody) {
+          if (
+            rawBody
+          ) {
             try {
               cartError =
                 JSON.parse(
                   rawBody
                 );
             } catch {
-              // Keep raw text.
+              // Keep raw.
             }
           }
-
-          console.error(
-            "LOAD CART FOR BUY NOW FAILED",
-            {
-              status:
-                cartResponse.status,
-              body: cartError,
-            }
-          );
 
           throw new Error(
             getErrorMessage(
@@ -445,12 +502,14 @@ export default function StoreProductPage({
               )
             : undefined;
 
-        /* -----------------------------------------
-           PRODUCT ALREADY EXISTS
-        ----------------------------------------- */
+        /* =============================================
+           EXISTING ITEM
+        ============================================= */
 
-        if (existingItem) {
-          const updateResponse =
+        if (
+          existingItem
+        ) {
+          const response =
             await api.cart.updateItem(
               product.id,
               quantity,
@@ -458,26 +517,30 @@ export default function StoreProductPage({
             );
 
           const rawBody =
-            await updateResponse
+            await response
               .text()
-              .catch(() => "");
+              .catch(
+                () => ""
+              );
 
-          let updateData:
+          let data:
             unknown = rawBody;
 
-          if (rawBody) {
+          if (
+            rawBody
+          ) {
             try {
-              updateData =
+              data =
                 JSON.parse(
                   rawBody
                 );
             } catch {
-              // Keep raw string.
+              // Keep raw.
             }
           }
 
           if (
-            updateResponse.status ===
+            response.status ===
             401
           ) {
             localStorage.removeItem(
@@ -495,63 +558,58 @@ export default function StoreProductPage({
           }
 
           if (
-            !updateResponse.ok
+            !response.ok
           ) {
-            console.error(
-              "UPDATE CART FOR BUY NOW FAILED",
-              {
-                status:
-                  updateResponse.status,
-                body:
-                  updateData,
-              }
-            );
-
             throw new Error(
               getErrorMessage(
-                updateData,
+                data,
                 "Unable to prepare checkout."
               )
             );
           }
         }
 
-        /* -----------------------------------------
-           PRODUCT NOT IN CART
-        ----------------------------------------- */
+        /* =============================================
+           NEW ITEM
+        ============================================= */
 
         else {
-          const addResponse =
+          const response =
             await api.cart.addItem(
               {
                 product_id:
                   product.id,
+
                 quantity,
               },
               token
             );
 
           const rawBody =
-            await addResponse
+            await response
               .text()
-              .catch(() => "");
+              .catch(
+                () => ""
+              );
 
-          let addData:
+          let data:
             unknown = rawBody;
 
-          if (rawBody) {
+          if (
+            rawBody
+          ) {
             try {
-              addData =
+              data =
                 JSON.parse(
                   rawBody
                 );
             } catch {
-              // Keep raw string.
+              // Keep raw.
             }
           }
 
           if (
-            addResponse.status ===
+            response.status ===
             401
           ) {
             localStorage.removeItem(
@@ -569,46 +627,73 @@ export default function StoreProductPage({
           }
 
           if (
-            !addResponse.ok
+            !response.ok
           ) {
-            console.error(
-              "ADD ITEM FOR BUY NOW FAILED",
-              {
-                status:
-                  addResponse.status,
-                body:
-                  addData,
-              }
-            );
-
             throw new Error(
               getErrorMessage(
-                addData,
+                data,
                 "Unable to prepare checkout."
               )
             );
           }
         }
 
-        /* -----------------------------------------
-           NOW GO TO CHECKOUT
-        ----------------------------------------- */
+        /* =============================================
+           STORE CHECKOUT INTENT
+        ============================================= */
+
+        /*
+         * A new store checkout replaces every abandoned
+         * booking/rental checkout in this browser tab.
+         */
+        sessionStorage.removeItem(
+          "booking_checkout"
+        );
+
+        sessionStorage.removeItem(
+          "rental_checkout"
+        );
+
+        sessionStorage.removeItem(
+          "store_checkout_selection"
+        );
+
+        sessionStorage.setItem(
+          "store_checkout_selection",
+          JSON.stringify([
+            {
+              product_id:
+                product.id,
+              quantity,
+            },
+          ])
+        );
+
+        sessionStorage.setItem(
+          "corus_checkout_intent",
+          "store"
+        );
 
         window.location.href =
           "/checkout";
-      } catch (err) {
+      } catch (
+        err
+      ) {
         console.error(
-          "BUY NOW FAILED",
+          "BUY NOW FAILED:",
           err
         );
 
         setNotice(
-          err instanceof Error
+          err instanceof
+            Error
             ? err.message
             : "Unable to prepare checkout."
         );
 
-        setActionLoading(false);
+        setActionLoading(
+          false
+        );
       }
     };
 
@@ -616,7 +701,9 @@ export default function StoreProductPage({
      LOADING
   ========================================================= */
 
-  if (loading) {
+  if (
+    loading
+  ) {
     return (
       <>
         <Navbar />
@@ -641,7 +728,7 @@ export default function StoreProductPage({
   }
 
   /* =========================================================
-     NOT FOUND
+     ERROR
   ========================================================= */
 
   if (
@@ -680,6 +767,7 @@ export default function StoreProductPage({
               <ArrowLeft
                 size={17}
               />
+
               Back to Store
             </Link>
           </div>
@@ -691,7 +779,7 @@ export default function StoreProductPage({
   }
 
   /* =========================================================
-     PRODUCT DATA
+     DATA
   ========================================================= */
 
   const price =
@@ -700,10 +788,12 @@ export default function StoreProductPage({
     );
 
   const total =
-    price * quantity;
+    price *
+    quantity;
 
   const canBuy =
-    product.stock > 0;
+    product.stock >
+    0;
 
   /* =========================================================
      PAGE
@@ -732,6 +822,7 @@ export default function StoreProductPage({
             <ArrowLeft
               size={17}
             />
+
             Back to Store
           </Link>
 
@@ -740,8 +831,6 @@ export default function StoreProductPage({
               styles.productCard
             }
           >
-            {/* IMAGE */}
-
             <div
               className={
                 styles.productImage
@@ -764,8 +853,6 @@ export default function StoreProductPage({
               />
             </div>
 
-            {/* INFORMATION */}
-
             <div
               className={
                 styles.productInfo
@@ -785,7 +872,9 @@ export default function StoreProductPage({
               )}
 
               <h1>
-                {product.name}
+                {
+                  product.name
+                }
               </h1>
 
               <p
@@ -827,8 +916,6 @@ export default function StoreProductPage({
 
               {canBuy && (
                 <>
-                  {/* QUANTITY */}
-
                   <div
                     className={
                       styles.controls
@@ -901,8 +988,6 @@ export default function StoreProductPage({
                     </div>
                   </div>
 
-                  {/* TOTAL */}
-
                   <div
                     className={
                       styles.summary
@@ -923,8 +1008,6 @@ export default function StoreProductPage({
                       )}
                     </strong>
                   </div>
-
-                  {/* ACTIONS */}
 
                   <div
                     className={
@@ -981,7 +1064,9 @@ export default function StoreProductPage({
                   }
                   role="status"
                 >
-                  {notice}
+                  {
+                    notice
+                  }
                 </p>
               )}
             </div>

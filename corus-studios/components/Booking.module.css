@@ -1,305 +1,998 @@
-.bookingSection{
-    width:100%;
-    padding:80px 8%;
-    background:#fafafa;
-}
+/* =========================================================
+   BOOKING SECTION
+========================================================= */
 
-.bookingSection h2{
-    text-align:center;
-    font-size:42px;
-    margin-bottom:50px;
-    color: black;
-    font-family: 'Helvetica', 'Arial', sans-serif;
-    font-weight: bold;
-}
-
-.form{
-    max-width:700px;
-    margin:auto;
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-}
-
-.form input,
-.form select{
-    width:100%;
-    height:55px;
-    border:2px solid #ddd;
-    padding:0 18px;
-    font-size:15px;
-    background:white;
-    color:black;
-}
-
-.row{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-}
-
-.phoneGroup{
-    display:flex;
-}
-
-.phoneGroup span{
-    width:75px;
-    border:1px solid #ddd;
-    border-right:none;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#fafafa;
-}
-
-.phoneGroup input{
-    border-left:none;
-}
-
-.packageContainer{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-}
-
-.packageCard{
-    border:2px solid #ddd;
-    padding:20px;
-    text-align:center;
-    cursor:pointer;
-    transition:.3s;
-    background:white;
-}
-
-.packageCard h3{
-    margin-bottom:8px;
-    color:black;
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: bold;
-}
-
-.packageCard p{
-    font-size:13px;
-    color:#666;
-}
-
-.packageCard:hover{
-    border-color:#ff5b00;
-}
-
-.active{
-    border-color:#ff5b00;
-}
-
-
-.submit {
-    height:55px;
-    border:none;
-    cursor:pointer;
-    background:#ff5b00;
-    color:white;
-    font-size:18px;
-    font-weight:bold;
-    transition:.3s;
-    border-radius:4px;
-}
-
-.form button:hover{
-    background:#e14d00;
-}
-
-/* Style the placeholder option */
-.form select option[value=""] {
-  color: #888888;
-}
-
-/* Style the select itself when placeholder is showing */
-.form select:invalid {
-  color: #888888;
-}
-
-/* When a valid option is selected, change color back to black */
-.form select:valid {
-  color: #000000;
-}
-
-/* ─── Style the date input placeholder ─── */
-.form input[type="date"]:invalid {
-  color: #888888; /* gray when empty */
-}
-
-.form input[type="date"]:valid {
-  color: #000000; /* black when a date is selected */
-}
-
-@media(max-width:768px){
-
-    .row{
-        grid-template-columns:1fr;
-    }
-
-    .packageContainer{
-        grid-template-columns:1fr;
-    }
-
-}
-
-/* ─── Scroll‑triggered animation ─── */
 .bookingSection {
+  position: relative;
+
+  width: 100%;
+
+  padding:
+    20px
+    8%
+    85px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8f8f8 0%,
+      #ffffff 100%
+    );
+
+  overflow: hidden;
+
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.9s ease, transform 0.9s ease;
-  position: relative;        /* for absolute positioning of images */
-  overflow: hidden;          /* keep images inside the section */
+
+  transform:
+    translateY(35px);
+
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
 }
 
 .bookingSection.visible {
   opacity: 1;
-  transform: translateY(0);
+
+  transform:
+    translateY(0);
 }
 
-/* ─── Left & Right decorative images ─── */
-.imageLeft,
-.imageRight {
-  position: absolute;
-  top: 50%;
-  width: 250px;
-  height: 370px;
-  opacity: 0;
-  transition: opacity 0.9s ease, transform 0.9s ease;
-  transform: translateY(-50%) translateX(-20px);
-  z-index: 0;               /* behind the form */
+/* =========================================================
+   MAIN TITLE
+========================================================= */
+
+.bookingSection h2 {
+  position: relative;
+
+  z-index: 3;
+
+  margin:
+    0
+    auto
+    42px;
+
+  max-width:
+    760px;
+
+  color: #101828;
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  font-size:
+    clamp(
+      2rem,
+      4vw,
+      2.8rem
+    );
+
+  font-weight:
+    800;
+
+  line-height:
+    1.05;
+
+  letter-spacing:
+    -0.8px;
+
+  text-align:
+    center;
 }
 
-.imageLeft {
-  left: 70px;
-  transform: translateY(-50%) translateX(-30px);
-  top: 55%;
+/* =========================================================
+   FORM
+========================================================= */
+
+.form {
+  position: relative;
+
+  z-index: 3;
+
+  width: 100%;
+
+  max-width:
+    700px;
+
+  margin:
+    0
+    auto;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    16px;
+
+  padding:
+    30px;
+
+  border:
+    1px solid
+    #e7eaee;
+
+  border-radius:
+    18px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.98
+    );
+
+  box-shadow:
+    0
+    12px
+    35px
+    rgba(
+      16,
+      24,
+      40,
+      0.06
+    );
 }
 
-.imageRight {
-  right: -40px;
-  transform: translateY(-50%) translateX(70px);
-  width: 350px;
-  height: 400px;
+.form input,
+.form select {
+  width:
+    100%;
+
+  height:
+    50px;
+
+  box-sizing:
+    border-box;
+
+  padding:
+    0
+    15px;
+
+  border:
+    1px solid
+    #d0d5dd;
+
+  border-radius:
+    8px;
+
+  background:
+    #ffffff;
+
+  color:
+    #101828;
+
+  font-family:
+    inherit;
+
+  font-size:
+    13px;
+
+  outline:
+    none;
+
+  transition:
+    border-color
+      0.2s ease,
+    box-shadow
+      0.2s ease;
 }
 
-.imageLeft.imageVisible,
-.imageRight.imageVisible {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
+.form input::placeholder,
+.form select {
+  color:
+    #667085;
 }
 
-.image {
-  object-fit: cover;
+.form input:focus,
+.form select:focus {
+  border-color:
+    #ff5100;
+
+  box-shadow:
+    0 0 0
+      3px
+      rgba(
+        255,
+        81,
+        0,
+        0.08
+      );
 }
 
-/* ─── Hide images on smaller screens ─── */
-@media (max-width: 1200px) {
-  .imageLeft,
-  .imageRight {
-    display: none;
-  }
+/* =========================================================
+   ROW
+========================================================= */
+
+.row {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap:
+    12px;
 }
 
-/* ── Calendar ────────────────────────────────────────────────── */
+.phoneGroup {
+  display:
+    flex;
+
+  width:
+    100%;
+}
+
+.phoneGroup span {
+  flex:
+    0 0
+    65px;
+
+  height:
+    50px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    1px solid
+    #d0d5dd;
+
+  border-right:
+    none;
+
+  border-radius:
+    8px
+    0
+    0
+    8px;
+
+  background:
+    #f9fafb;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+}
+
+.phoneGroup input {
+  border-radius:
+    0
+    8px
+    8px
+    0;
+}
+
+/* =========================================================
+   PACKAGE CARDS
+========================================================= */
+
+.packageContainer {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    10px;
+}
+
+.packageCard {
+  position:
+    relative;
+
+  min-height:
+    100px;
+
+  padding:
+    16px;
+
+  border:
+    1px solid
+    #e1e4e8;
+
+  border-radius:
+    10px;
+
+  background:
+    #ffffff;
+
+  text-align:
+    center;
+
+  cursor:
+    pointer;
+
+  transition:
+    border-color
+      0.2s ease,
+    background
+      0.2s ease,
+    transform
+      0.15s ease,
+    box-shadow
+      0.2s ease;
+}
+
+.packageCard:hover {
+  border-color:
+    #ff5100;
+
+  background:
+    #fff9f5;
+
+  transform:
+    translateY(
+      -2px
+    );
+}
+
+.packageCard h3 {
+  margin:
+    0 0
+    6px;
+
+  color:
+    #ff5100;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size:
+    15px;
+
+  font-weight:
+    800;
+}
+
+.packageCard p {
+  margin:
+    0;
+
+  color:
+    #667085;
+
+  font-size:
+    10px;
+
+  line-height:
+    1.45;
+}
+
+.active {
+  border-color:
+    #ff5100;
+
+  background:
+    #fff1e8;
+
+  box-shadow:
+    0
+    5px
+    15px
+    rgba(
+      255,
+      81,
+      0,
+      0.08
+    );
+}
+
+/* =========================================================
+   CALENDAR
+========================================================= */
 
 .calendar {
-  padding: 1.25rem;
-  border: 2px solid #ddd;
-  border-radius: 4px;
+  padding:
+    20px;
+
+  border:
+    1px solid
+    #dfe3e8;
+
+  border-radius:
+    10px;
+
+  background:
+    #ffffff;
 }
 
 .calendarHead {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    10px;
 }
 
 .select {
-  height: 2.5rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: #ffffff;
-  color: #000000;
-  font-family: inherit;
-  font-size: 1rem;
-  text-align: center;
+  height:
+    42px;
+
+  min-width:
+    130px;
+
+  padding:
+    0
+    11px;
+
+  border:
+    1px solid
+    #d0d5dd;
+
+  border-radius:
+    8px;
+
+  background:
+    #ffffff;
+
+  color:
+    #101828;
+
+  font-family:
+    inherit;
+
+  font-size:
+    12px;
+
+  text-align:
+    center;
+
+  outline:
+    none;
+
+  cursor:
+    pointer;
+}
+
+.select:focus {
+  border-color:
+    #ff5100;
+
+  box-shadow:
+    0
+    0
+    0
+    3px
+    rgba(
+      255,
+      81,
+      0,
+      0.08
+    );
 }
 
 .weekdays,
 .week {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      7,
+      1fr
+    );
 }
 
 .weekdays {
-  margin-top: 1.25rem;
+  margin-top:
+    18px;
 }
 
 .weekday {
-  padding: 0.5rem 0;
-  color: #000000;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-align: center;
+  padding:
+    7px
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    11px;
+
+  font-weight:
+    800;
+
+  text-align:
+    center;
 }
 
 .day {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  margin: 0 auto;
-  padding: 0;
-  width: 2rem;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: none;
-  color: #000000;
-  font-family: inherit;
-  font-size: 0.95rem;
-  cursor: pointer;
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  width:
+    34px;
+
+  aspect-ratio:
+    1;
+
+  margin:
+    0
+    auto;
+
+  padding:
+    0;
+
+  border:
+    1px solid
+    transparent;
+
+  border-radius:
+    7px;
+
+  background:
+    transparent;
+
+  color:
+    #101828;
+
+  font-family:
+    inherit;
+
+  font-size:
+    11px;
+
+  cursor:
+    pointer;
+
+  transition:
+    border-color
+      0.15s ease,
+    background
+      0.15s ease;
 }
 
-.day:hover:not(:disabled) {
-  border-color: var(--border);
+.day:hover:not(
+  :disabled
+) {
+  border-color:
+    #d0d5dd;
+
+  background:
+    #fafafa;
 }
 
-/* Days spilling in from the neighbouring month */
 .dayOutside {
-  color: var(--muted);
+  color:
+    #b5b5b5;
 }
 
 .day:disabled {
-  color: var(--muted);
-  cursor: default;
+  color:
+    #b5b5b5;
+
+  cursor:
+    default;
 }
 
 .daySelected,
 .daySelected:hover {
-  border-color: var(--orange);
-  background: var(--orange);
-  color: #000000;
-  font-weight: 700;
+  border-color:
+    #ff5100;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  font-weight:
+    800;
 }
 
+/* =========================================================
+   TIME SELECT
+========================================================= */
+
+.form > select {
+  margin-top:
+    1px;
+}
+
+/* =========================================================
+   NOTICE
+========================================================= */
+
 .notice {
-  padding: 0.75rem;
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  font-size: 0.95rem;
+  padding:
+    10px
+    12px;
+
+  border:
+    1px solid
+    #ffc7ad;
+
+  border-radius:
+    8px;
+
+  background:
+    #fff2eb;
+
+  color:
+    #b54708;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.5;
+
+  text-align:
+    center;
 }
 
 .success {
-  padding: 0.75rem;
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  border-radius: 4px;
-  font-size: 0.95rem;
+  padding:
+    10px
+    12px;
+
+  border:
+    1px solid
+    #b7dfbf;
+
+  border-radius:
+    8px;
+
+  background:
+    #ecfdf3;
+
+  color:
+    #027a48;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.5;
+
+  text-align:
+    center;
+}
+
+/* =========================================================
+   SUBMIT
+========================================================= */
+
+.submit {
+  position:
+    relative;
+
+  z-index:
+    3;
+
+  width:
+    100%;
+
+  height:
+    48px;
+
+  border:
+    1px solid
+    #ff5100;
+
+  border-radius:
+    9px;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  font-family:
+    inherit;
+
+  font-size:
+    13px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+
+  transition:
+    background
+      0.2s ease,
+    transform
+      0.15s ease,
+    box-shadow
+      0.2s ease;
+}
+
+.submit:hover:not(
+  :disabled
+) {
+  background:
+    #e84f00;
+
+  box-shadow:
+    0
+    7px
+    18px
+    rgba(
+      255,
+      81,
+      0,
+      0.16
+    );
+
+  transform:
+    translateY(
+      -1px
+    );
+}
+
+.submit:disabled {
+  opacity:
+    0.55;
+
+  cursor:
+    not-allowed;
+}
+
+/* =========================================================
+   DECORATIVE IMAGES
+========================================================= */
+
+.imageLeft,
+.imageRight {
+  position:
+    absolute;
+
+  z-index:
+    1;
+
+  pointer-events:
+    none;
+
+  opacity:
+    0;
+
+  transition:
+    opacity
+      0.8s ease,
+    transform
+      0.9s ease;
+}
+
+.imageLeft {
+  left:
+    -35px;
+
+  top:
+    54%;
+
+  width:
+    190px;
+
+  height:
+    310px;
+
+  transform:
+    translate(
+      -35px,
+      -50%
+    );
+}
+
+.imageRight {
+  right:
+    -45px;
+
+  top:
+    52%;
+
+  width:
+    250px;
+
+  height:
+    330px;
+
+  transform:
+    translate(
+      40px,
+      -50%
+    );
+}
+
+.imageLeft.imageVisible,
+.imageRight.imageVisible {
+  opacity:
+    0.7;
+
+  transform:
+    translate(
+      0,
+      -50%
+    );
+}
+
+.image {
+  object-fit:
+    contain;
+
+  filter:
+    drop-shadow(
+      0
+      12px
+      18px
+      rgba(
+        0,
+        0,
+        0,
+        0.12
+      )
+    );
+}
+
+/* =========================================================
+   KEEP FORM ABOVE DECORATION
+========================================================= */
+
+.form,
+.bookingSection > h2 {
+  position:
+    relative;
+
+  z-index:
+    3;
+}
+
+/* =========================================================
+   ACCESSIBILITY / FOCUS
+========================================================= */
+
+.form input:focus-visible,
+.form select:focus-visible,
+.day:focus-visible,
+.packageCard:focus-visible,
+.submit:focus-visible {
+  outline:
+    2px solid
+    #ff5100;
+
+  outline-offset:
+    2px;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 1200px) {
+  .imageLeft,
+  .imageRight {
+    display:
+      none;
+  }
+}
+
+@media (max-width: 800px) {
+  .bookingSection {
+    padding:
+      50px
+      16px
+      65px;
+  }
+
+  .bookingSection h2 {
+    margin-bottom:
+      28px;
+
+    font-size:
+      2rem;
+  }
+
+  .form {
+    max-width:
+      700px;
+
+    padding:
+      22px
+      18px;
+
+    border-radius:
+      15px;
+  }
+
+  .row {
+    grid-template-columns:
+      1fr;
+  }
+
+  .packageContainer {
+    grid-template-columns:
+      1fr;
+  }
+
+  .calendar {
+    padding:
+      15px;
+  }
+
+  .select {
+    flex:
+      1;
+
+    min-width:
+      0;
+  }
+}
+
+@media (max-width: 500px) {
+  .bookingSection {
+    padding:
+      35px
+      11px
+      50px;
+  }
+
+  .bookingSection h2 {
+    font-size:
+      1.8rem;
+  }
+
+  .form {
+    padding:
+      18px
+      13px;
+  }
+
+  .calendarHead {
+    gap:
+      6px;
+  }
+
+  .day {
+    width:
+      30px;
+
+    font-size:
+      10px;
+  }
+
+  .weekday {
+    font-size:
+      9px;
+  }
 }
