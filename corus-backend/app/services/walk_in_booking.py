@@ -273,6 +273,24 @@ def create_walk_in_booking(
     }
 
 
+def list_walk_in_bookings_for_user(db: Session, user_id: uuid.UUID) -> list[Booking]:
+    return (
+        db.query(Booking)
+        .options(
+            joinedload(Booking.slot),
+            joinedload(Booking.session_type),
+            joinedload(Booking.user),
+            joinedload(Booking.receipts),
+        )
+        .filter(
+            Booking.user_id == user_id,
+            Booking.booking_source == BookingSource.walk_in,
+        )
+        .order_by(Booking.created_at.desc())
+        .all()
+    )
+
+
 def get_walk_in_booking_for_user(
     db: Session, booking_id: uuid.UUID, user_id: uuid.UUID
 ) -> Booking | None:

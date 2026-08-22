@@ -26,6 +26,7 @@ from app.services.slot_availability import get_available_slots, get_booking_sett
 from app.services.walk_in_booking import (
     create_walk_in_booking as submit_walk_in_booking,
     get_walk_in_booking_for_user,
+    list_walk_in_bookings_for_user,
 )
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
@@ -199,6 +200,12 @@ def create_walk_in_booking_route(
         public_key=result.get("public_key"),
         message=result.get("message"),
     )
+
+
+@router.get("/walk-in-bookings/me", response_model=list[WalkInBookingDetailResponse])
+def my_walk_in_bookings(user: CustomerUser, db: DbSession) -> list[WalkInBookingDetailResponse]:
+    bookings = list_walk_in_bookings_for_user(db, user.id)
+    return [_walk_in_detail(booking) for booking in bookings]
 
 
 @router.get("/walk-in-bookings/{booking_id}", response_model=WalkInBookingDetailResponse)
