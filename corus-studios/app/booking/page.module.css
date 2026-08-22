@@ -1,143 +1,1199 @@
 .page {
   width: 100%;
-  padding: 80px 8%;
-  background: #f8fafc;
+
+  min-height: 70vh;
+
+  padding:
+    55px
+    7%
+    75px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f7f8fa 0%,
+      #eef0f3 100%
+    );
+
+  font-family:
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 .container {
-  text-align: center;
+  width: 100%;
+
+  max-width:
+    1080px;
+
+  margin:
+    0 auto;
 }
 
-.emptyState {
-  text-align: center;
-  padding: 3rem 0;
-  color: #888;
-  font-size: 1.1rem;
+/* =========================================================
+   HEADER
+========================================================= */
+
+.hero {
+  display:
+    flex;
+
+  align-items:
+    flex-end;
+
+  justify-content:
+    space-between;
+
+  gap:
+    25px;
+
+  margin-bottom:
+    25px;
+}
+
+.eyebrow {
+  display:
+    inline-flex;
+
+  margin-bottom:
+    8px;
+
+  padding:
+    5px
+    10px;
+
+  border-radius:
+    999px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.9px;
+
+  text-transform:
+    uppercase;
 }
 
 .heading {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  font-family: Helvetica, Arial, sans-serif;
-  margin-bottom: 0.5rem;
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    clamp(
+      2.1rem,
+      4vw,
+      3rem
+    );
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    -1.2px;
+
+  line-height:
+    1.02;
 }
 
 .subheading {
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 3rem;
+  margin:
+    8px 0 0;
+
+  color:
+    #667085;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
 }
 
-.grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;          /* reduced gap between cards */
-  max-width: auto;     /* narrower to prevent stretching */
-  margin: 0 auto;
-  /* height removed – was causing layout issues */
+/* =========================================================
+   REFRESH
+========================================================= */
+
+.refreshButton {
+  height:
+    42px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  padding:
+    0
+    14px;
+
+  border:
+    1px solid
+    #d0d5dd;
+
+  border-radius:
+    10px;
+
+  background:
+    #ffffff;
+
+  color:
+    #344054;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+
+  transition:
+    border-color
+      0.2s ease,
+    color
+      0.2s ease,
+    background
+      0.2s ease;
 }
 
-.card {
-  display: block;
-  background: white;
-  padding: 2.5rem 2rem; /* reduced vertical padding for a rectangular shape */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  border: 2px solid #f0f0f0;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
+.refreshButton:hover:not(
+  :disabled
+) {
+  border-color:
+    #ff5100;
+
+  background:
+    #fffaf7;
+
+  color:
+    #ff5100;
 }
 
-.card:hover {
-  transform: translateY(-4px); /* subtle lift */
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
-  border-color: #ea580c;
+.refreshButton:disabled {
+  opacity:
+    0.55;
+
+  cursor:
+    not-allowed;
 }
 
-.cardContent {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;          /* horizontal layout for icon + text */
-  text-align: left;     /* left-aligned text */
+.spin {
+  animation:
+    spin
+    0.8s
+    linear
+    infinite;
 }
 
+/* =========================================================
+   SUMMARY
+========================================================= */
 
-.cardText {
-  flex: 1;
+.summary {
+  display:
+    grid;
+
+  gap:
+    12px;
+
+  margin-bottom:
+    18px;
 }
 
-.cardTitle {
-  font-size: 1.25rem;   /* smaller title */
-  font-weight: 700;
-  color: #1a1a1a;
-  font-family: Helvetica, Arial, sans-serif;
-  margin: 0;
+.summaryTwo {
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
 }
 
-.cardDesc {
-  font-size: 0.85rem;
-  color: #666;
-  margin: 0.25rem 0 0 0;
+.summaryThree {
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
 }
 
-.cardArrow {
-  flex-shrink: 0;
-  font-size: 2rem;          /* bigger arrow */
-  font-weight: 300;
-  color: #ccc;              /* subtle grey */
-  transition: all 0.2s ease;
-  line-height: 1;
-  margin-left: auto;        /* pushes arrow to the right */
-  padding-left: 0.5rem;
+.summaryCard {
+  min-height:
+    78px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    11px;
+
+  padding:
+    13px
+    16px;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius:
+    15px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 5px
+      18px
+      rgba(
+        16,
+        24,
+        40,
+        0.04
+      );
 }
 
-.card:hover .cardArrow {
-  color: #ea580c;           /* turn orange on hover */
-  transform: translateX(4px); /* subtle slide */
+.summaryIcon {
+  width:
+    38px;
+
+  height:
+    38px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  flex-shrink:
+    0;
+
+  border-radius:
+    11px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
 }
 
-@media (max-width: 600px) {
+.walkInIcon {
+  background:
+    #fff7e8;
+
+  color:
+    #b54708;
+}
+
+.summaryCard strong {
+  display:
+    block;
+
+  color:
+    #101828;
+
+  font-size:
+    19px;
+
+  line-height:
+    1.1;
+}
+
+.summaryCard span {
+  display:
+    block;
+
+  margin-top:
+    4px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.65px;
+
+  text-transform:
+    uppercase;
+}
+
+/* =========================================================
+   BOOKING LIST
+========================================================= */
+
+.bookingsList {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    11px;
+}
+
+/* =========================================================
+   BOOKING CARD
+========================================================= */
+
+.bookingCard {
+  display:
+    grid;
+
+  grid-template-columns:
+    74px
+    minmax(
+      0,
+      1fr
+    )
+    150px;
+
+  align-items:
+    center;
+
+  gap:
+    17px;
+
+  min-height:
+    118px;
+
+  padding:
+    15px
+    17px;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius:
+    16px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 5px
+      18px
+      rgba(
+        16,
+        24,
+        40,
+        0.035
+      );
+
+  transition:
+    border-color
+      0.2s ease,
+    transform
+      0.2s ease,
+    box-shadow
+      0.2s ease;
+}
+
+.bookingCard:hover {
+  border-color:
+    #ffd0bb;
+
+  box-shadow:
+    0 9px
+      24px
+      rgba(
+        16,
+        24,
+        40,
+        0.065
+      );
+
+  transform:
+    translateY(
+      -2px
+    );
+}
+
+/* =========================================================
+   DATE BLOCK
+========================================================= */
+
+.dateBlock {
+  width:
+    62px;
+
+  height:
+    78px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    1px solid
+    #ffd9ca;
+
+  border-radius:
+    13px;
+
+  background:
+    #fff7f3;
+
+  flex-shrink:
+    0;
+}
+
+.dateMonth {
+  color:
+    #ff5100;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.7px;
+
+  text-transform:
+    uppercase;
+}
+
+.dateDay {
+  margin:
+    2px 0;
+
+  color:
+    #101828;
+
+  font-size:
+    26px;
+
+  font-weight:
+    800;
+
+  line-height:
+    1;
+}
+
+.dateYear {
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    700;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.bookingContent {
+  min-width:
+    0;
+}
+
+.bookingTop {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
+
+  min-width:
+    0;
+}
+
+.bookingLabel {
+  display:
+    block;
+
+  margin-bottom:
+    4px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.7px;
+
+  text-transform:
+    uppercase;
+}
+
+.bookingContent h2 {
+  margin:
+    0;
+
+  overflow:
+    hidden;
+
+  color:
+    #101828;
+
+  font-size:
+    17px;
+
+  font-weight:
+    800;
+
+  line-height:
+    1.2;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+/* =========================================================
+   SOURCE BADGES
+========================================================= */
+
+.sourceBadge {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
+
+  flex-shrink:
+    0;
+
+  padding:
+    5px
+    8px;
+
+  border-radius:
+    999px;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.3px;
+
+  text-transform:
+    uppercase;
+}
+
+.onlineBadge {
+  background:
+    #eef4ff;
+
+  color:
+    #2563eb;
+}
+
+.walkInBadge {
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+}
+
+/* =========================================================
+   DATE / TIME
+========================================================= */
+
+.bookingMeta {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  flex-wrap:
+    wrap;
+
+  gap:
+    12px;
+
+  margin-top:
+    11px;
+}
+
+.bookingMeta span {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
+
+  color:
+    #667085;
+
+  font-size:
+    10px;
+}
+
+.bookingMeta svg {
+  color:
+    #ff5100;
+}
+
+/* =========================================================
+   SIDE
+========================================================= */
+
+.bookingSide {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    flex-end;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  min-width:
+    0;
+}
+
+.price {
+  color:
+    #ff5100;
+
+  font-size:
+    18px;
+
+  font-weight:
+    800;
+
+  white-space:
+    nowrap;
+}
+
+.statusBadge {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    5px
+    9px;
+
+  border-radius:
+    999px;
+
+  font-size:
+    8px;
+
+  font-weight:
+    800;
+
+  white-space:
+    nowrap;
+}
+
+.success {
+  background:
+    #eafaf0;
+
+  color:
+    #027a48;
+}
+
+.pending {
+  background:
+    #fff7e8;
+
+  color:
+    #b54708;
+}
+
+.danger {
+  background:
+    #fff0ef;
+
+  color:
+    #b42318;
+}
+
+.receipt {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    4px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    8px;
+
+  white-space:
+    nowrap;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.emptyState {
+  min-height:
+    300px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    40px;
+
+  border:
+    1px dashed
+    #d0d5dd;
+
+  border-radius:
+    17px;
+
+  background:
+    #fafbfc;
+
+  text-align:
+    center;
+}
+
+.emptyIcon {
+  width:
+    58px;
+
+  height:
+    58px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  margin-bottom:
+    12px;
+
+  border-radius:
+    15px;
+
+  background:
+    #fff1e8;
+
+  color:
+    #ff5100;
+}
+
+.emptyState h2 {
+  margin:
+    0;
+
+  color:
+    #101828;
+
+  font-size:
+    18px;
+}
+
+.emptyState p {
+  max-width:
+    400px;
+
+  margin:
+    7px 0 18px;
+
+  color:
+    #98a2b3;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.55;
+}
+
+.primaryButton {
+  min-height:
+    41px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    0 15px;
+
+  border:
+    1px solid
+    #ff5100;
+
+  border-radius:
+    9px;
+
+  background:
+    #ff5100;
+
+  color:
+    #ffffff;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  text-decoration:
+    none;
+
+  cursor:
+    pointer;
+}
+
+.primaryButton:hover {
+  background:
+    #e84f00;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loadingGrid {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    11px;
+}
+
+.skeleton {
+  min-height:
+    118px;
+
+  border-radius:
+    16px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #edf0f4 25%,
+      #f8f9fb 50%,
+      #edf0f4 75%
+    );
+
+  background-size:
+    200%
+    100%;
+
+  animation:
+    shimmer
+    1.3s
+    infinite;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.errorCard {
+  min-height:
+    280px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    35px;
+
+  border:
+    1px solid
+    #fecdca;
+
+  border-radius:
+    17px;
+
+  background:
+    #ffffff;
+
+  color:
+    #b42318;
+
+  text-align:
+    center;
+}
+
+.errorCard h2 {
+  margin:
+    12px 0 5px;
+
+  color:
+    #101828;
+
+  font-size:
+    18px;
+}
+
+.errorCard p {
+  max-width:
+    450px;
+
+  margin:
+    0 0 18px;
+
+  color:
+    #667085;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.5;
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes shimmer {
+  0% {
+    background-position:
+      200% 0;
+  }
+
+  100% {
+    background-position:
+      -200% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform:
+      rotate(
+        360deg
+      );
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
   .page {
-    padding: 40px 5%;
+    padding:
+      40px
+      16px
+      55px;
   }
 
-  .heading {
-    font-size: 2rem;
+  .hero {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
   }
 
-  .grid {
-    max-width: 100%;
+  .refreshButton {
+    width:
+      100%;
   }
 
-  .card {
-    padding: 1.25rem 1.25rem;
+  .summaryTwo,
+  .summaryThree {
+    grid-template-columns:
+      1fr;
   }
 
-  .cardContent {
-    gap: 1rem;
+  .bookingCard {
+    grid-template-columns:
+      62px
+      minmax(
+        0,
+        1fr
+      );
+
+    gap:
+      13px;
+
+    padding:
+      13px;
   }
 
-  .iconWrapper {
-    width: 48px;
-    height: 48px;
+  .bookingSide {
+    grid-column:
+      2;
+
+    align-items:
+      flex-start;
+
+    flex-direction:
+      row;
+
+    flex-wrap:
+      wrap;
+  }
+}
+
+@media (max-width: 520px) {
+  .bookingCard {
+    grid-template-columns:
+      1fr;
   }
 
-  .icon {
-    width: 28px;
-    height: 28px;
+  .dateBlock {
+    width:
+      58px;
+
+    height:
+      67px;
   }
 
-  .cardTitle {
-    font-size: 1.1rem;
+  .bookingContent h2 {
+    font-size:
+      16px;
+    white-space:
+      normal;
   }
 
-  .cardDesc {
-    font-size: 0.8rem;
+  .bookingSide {
+    grid-column:
+      auto;
+
+    align-items:
+      flex-start;
   }
 
-  .cardBtn {
-    font-size: 0.75rem;
-    padding: 0.3rem 1rem;
+  .bookingMeta {
+    flex-direction:
+      column;
+
+    align-items:
+      flex-start;
+
+    gap:
+      6px;
+  }
+
+  .sourceBadge {
+    margin-top:
+      4px;
   }
 }

@@ -732,11 +732,36 @@ const handleSubmit =
           `${selectedDate}T00:00:00`,
       };
 
+      /*
+       * A new booking checkout always becomes the only
+       * active checkout context in this browser tab.
+       * Remove any abandoned rental/store checkout first.
+       */
+      sessionStorage.removeItem(
+        "rental_checkout"
+      );
+
+      sessionStorage.removeItem(
+        "store_checkout_selection"
+      );
+
+      sessionStorage.removeItem(
+        "corus_checkout_intent"
+      );
+
       sessionStorage.setItem(
         "booking_checkout",
         JSON.stringify(
-          bookingCheckout
+          {
+            ...bookingCheckout,
+            saved_at: Date.now(),
+          }
         )
+      );
+
+      sessionStorage.setItem(
+        "corus_checkout_intent",
+        "booking"
       );
 
       /* =============================================

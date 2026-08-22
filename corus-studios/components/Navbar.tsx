@@ -12,7 +12,6 @@ import {
   ShoppingCart,
   FileText,
   Calendar,
-  Shield,
   LifeBuoy,
   LogOut,
 } from "lucide-react";
@@ -73,11 +72,6 @@ const dropdownItems = [
     href: "/booking",
   },
   {
-    icon: Shield,
-    label: "Admin",
-    href: "/admin",
-  },
-  {
     icon: LifeBuoy,
     label: "Contact Support",
     href: "/support",
@@ -134,26 +128,38 @@ export default function Navbar() {
         "user"
       );
 
-    if (storedUser) {
-      try {
-        setUser(
-          JSON.parse(
-            storedUser
-          )
-        );
-      } catch {
-        setUser(null);
-      }
+    if (
+      !storedUser
+    ) {
+      setUser(
+        null
+      );
+
+      return;
+    }
+
+    try {
+      setUser(
+        JSON.parse(
+          storedUser
+        )
+      );
+    } catch {
+      setUser(
+        null
+      );
     }
   }, []);
 
   /* =========================================================
-     CLOSE DROPDOWNS ON OUTSIDE CLICK
+     CLOSE DROPDOWNS
   ========================================================= */
 
   useEffect(() => {
     const handleClickOutside =
-      (event: MouseEvent) => {
+      (
+        event: MouseEvent
+      ) => {
         const target =
           event.target as Node;
 
@@ -163,7 +169,9 @@ export default function Navbar() {
             target
           )
         ) {
-          setDropdownOpen(false);
+          setDropdownOpen(
+            false
+          );
         }
 
         if (
@@ -192,36 +200,41 @@ export default function Navbar() {
   }, []);
 
   /* =========================================================
-     MENU HELPERS
+     MENU
   ========================================================= */
 
   const toggleMenu =
     () => {
       setIsOpen(
-        (current) => !current
+        (
+          current
+        ) =>
+          !current
       );
     };
 
   const closeMenu =
     () => {
-      setIsOpen(false);
+      setIsOpen(
+        false
+      );
     };
 
-  /*
-   * Exact path matching keeps the active state correct.
-   *
-   * /booking/session is treated independently from
-   * /booking, which remains My Bookings.
-   */
   const isCurrent = (
     href: string
   ) => {
-    if (href === "/") {
-      return pathname === "/";
+    if (
+      href === "/"
+    ) {
+      return (
+        pathname ===
+        "/"
+      );
     }
 
     return (
-      pathname === href ||
+      pathname ===
+        href ||
       pathname.startsWith(
         `${href}/`
       )
@@ -242,26 +255,30 @@ export default function Navbar() {
         "user"
       );
 
-      setUser(null);
+      setUser(
+        null
+      );
 
-      setDropdownOpen(false);
+      setDropdownOpen(
+        false
+      );
 
       setMobileDropdownOpen(
         false
       );
 
-      setIsOpen(false);
+      setIsOpen(
+        false
+      );
 
-      router.push("/");
+      router.push(
+        "/"
+      );
     };
 
   const userInitial =
     user?.username?.[0]?.toUpperCase() ||
     "?";
-
-  /* =========================================================
-     RENDER
-  ========================================================= */
 
   return (
     <header
@@ -342,7 +359,9 @@ export default function Navbar() {
               }
               onClick={() =>
                 setMobileDropdownOpen(
-                  (current) =>
+                  (
+                    current
+                  ) =>
                     !current
                 )
               }
@@ -355,7 +374,9 @@ export default function Navbar() {
                   styles.avatarCircle
                 }
               >
-                {userInitial}
+                {
+                  userInitial
+                }
               </div>
 
               <span
@@ -363,7 +384,9 @@ export default function Navbar() {
                   styles.userName
                 }
               >
-                {user.username}
+                {
+                  user.username
+                }
               </span>
             </button>
 
@@ -395,7 +418,9 @@ export default function Navbar() {
                     styles.dropdownUsername
                   }
                 >
-                  {user.username}
+                  {
+                    user.username
+                  }
                 </div>
 
                 <button
@@ -421,7 +446,9 @@ export default function Navbar() {
                 />
 
                 {dropdownItems.map(
-                  (item) => {
+                  (
+                    item
+                  ) => {
                     const Icon =
                       item.icon;
 
@@ -474,7 +501,7 @@ export default function Navbar() {
         )}
 
         {/* =====================================================
-            DESKTOP CENTER
+            DESKTOP
         ===================================================== */}
 
         <div
@@ -488,7 +515,9 @@ export default function Navbar() {
             }
           >
             {links.map(
-              (link) => {
+              (
+                link
+              ) => {
                 const active =
                   isCurrent(
                     link.href
@@ -545,7 +574,9 @@ export default function Navbar() {
                 }
                 onClick={() =>
                   setDropdownOpen(
-                    (current) =>
+                    (
+                      current
+                    ) =>
                       !current
                   )
                 }
@@ -558,7 +589,9 @@ export default function Navbar() {
                     styles.avatarCircle
                   }
                 >
-                  {userInitial}
+                  {
+                    userInitial
+                  }
                 </div>
 
                 <span
@@ -628,7 +661,9 @@ export default function Navbar() {
                   />
 
                   {dropdownItems.map(
-                    (item) => {
+                    (
+                      item
+                    ) => {
                       const Icon =
                         item.icon;
 
@@ -693,7 +728,9 @@ export default function Navbar() {
       >
         <ul>
           {links.map(
-            (link) => {
+            (
+              link
+            ) => {
               const active =
                 isCurrent(
                   link.href

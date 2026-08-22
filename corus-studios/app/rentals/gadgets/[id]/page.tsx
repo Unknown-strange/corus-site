@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -15,7 +19,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 import api from "@/lib/api";
-import type { RentEquipment } from "@/lib/types";
+
+import type {
+  RentEquipment,
+} from "@/lib/types";
 
 import styles from "./page.module.css";
 
@@ -42,7 +49,9 @@ function parseResponseBody(
   }
 
   try {
-    return JSON.parse(rawBody);
+    return JSON.parse(
+      rawBody
+    );
   } catch {
     return rawBody;
   }
@@ -61,7 +70,8 @@ function getErrorMessage(
 
   if (
     data &&
-    typeof data === "object"
+    typeof data ===
+      "object"
   ) {
     const errorData =
       data as ErrorResponse;
@@ -80,26 +90,32 @@ function getErrorMessage(
     ) {
       const messages =
         errorData.detail
-          .map((item) => {
-            if (
-              item &&
-              typeof item === "object" &&
-              "msg" in item &&
-              typeof (
-                item as {
-                  msg?: unknown;
-                }
-              ).msg === "string"
-            ) {
-              return (
-                item as {
-                  msg: string;
-                }
-              ).msg;
-            }
+          .map(
+            (
+              item
+            ) => {
+              if (
+                item &&
+                typeof item ===
+                  "object" &&
+                "msg" in item &&
+                typeof (
+                  item as {
+                    msg?: unknown;
+                  }
+                ).msg ===
+                  "string"
+              ) {
+                return (
+                  item as {
+                    msg: string;
+                  }
+                ).msg;
+              }
 
-            return null;
-          })
+              return null;
+            }
+          )
           .filter(
             (
               message
@@ -107,8 +123,13 @@ function getErrorMessage(
               Boolean(message)
           );
 
-      if (messages.length > 0) {
-        return messages.join(", ");
+      if (
+        messages.length >
+        0
+      ) {
+        return messages.join(
+          ", "
+        );
       }
     }
 
@@ -120,10 +141,12 @@ function getErrorMessage(
     }
 
     if (
-      typeof errorData.error?.message ===
+      typeof errorData.error
+        ?.message ===
       "string"
     ) {
-      return errorData.error.message;
+      return errorData.error
+        .message;
     }
   }
 
@@ -133,80 +156,138 @@ function getErrorMessage(
 export default function RentalGadgetPage({
   params,
 }: PageProps) {
-  const [rental, setRental] =
-    useState<RentEquipment | null>(null);
+  const [
+    rental,
+    setRental,
+  ] =
+    useState<
+      RentEquipment | null
+    >(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [loadError, setLoadError] =
-    useState<string | null>(null);
+  const [
+    loadError,
+    setLoadError,
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const [checkoutError, setCheckoutError] =
-    useState<string | null>(null);
+  const [
+    checkoutError,
+    setCheckoutError,
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const [actionLoading, setActionLoading] =
+  const [
+    actionLoading,
+    setActionLoading,
+  ] =
     useState(false);
 
-  const [pickupDate, setPickupDate] =
+  const [
+    pickupDate,
+    setPickupDate,
+  ] =
     useState("");
 
-  const [dropoffDate, setDropoffDate] =
+  const [
+    dropoffDate,
+    setDropoffDate,
+  ] =
     useState("");
 
-  const [pickupTime, setPickupTime] =
+  const [
+    pickupTime,
+    setPickupTime,
+  ] =
     useState("");
 
-  const [dropoffTime, setDropoffTime] =
+  const [
+    dropoffTime,
+    setDropoffTime,
+  ] =
     useState("");
 
   /* =========================================================
-     LOAD RENTAL
+     LOAD
   ========================================================= */
 
   useEffect(() => {
     let mounted = true;
 
-    const loadRental = async () => {
-      try {
-        const { id } = await params;
+    const loadRental =
+      async () => {
+        try {
+          const {
+            id,
+          } =
+            await params;
 
-        const response =
-          await api.rentals.equipmentBySlug(id);
+          const response =
+            await api.rentals.equipmentBySlug(
+              id
+            );
 
-        const rawBody =
-          await response.text();
+          const rawBody =
+            await response.text();
 
-        const data =
-          parseResponseBody(rawBody);
+          const data =
+            parseResponseBody(
+              rawBody
+            );
 
-        if (!response.ok) {
-          throw new Error(
-            getErrorMessage(
-              data,
-              "Rental equipment not found."
-            )
-          );
+          if (
+            !response.ok
+          ) {
+            throw new Error(
+              getErrorMessage(
+                data,
+                "Rental equipment not found."
+              )
+            );
+          }
+
+          if (
+            mounted
+          ) {
+            setRental(
+              data as RentEquipment
+            );
+
+            setLoadError(
+              null
+            );
+          }
+        } catch (
+          error
+        ) {
+          if (
+            mounted
+          ) {
+            setLoadError(
+              error instanceof
+                Error
+                ? error.message
+                : "Failed to load rental."
+            );
+          }
+        } finally {
+          if (
+            mounted
+          ) {
+            setLoading(
+              false
+            );
+          }
         }
-
-        if (mounted) {
-          setRental(data as RentEquipment);
-          setLoadError(null);
-        }
-      } catch (err) {
-        if (mounted) {
-          setLoadError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load rental."
-          );
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
+      };
 
     loadRental();
 
@@ -216,111 +297,183 @@ export default function RentalGadgetPage({
   }, [params]);
 
   /* =========================================================
-     CONTINUE TO CHECKOUT
-
-     Do NOT call /rentals/checkout here.
-
-     The rental details are stored temporarily and the user
-     is sent to the common /checkout page.
+     CHECKOUT PREPARATION
   ========================================================= */
 
-  const handleCheckout = () => {
-    if (!rental) {
-      return;
-    }
+  const handleCheckout =
+    () => {
+      if (
+        !rental
+      ) {
+        return;
+      }
 
-    const token =
-      localStorage.getItem("access_token");
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
 
-    if (!token) {
-      setCheckoutError(
-        "Please log in before checking out."
-      );
+      if (
+        !token
+      ) {
+        setCheckoutError(
+          "Please log in before checking out."
+        );
 
-      return;
-    }
+        return;
+      }
 
-    if (
-      !pickupDate ||
-      !dropoffDate ||
-      !pickupTime ||
-      !dropoffTime
-    ) {
-      setCheckoutError(
-        "Please select all pickup and drop-off details."
-      );
+      if (
+        !pickupDate ||
+        !dropoffDate ||
+        !pickupTime ||
+        !dropoffTime
+      ) {
+        setCheckoutError(
+          "Please select all pickup and drop-off details."
+        );
 
-      return;
-    }
+        return;
+      }
 
-    if (dropoffDate < pickupDate) {
-      setCheckoutError(
-        "Drop-off date cannot be before the pickup date."
-      );
+      if (
+        dropoffDate <
+        pickupDate
+      ) {
+        setCheckoutError(
+          "Drop-off date cannot be before the pickup date."
+        );
 
-      return;
-    }
+        return;
+      }
 
-    if (
-      dropoffDate === pickupDate &&
-      dropoffTime <= pickupTime
-    ) {
-      setCheckoutError(
-        "Drop-off time must be after pickup time."
-      );
+      if (
+        dropoffDate ===
+          pickupDate &&
+        dropoffTime <=
+          pickupTime
+      ) {
+        setCheckoutError(
+          "Drop-off time must be after pickup time."
+        );
 
-      return;
-    }
+        return;
+      }
 
-    try {
-      setActionLoading(true);
-      setCheckoutError(null);
+      try {
+        setActionLoading(
+          true
+        );
 
-      const rentalCheckout = {
-        equipment_id: rental.id,
-        equipment_name: rental.name,
-        image_url:
-          rental.image_url ||
-          "/images/placeholder.png",
-        daily_rate_ghs:
-          rental.daily_rate_ghs,
-        start_date: pickupDate,
-        end_date: dropoffDate,
-        pickup_time: pickupTime,
-        dropoff_time: dropoffTime,
-      };
+        setCheckoutError(
+          null
+        );
 
-      sessionStorage.setItem(
-        "rental_checkout",
-        JSON.stringify(rentalCheckout)
-      );
+        const rentalCheckout = {
+          equipment_id:
+            rental.id,
 
-      window.location.href = "/checkout";
-    } catch (err) {
-      console.error(
-        "RENTAL CHECKOUT PREPARATION FAILED",
-        err
-      );
+          equipment_name:
+            rental.name,
 
-      setCheckoutError(
-        "Unable to prepare rental checkout."
-      );
+          image_url:
+            rental.image_url ||
+            "/images/placeholder.png",
 
-      setActionLoading(false);
-    }
-  };
+          daily_rate_ghs:
+            rental.daily_rate_ghs,
+
+          start_date:
+            pickupDate,
+
+          end_date:
+            dropoffDate,
+
+          pickup_time:
+            pickupTime,
+
+          dropoff_time:
+            dropoffTime,
+        };
+
+        /*
+         * Remove stale booking/store state.
+         */
+        sessionStorage.removeItem(
+          "booking_checkout"
+        );
+
+        sessionStorage.removeItem(
+          "store_checkout_selection"
+        );
+
+        sessionStorage.removeItem(
+          "corus_checkout_intent"
+        );
+
+        /*
+         * Save rental checkout context.
+         */
+        sessionStorage.setItem(
+          "rental_checkout",
+          JSON.stringify(
+            rentalCheckout
+          )
+        );
+
+        sessionStorage.setItem(
+          "corus_checkout_intent",
+          "rental"
+        );
+
+        /*
+         * The common checkout page will now show
+         * the rental instead of a stale booking.
+         */
+        window.location.href =
+          "/checkout";
+      } catch (
+        error
+      ) {
+        console.error(
+          "RENTAL CHECKOUT PREPARATION FAILED:",
+          error
+        );
+
+        setCheckoutError(
+          error instanceof
+            Error
+            ? error.message
+            : "Unable to prepare rental checkout."
+        );
+
+        setActionLoading(
+          false
+        );
+      }
+    };
 
   /* =========================================================
      LOADING
   ========================================================= */
 
-  if (loading) {
+  if (
+    loading
+  ) {
     return (
       <>
         <Navbar />
 
-        <main className={styles.page}>
-          <div className={styles.loading}>
+        <main
+          className={
+            styles.page
+          }
+        >
+          <div
+            className={
+              styles.loading
+            }
+          >
             Loading rental...
           </div>
         </main>
@@ -331,16 +484,26 @@ export default function RentalGadgetPage({
   }
 
   /* =========================================================
-     RENTAL LOAD ERROR
+     ERROR
   ========================================================= */
 
-  if (!rental) {
+  if (
+    !rental
+  ) {
     return (
       <>
         <Navbar />
 
-        <main className={styles.page}>
-          <div className={styles.errorCard}>
+        <main
+          className={
+            styles.page
+          }
+        >
+          <div
+            className={
+              styles.errorCard
+            }
+          >
             <h1>
               Rental unavailable
             </h1>
@@ -352,9 +515,14 @@ export default function RentalGadgetPage({
 
             <Link
               href="/rentals"
-              className={styles.backLink}
+              className={
+                styles.backLink
+              }
             >
-              <ArrowLeft size={17} />
+              <ArrowLeft
+                size={17}
+              />
+
               Back to Rentals
             </Link>
           </div>
@@ -366,7 +534,7 @@ export default function RentalGadgetPage({
   }
 
   /* =========================================================
-     RENTAL DATA
+     DATA
   ========================================================= */
 
   const dailyRate =
@@ -377,58 +545,102 @@ export default function RentalGadgetPage({
   const today =
     new Date()
       .toISOString()
-      .split("T")[0];
+      .split(
+        "T"
+      )[0];
 
   const available =
-    rental.stock > 0;
+    rental.stock >
+    0;
 
   return (
     <>
       <Navbar />
 
-      <main className={styles.page}>
-        <div className={styles.container}>
+      <main
+        className={
+          styles.page
+        }
+      >
+        <div
+          className={
+            styles.container
+          }
+        >
           <Link
             href="/rentals"
-            className={styles.backLink}
+            className={
+              styles.backLink
+            }
           >
-            <ArrowLeft size={17} />
+            <ArrowLeft
+              size={17}
+            />
+
             Back to Rentals
           </Link>
 
-          <section className={styles.rentalCard}>
-            {/* IMAGE */}
-
-            <div className={styles.imageWrap}>
+          <section
+            className={
+              styles.rentalCard
+            }
+          >
+            <div
+              className={
+                styles.imageWrap
+              }
+            >
               <Image
                 src={
                   rental.image_url ||
                   "/images/placeholder.png"
                 }
-                alt={rental.name}
+                alt={
+                  rental.name
+                }
                 fill
                 sizes="(max-width: 800px) 100vw, 50vw"
-                className={styles.image}
+                className={
+                  styles.image
+                }
                 priority
               />
             </div>
 
-            {/* CONTENT */}
-
-            <div className={styles.content}>
-              <span className={styles.badge}>
+            <div
+              className={
+                styles.content
+              }
+            >
+              <span
+                className={
+                  styles.badge
+                }
+              >
                 Rental Equipment
               </span>
 
               <h1>
-                {rental.name}
+                {
+                  rental.name
+                }
               </h1>
 
-              <p className={styles.description}>
-                {rental.description}
+              <p
+                className={
+                  styles.description
+                }
+              >
+                {
+                  rental.description
+                }
               </p>
 
-              <div className={styles.price}>
+              <div
+                className={
+                  styles.price
+                }
+              >
                 GH₵
                 {dailyRate.toLocaleString(
                   "en-GH",
@@ -443,7 +655,11 @@ export default function RentalGadgetPage({
                 </span>
               </div>
 
-              <span className={styles.stock}>
+              <span
+                className={
+                  styles.stock
+                }
+              >
                 {available
                   ? `${rental.stock} available`
                   : "Currently unavailable"}
@@ -451,30 +667,58 @@ export default function RentalGadgetPage({
 
               {available && (
                 <>
-                  <div className={styles.fields}>
-                    <div className={styles.field}>
+                  <div
+                    className={
+                      styles.fields
+                    }
+                  >
+                    <div
+                      className={
+                        styles.field
+                      }
+                    >
                       <label htmlFor="pickup-date">
-                        <CalendarDays size={15} />
+                        <CalendarDays
+                          size={15}
+                        />
+
                         Pickup Date
                       </label>
 
                       <input
                         id="pickup-date"
                         type="date"
-                        min={today}
-                        value={pickupDate}
-                        onChange={(event) => {
+                        min={
+                          today
+                        }
+                        value={
+                          pickupDate
+                        }
+                        onChange={(
+                          event
+                        ) => {
                           setPickupDate(
-                            event.target.value
+                            event.target
+                              .value
                           );
-                          setCheckoutError(null);
+
+                          setCheckoutError(
+                            null
+                          );
                         }}
                       />
                     </div>
 
-                    <div className={styles.field}>
+                    <div
+                      className={
+                        styles.field
+                      }
+                    >
                       <label htmlFor="dropoff-date">
-                        <CalendarDays size={15} />
+                        <CalendarDays
+                          size={15}
+                        />
+
                         Drop-off Date
                       </label>
 
@@ -485,68 +729,120 @@ export default function RentalGadgetPage({
                           pickupDate ||
                           today
                         }
-                        value={dropoffDate}
-                        onChange={(event) => {
+                        value={
+                          dropoffDate
+                        }
+                        onChange={(
+                          event
+                        ) => {
                           setDropoffDate(
-                            event.target.value
+                            event.target
+                              .value
                           );
-                          setCheckoutError(null);
+
+                          setCheckoutError(
+                            null
+                          );
                         }}
                       />
                     </div>
 
-                    <div className={styles.field}>
+                    <div
+                      className={
+                        styles.field
+                      }
+                    >
                       <label htmlFor="pickup-time">
-                        <Clock3 size={15} />
+                        <Clock3
+                          size={15}
+                        />
+
                         Pickup Time
                       </label>
 
                       <input
                         id="pickup-time"
                         type="time"
-                        value={pickupTime}
-                        onChange={(event) => {
+                        value={
+                          pickupTime
+                        }
+                        onChange={(
+                          event
+                        ) => {
                           setPickupTime(
-                            event.target.value
+                            event.target
+                              .value
                           );
-                          setCheckoutError(null);
+
+                          setCheckoutError(
+                            null
+                          );
                         }}
                       />
                     </div>
 
-                    <div className={styles.field}>
+                    <div
+                      className={
+                        styles.field
+                      }
+                    >
                       <label htmlFor="dropoff-time">
-                        <Clock3 size={15} />
+                        <Clock3
+                          size={15}
+                        />
+
                         Drop-off Time
                       </label>
 
                       <input
                         id="dropoff-time"
                         type="time"
-                        value={dropoffTime}
-                        onChange={(event) => {
+                        value={
+                          dropoffTime
+                        }
+                        onChange={(
+                          event
+                        ) => {
                           setDropoffTime(
-                            event.target.value
+                            event.target
+                              .value
                           );
-                          setCheckoutError(null);
+
+                          setCheckoutError(
+                            null
+                          );
                         }}
                       />
                     </div>
                   </div>
 
                   {checkoutError && (
-                    <div className={styles.error}>
-                      {checkoutError}
+                    <div
+                      className={
+                        styles.error
+                      }
+                    >
+                      {
+                        checkoutError
+                      }
                     </div>
                   )}
 
                   <button
                     type="button"
-                    className={styles.checkout}
-                    disabled={actionLoading}
-                    onClick={handleCheckout}
+                    className={
+                      styles.checkout
+                    }
+                    disabled={
+                      actionLoading
+                    }
+                    onClick={
+                      handleCheckout
+                    }
                   >
-                    <CreditCard size={18} />
+                    <CreditCard
+                      size={18}
+                    />
 
                     {actionLoading
                       ? "Preparing checkout..."
@@ -556,9 +852,14 @@ export default function RentalGadgetPage({
               )}
 
               {!available && (
-                <div className={styles.error}>
-                  This equipment is currently
-                  unavailable for rental.
+                <div
+                  className={
+                    styles.error
+                  }
+                >
+                  This equipment is
+                  currently unavailable
+                  for rental.
                 </div>
               )}
             </div>

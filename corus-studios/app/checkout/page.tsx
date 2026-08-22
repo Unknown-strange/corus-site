@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -20,6 +21,8 @@ import {
   XCircle,
   Printer,
   ReceiptText,
+  AlertTriangle,
+  ExternalLink,
 } from "lucide-react";
 
 import Navbar from "@/components/Navbar";
@@ -78,11 +81,16 @@ type BookingCheckoutData = {
   slot_id: string;
   slot_starts_at: string;
   slot_ends_at: string;
+  saved_at?: number;
 };
 
 type CheckoutResponse = {
+  booking_id?: string;
+  rental_id?: string;
+  order_id?: string;
   authorization_url?: string;
   reference?: string;
+  public_key?: string;
   amount_ghs?: string;
 };
 
@@ -97,6 +105,15 @@ type ErrorResponse = {
 
 const PAYMENT_STORAGE_KEY =
   "corus_payment_result";
+
+const CHECKOUT_INTENT_KEY =
+  "corus_checkout_intent";
+
+const BOOKING_STORAGE_KEY =
+  "booking_checkout";
+
+const RENTAL_STORAGE_KEY =
+  "rental_checkout";
 
 /* =========================================================
    HELPERS
@@ -150,28 +167,30 @@ function getErrorMessage(
     ) {
       const messages =
         errorData.detail
-          .map((item) => {
-            if (
-              item &&
-              typeof item ===
-                "object" &&
-              "msg" in item &&
-              typeof (
-                item as {
-                  msg?: unknown;
-                }
-              ).msg ===
-                "string"
-            ) {
-              return (
-                item as {
-                  msg: string;
-                }
-              ).msg;
-            }
+          .map(
+            (item) => {
+              if (
+                item &&
+                typeof item ===
+                  "object" &&
+                "msg" in item &&
+                typeof (
+                  item as {
+                    msg?: unknown;
+                  }
+                ).msg ===
+                  "string"
+              ) {
+                return (
+                  item as {
+                    msg: string;
+                  }
+                ).msg;
+              }
 
-            return null;
-          })
+              return null;
+            }
+          )
           .filter(
             (
               message
@@ -208,9 +227,36 @@ function getErrorMessage(
   return fallback;
 }
 
+function isHoldExpiredError(
+  message: string
+) {
+  const value =
+    message.toLowerCase();
+
+  return (
+    value.includes(
+      "hold"
+    ) &&
+    (
+      value.includes(
+        "expired"
+      ) ||
+      value.includes(
+        "expire"
+      ) ||
+      value.includes(
+        "invalid"
+      ) ||
+      value.includes(
+        "not found"
+      )
+    )
+  );
+}
+
 function formatDate(
   value: string
-): string {
+) {
   const date =
     new Date(value);
 
@@ -225,17 +271,21 @@ function formatDate(
   return date.toLocaleDateString(
     "en-GH",
     {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+      weekday:
+        "short",
+      month:
+        "short",
+      day:
+        "numeric",
+      year:
+        "numeric",
     }
   );
 }
 
 function formatMoney(
   value: number
-): string {
+) {
   return value.toLocaleString(
     "en-GH",
     {
@@ -246,16 +296,22 @@ function formatMoney(
 }
 
 /* =========================================================
-   CHECKOUT PAGE
+   PAGE
 ========================================================= */
 
 export default function CheckoutPage() {
-  const [mode, setMode] =
-    useState<CheckoutMode>(
-      "store"
+  const [
+    mode,
+    setMode,
+  ] =
+    useState<CheckoutMode | null>(
+      null
     );
 
-  const [cart, setCart] =
+  const [
+    cart,
+    setCart,
+  ] =
     useState<CartResponse | null>(
       null
     );
@@ -276,13 +332,22 @@ export default function CheckoutPage() {
       null
     );
 
-  const [loading, setLoading] =
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(true);
 
-  const [paying, setPaying] =
+  const [
+    paying,
+    setPaying,
+  ] =
     useState(false);
 
-  const [error, setError] =
+  const [
+    error,
+    setError,
+  ] =
     useState<string | null>(
       null
     );
@@ -310,118 +375,157 @@ export default function CheckoutPage() {
     );
 
   /* =========================================================
-     LOAD CHECKOUT CONTEXT
+     LOAD CONTEXT
   ========================================================= */
 
   useEffect(() => {
+    let mounted = true;
+
     const loadCheckout =
       async () => {
-        /* =========================================
-           BOOKING
-        ========================================= */
-
         try {
-          const bookingRaw =
+          const intent =
             sessionStorage.getItem(
-              "booking_checkout"
+              CHECKOUT_INTENT_KEY
+            );
+
+          /* =============================================
+             BOOKING
+          ============================================= */
+
+          if (
+            intent ===
+            "booking"
+          ) {
+            try {
+              const raw =
+                sessionStorage.getItem(
+                  BOOKING_STORAGE_KEY
+                );
+
+              if (
+                raw
+              ) {
+                const parsed =
+                  JSON.parse(
+                    raw
+                  ) as BookingCheckoutData;
+
+                if (
+                  parsed.hold_id
+                ) {
+                  if (
+                    mounted
+                  ) {
+                    setBookingCheckout(
+                      parsed
+                    );
+
+                    setMode(
+                      "booking"
+                    );
+
+                    setLoading(
+                      false
+                    );
+                  }
+
+                  return;
+                }
+              }
+            } catch {
+              sessionStorage.removeItem(
+                BOOKING_STORAGE_KEY
+              );
+            }
+
+            sessionStorage.removeItem(
+              CHECKOUT_INTENT_KEY
+            );
+          }
+
+          /* =============================================
+             RENTAL
+          ============================================= */
+
+          if (
+            intent ===
+            "rental"
+          ) {
+            try {
+              const raw =
+                sessionStorage.getItem(
+                  RENTAL_STORAGE_KEY
+                );
+
+              if (
+                raw
+              ) {
+                const parsed =
+                  JSON.parse(
+                    raw
+                  ) as RentalCheckoutData;
+
+                if (
+                  parsed.equipment_id
+                ) {
+                  if (
+                    mounted
+                  ) {
+                    setRentalCheckout(
+                      parsed
+                    );
+
+                    setMode(
+                      "rental"
+                    );
+
+                    setLoading(
+                      false
+                    );
+                  }
+
+                  return;
+                }
+              }
+            } catch {
+              sessionStorage.removeItem(
+                RENTAL_STORAGE_KEY
+              );
+            }
+
+            sessionStorage.removeItem(
+              CHECKOUT_INTENT_KEY
+            );
+          }
+
+          /* =============================================
+             STORE
+          ============================================= */
+
+          const token =
+            localStorage.getItem(
+              "access_token"
             );
 
           if (
-            bookingRaw
+            !token
           ) {
-            const booking =
-              JSON.parse(
-                bookingRaw
-              ) as BookingCheckoutData;
-
             if (
-              booking.hold_id
+              mounted
             ) {
-              setBookingCheckout(
-                booking
-              );
-
-              setMode(
-                "booking"
+              setError(
+                "Please log in to continue."
               );
 
               setLoading(
                 false
               );
-
-              return;
             }
+
+            return;
           }
-        } catch {
-          sessionStorage.removeItem(
-            "booking_checkout"
-          );
-        }
 
-        /* =========================================
-           RENTAL
-        ========================================= */
-
-        try {
-          const rentalRaw =
-            sessionStorage.getItem(
-              "rental_checkout"
-            );
-
-          if (
-            rentalRaw
-          ) {
-            const rental =
-              JSON.parse(
-                rentalRaw
-              ) as RentalCheckoutData;
-
-            if (
-              rental.equipment_id
-            ) {
-              setRentalCheckout(
-                rental
-              );
-
-              setMode(
-                "rental"
-              );
-
-              setLoading(
-                false
-              );
-
-              return;
-            }
-          }
-        } catch {
-          sessionStorage.removeItem(
-            "rental_checkout"
-          );
-        }
-
-        /* =========================================
-           STORE
-        ========================================= */
-
-        const token =
-          localStorage.getItem(
-            "access_token"
-          );
-
-        if (!token) {
-          setError(
-            "Please log in to continue."
-          );
-
-          setLoading(
-            false
-          );
-
-          return;
-        }
-
-        try {
           const response =
             await api.cart.get(
               token
@@ -464,36 +568,62 @@ export default function CheckoutPage() {
             );
           }
 
-          setCart(
-            data as CartResponse
+          if (
+            mounted
+          ) {
+            setCart(
+              data as CartResponse
+            );
+
+            setMode(
+              "store"
+            );
+          }
+        } catch (
+          err
+        ) {
+          console.error(
+            "CHECKOUT CONTEXT LOAD FAILED:",
+            err
           );
 
-          setMode(
-            "store"
-          );
-        } catch (err) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Unable to load your cart."
-          );
+          if (
+            mounted
+          ) {
+            setError(
+              err instanceof
+                Error
+                ? err.message
+                : "Unable to load checkout."
+            );
+          }
         } finally {
-          setLoading(
-            false
-          );
+          if (
+            mounted
+          ) {
+            setLoading(
+              false
+            );
+          }
         }
       };
 
     loadCheckout();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   /* =========================================================
-     PAYMENT RESULT LISTENER
+     PAYMENT RESULT
   ========================================================= */
 
   useEffect(() => {
     const applyPaymentResult =
-      (value: unknown) => {
+      (
+        value: unknown
+      ) => {
         if (
           !value ||
           typeof value !==
@@ -548,11 +678,15 @@ export default function CheckoutPage() {
           );
 
           sessionStorage.removeItem(
-            "booking_checkout"
+            BOOKING_STORAGE_KEY
           );
 
           sessionStorage.removeItem(
-            "rental_checkout"
+            RENTAL_STORAGE_KEY
+          );
+
+          sessionStorage.removeItem(
+            CHECKOUT_INTENT_KEY
           );
 
           setError(
@@ -579,10 +713,6 @@ export default function CheckoutPage() {
         }
       };
 
-    /* =========================================
-       postMessage
-    ========================================= */
-
     const handleMessage =
       (
         event: MessageEvent
@@ -601,24 +731,20 @@ export default function CheckoutPage() {
           return;
         }
 
-        const result =
-          event.data?.result;
-
         applyPaymentResult({
-          ...(result &&
-          typeof result ===
+          ...(event.data
+            ?.result &&
+          typeof event.data
+            .result ===
             "object"
-            ? result
+            ? event.data
+                .result
             : {}),
 
           status:
             event.data.status,
         });
       };
-
-    /* =========================================
-       STORAGE
-    ========================================= */
 
     const handleStorage =
       (
@@ -639,13 +765,9 @@ export default function CheckoutPage() {
             )
           );
         } catch {
-          // Ignore malformed data.
+          // Ignore malformed storage.
         }
       };
-
-    /* =========================================
-       READ EXISTING RESULT
-    ========================================= */
 
     try {
       const existing =
@@ -704,46 +826,333 @@ export default function CheckoutPage() {
   }, []);
 
   /* =========================================================
-     PRINT RECEIPT
+     PROCEED
+  ========================================================= */
+
+  const proceedToPayment =
+    async () => {
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
+
+      if (
+        !token
+      ) {
+        setError(
+          "Please log in to continue."
+        );
+
+        return;
+      }
+
+      if (
+        !mode
+      ) {
+        setError(
+          "No checkout session was found."
+        );
+
+        return;
+      }
+
+      try {
+        setPaying(
+          true
+        );
+
+        setError(
+          null
+        );
+
+        setPaymentResult(
+          null
+        );
+
+        setPaymentState(
+          "idle"
+        );
+
+        let response:
+          Response;
+
+        /* =============================================
+           BOOKING
+        ============================================= */
+
+        if (
+          mode ===
+          "booking"
+        ) {
+          if (
+            !bookingCheckout
+          ) {
+            throw new Error(
+              "Your booking checkout session is no longer available. Please choose your date and time again."
+            );
+          }
+
+          response =
+            await api.sessions.checkoutBooking(
+              {
+                hold_id:
+                  bookingCheckout.hold_id,
+              },
+              token
+            );
+        }
+
+        /* =============================================
+           RENTAL
+        ============================================= */
+
+        else if (
+          mode ===
+          "rental"
+        ) {
+          if (
+            !rentalCheckout
+          ) {
+            throw new Error(
+              "Your rental checkout information is missing. Please select the rental again."
+            );
+          }
+
+          response =
+            await api.rentals.checkout(
+              {
+                equipment_id:
+                  rentalCheckout.equipment_id,
+
+                start_date:
+                  rentalCheckout.start_date,
+
+                end_date:
+                  rentalCheckout.end_date,
+              },
+              token
+            );
+        }
+
+        /* =============================================
+           STORE
+        ============================================= */
+
+        else {
+          if (
+            !cart ||
+            cart.items.length ===
+              0
+          ) {
+            throw new Error(
+              "Your store cart is empty."
+            );
+          }
+
+          response =
+            await api.orders.checkout(
+              token
+            );
+        }
+
+        const rawBody =
+          await response.text();
+
+        const data =
+          parseResponseBody(
+            rawBody
+          );
+
+        console.log(
+          "CHECKOUT RESPONSE",
+          {
+            mode,
+            status:
+              response.status,
+            data,
+          }
+        );
+
+        if (
+          response.status ===
+          401
+        ) {
+          localStorage.removeItem(
+            "access_token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
+
+          window.location.href =
+            "/login";
+
+          return;
+        }
+
+        if (
+          !response.ok
+        ) {
+          const message =
+            getErrorMessage(
+              data,
+              `Checkout failed (${response.status}).`
+            );
+
+          /*
+           * This is important for expired booking holds.
+           */
+          if (
+            mode ===
+              "booking" &&
+            isHoldExpiredError(
+              message
+            )
+          ) {
+            sessionStorage.removeItem(
+              BOOKING_STORAGE_KEY
+            );
+
+            sessionStorage.removeItem(
+              CHECKOUT_INTENT_KEY
+            );
+
+            setBookingCheckout(
+              null
+            );
+
+            setError(
+              "Your booking hold has expired. Please return to the booking page and choose the date and time again."
+            );
+
+            setPaying(
+              false
+            );
+
+            return;
+          }
+
+          throw new Error(
+            message
+          );
+        }
+
+        if (
+          !data ||
+          typeof data !==
+            "object"
+        ) {
+          throw new Error(
+            "The checkout server returned an invalid response."
+          );
+        }
+
+        const checkout =
+          data as CheckoutResponse;
+
+        if (
+          !checkout.authorization_url
+        ) {
+          throw new Error(
+            "The server completed checkout but did not return a Paystack authorization URL."
+          );
+        }
+
+        if (
+          checkout.reference
+        ) {
+          setPaymentReference(
+            checkout.reference
+          );
+        }
+
+        /*
+         * Clear the booking hold from session storage
+         * once the backend has successfully accepted it.
+         * The payment reference is now our source of truth.
+         */
+        if (
+          mode ===
+          "booking"
+        ) {
+          sessionStorage.removeItem(
+            BOOKING_STORAGE_KEY
+          );
+        }
+
+        if (
+          mode ===
+          "rental"
+        ) {
+          sessionStorage.removeItem(
+            RENTAL_STORAGE_KEY
+          );
+        }
+
+        /*
+         * Do not clear the store cart here because the backend
+         * order is what controls the cart state.
+         */
+
+        setPaymentState(
+          "waiting"
+        );
+
+        const paymentWindow =
+          window.open(
+            checkout.authorization_url,
+            "_blank"
+          );
+
+        if (
+          !paymentWindow
+        ) {
+          throw new Error(
+            "Your browser blocked the Paystack payment window. Please allow pop-ups for this site."
+          );
+        }
+
+        paymentWindow.focus();
+      } catch (
+        err
+      ) {
+        console.error(
+          "PAYMENT START FAILED:",
+          err
+        );
+
+        setPaymentState(
+          "error"
+        );
+
+        setError(
+          err instanceof
+            Error
+            ? err.message
+            : "Unable to start payment."
+        );
+
+        setPaying(
+          false
+        );
+      }
+    };
+
+  /* =========================================================
+     PRINT
   ========================================================= */
 
   const printReceipt =
     () => {
+      const receipt =
+        paymentResult?.receipt;
+
       if (
-        !paymentResult
+        !receipt
       ) {
         return;
       }
-
-      const receipt =
-        paymentResult.receipt;
-
-      const reference =
-        paymentResult.reference ||
-        paymentReference ||
-        "";
-
-      const amount =
-        receipt?.amount_ghs
-          ? Number(
-              receipt.amount_ghs
-            ).toLocaleString(
-              "en-GH",
-              {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }
-            )
-          : "";
-
-      const issued =
-        receipt?.issued_at
-          ? new Date(
-              receipt.issued_at
-            ).toLocaleString(
-              "en-GH"
-            )
-          : "";
 
       const printWindow =
         window.open(
@@ -758,80 +1167,60 @@ export default function CheckoutPage() {
         return;
       }
 
+      const amount =
+        receipt.amount_ghs
+          ? Number(
+              receipt.amount_ghs
+            ).toLocaleString(
+              "en-GH",
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }
+            )
+          : "";
+
       printWindow.document.write(`
         <!doctype html>
-
         <html>
           <head>
-            <title>
-              Corus Studios Receipt
-            </title>
+            <title>Corus Studios Receipt</title>
 
             <style>
               body {
-                font-family:
-                  Arial,
-                  Helvetica,
-                  sans-serif;
-
-                margin: 0;
-
+                font-family: Arial, Helvetica, sans-serif;
                 padding: 40px;
-
                 color: #111827;
-
-                background: #ffffff;
               }
 
               .receipt {
                 max-width: 560px;
-
                 margin: 0 auto;
               }
 
               .brand {
                 color: #ff5100;
-
                 font-size: 12px;
-
                 font-weight: 800;
-
                 letter-spacing: 2px;
-
-                text-transform:
-                  uppercase;
+                text-transform: uppercase;
               }
 
               h1 {
-                margin:
-                  8px 0 4px;
-
-                font-size: 30px;
-              }
-
-              .sub {
-                color: #667085;
-
-                margin-bottom: 30px;
+                margin: 8px 0 6px;
+                font-size: 28px;
               }
 
               .line {
-                border-top:
-                  1px solid
-                  #e5e7eb;
-
+                border-top: 1px solid #e5e7eb;
                 margin: 20px 0;
               }
 
               .row {
                 display: flex;
-
-                justify-content:
-                  space-between;
-
+                justify-content: space-between;
                 gap: 20px;
-
-                padding: 10px 0;
+                padding: 9px 0;
               }
 
               .label {
@@ -840,33 +1229,12 @@ export default function CheckoutPage() {
 
               .value {
                 font-weight: 700;
-
-                text-align:
-                  right;
-
-                word-break:
-                  break-word;
+                text-align: right;
+                word-break: break-word;
               }
 
               .total {
-                font-size: 20px;
-              }
-
-              .footer {
-                margin-top: 35px;
-
-                color: #98a2b3;
-
-                font-size: 12px;
-
-                text-align:
-                  center;
-              }
-
-              @media print {
-                body {
-                  padding: 20px;
-                }
+                font-size: 19px;
               }
             </style>
           </head>
@@ -881,10 +1249,6 @@ export default function CheckoutPage() {
                 Payment Receipt
               </h1>
 
-              <div class="sub">
-                Thank you for your payment.
-              </div>
-
               <div class="line"></div>
 
               <div class="row">
@@ -893,12 +1257,12 @@ export default function CheckoutPage() {
                 </span>
 
                 <span class="value">
-                  ${reference || "N/A"}
+                  ${paymentReference || "N/A"}
                 </span>
               </div>
 
               ${
-                receipt?.receipt_number
+                receipt.receipt_number
                   ? `
                     <div class="row">
                       <span class="label">
@@ -928,28 +1292,6 @@ export default function CheckoutPage() {
                   `
                   : ""
               }
-
-              ${
-                issued
-                  ? `
-                    <div class="row">
-                      <span class="label">
-                        Issued
-                      </span>
-
-                      <span class="value">
-                        ${issued}
-                      </span>
-                    </div>
-                  `
-                  : ""
-              }
-
-              <div class="line"></div>
-
-              <div class="footer">
-                Corus Studios
-              </div>
             </div>
           </body>
         </html>
@@ -958,304 +1300,11 @@ export default function CheckoutPage() {
       printWindow.document.close();
 
       printWindow.focus();
-
       printWindow.print();
     };
 
   /* =========================================================
-     PROCEED TO PAYMENT
-  ========================================================= */
-
-  const proceedToPayment =
-    async () => {
-      const token =
-        localStorage.getItem(
-          "access_token"
-        );
-
-      if (!token) {
-        setError(
-          "Please log in to continue."
-        );
-
-        return;
-      }
-
-      try {
-        /* -----------------------------------------
-           CLEAR PREVIOUS PAYMENT RESULT
-        ----------------------------------------- */
-
-        try {
-          localStorage.removeItem(
-            PAYMENT_STORAGE_KEY
-          );
-        } catch {
-          // Ignore.
-        }
-
-        setPaying(
-          true
-        );
-
-        setError(
-          null
-        );
-
-        setPaymentResult(
-          null
-        );
-
-        setPaymentState(
-          "idle"
-        );
-
-        let response:
-          Response;
-
-        console.log(
-          "STARTING PAYMENT",
-          {
-            mode,
-            apiBase:
-              process.env
-                .NEXT_PUBLIC_API_URL,
-          }
-        );
-
-        /* =========================================
-           BOOKING
-        ========================================= */
-
-        if (
-          mode ===
-            "booking" &&
-          bookingCheckout
-        ) {
-          response =
-            await api.sessions.checkoutBooking(
-              {
-                hold_id:
-                  bookingCheckout.hold_id,
-              },
-              token
-            );
-        }
-
-        /* =========================================
-           RENTAL
-        ========================================= */
-
-        else if (
-          mode ===
-            "rental" &&
-          rentalCheckout
-        ) {
-          response =
-            await api.rentals.checkout(
-              {
-                equipment_id:
-                  rentalCheckout.equipment_id,
-
-                start_date:
-                  rentalCheckout.start_date,
-
-                end_date:
-                  rentalCheckout.end_date,
-              },
-              token
-            );
-        }
-
-        /* =========================================
-           STORE
-        ========================================= */
-
-        else {
-          if (
-            !cart ||
-            cart.items.length ===
-              0
-          ) {
-            setError(
-              "Your cart is empty."
-            );
-
-            setPaying(
-              false
-            );
-
-            return;
-          }
-
-          response =
-            await api.orders.checkout(
-              token
-            );
-        }
-
-        console.log(
-          "CHECKOUT HTTP RESPONSE",
-          {
-            status:
-              response.status,
-            ok:
-              response.ok,
-            url:
-              response.url,
-          }
-        );
-
-        const rawBody =
-          await response.text();
-
-        const data =
-          parseResponseBody(
-            rawBody
-          );
-
-        console.log(
-          "CHECKOUT RESPONSE",
-          data
-        );
-
-        if (
-          response.status ===
-          401
-        ) {
-          localStorage.removeItem(
-            "access_token"
-          );
-
-          localStorage.removeItem(
-            "user"
-          );
-
-          window.location.href =
-            "/login";
-
-          return;
-        }
-
-        if (
-          !response.ok
-        ) {
-          throw new Error(
-            getErrorMessage(
-              data,
-              `Checkout failed (${response.status}).`
-            )
-          );
-        }
-
-        if (
-          !data ||
-          typeof data !==
-            "object"
-        ) {
-          throw new Error(
-            "The checkout server returned an invalid response."
-          );
-        }
-
-        const checkout =
-          data as CheckoutResponse;
-
-        if (
-          !checkout.authorization_url
-        ) {
-          throw new Error(
-            "The backend completed checkout but did not return a Paystack authorization URL."
-          );
-        }
-
-        if (
-          checkout.reference
-        ) {
-          setPaymentReference(
-            checkout.reference
-          );
-        }
-
-        /* =========================================
-           SHOW WAITING MODAL
-        ========================================= */
-
-        setPaymentState(
-          "waiting"
-        );
-
-        /* =========================================
-           OPEN PAYSTACK
-        ========================================= */
-
-        const paymentWindow =
-          window.open(
-            checkout.authorization_url,
-            "_blank"
-          );
-
-        if (
-          !paymentWindow
-        ) {
-          throw new Error(
-            "Your browser blocked the Paystack payment window. Please allow pop-ups for this site."
-          );
-        }
-
-        paymentWindow.focus();
-      } catch (err) {
-        console.error(
-          "PAYMENT START FAILED",
-          err
-        );
-
-        setPaymentState(
-          "error"
-        );
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unable to start payment."
-        );
-
-        setPaying(
-          false
-        );
-      }
-    };
-
-  /* =========================================================
-     LOADING
-  ========================================================= */
-
-  if (loading) {
-    return (
-      <>
-        <Navbar />
-
-        <main
-          className={
-            styles.page
-          }
-        >
-          <div
-            className={
-              styles.loading
-            }
-          >
-            Loading checkout...
-          </div>
-        </main>
-
-        <Footer />
-      </>
-    );
-  }
-
-  /* =========================================================
-     TOTALS
+     CALCULATIONS
   ========================================================= */
 
   const storeTotal =
@@ -1312,19 +1361,77 @@ export default function CheckoutPage() {
         )
       : 0;
 
+  /*
+   * Important:
+   *
+   * The actual booking payment comes from the backend
+   * response. This is only used for the review screen.
+   */
+  const bookingDeposit =
+    50;
+
+  const bookingBalance =
+    Math.max(
+      0,
+      bookingPrice -
+        bookingDeposit
+    );
+
+  /* =========================================================
+     LABELS
+  ========================================================= */
+
   const heading =
-    mode === "booking"
+    mode ===
+    "booking"
       ? "Review your booking"
-      : mode === "rental"
+      : mode ===
+        "rental"
       ? "Review your rental"
       : "Complete your order";
 
   const subtitle =
-    mode === "booking"
-      ? "Confirm your session details before continuing to payment."
-      : mode === "rental"
+    mode ===
+    "booking"
+      ? "Confirm your session details and secure your booking with the GH₵50 deposit."
+      : mode ===
+        "rental"
       ? "Confirm your rental details before continuing to payment."
       : "Review your products before continuing to secure payment.";
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
+  if (
+    loading
+  ) {
+    return (
+      <>
+        <Navbar />
+
+        <main
+          className={
+            styles.page
+          }
+        >
+          <div
+            className={
+              styles.loading
+            }
+          >
+            Loading checkout...
+          </div>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
+
+  /* =========================================================
+     PAGE
+  ========================================================= */
 
   return (
     <>
@@ -1344,11 +1451,11 @@ export default function CheckoutPage() {
             href={
               mode ===
               "booking"
-                ? "/"
+                ? "/booking/session"
                 : mode ===
                   "rental"
                 ? "/rentals"
-                : "/cart"
+                : "/cart/carts?category=store"
             }
             className={
               styles.backLink
@@ -1395,7 +1502,30 @@ export default function CheckoutPage() {
                 styles.error
               }
             >
-              {error}
+              <AlertTriangle
+                size={16}
+              />
+
+              <span>
+                {error}
+              </span>
+
+              {mode ===
+                "booking" &&
+                error
+                  .toLowerCase()
+                  .includes(
+                    "hold"
+                  ) && (
+                  <Link
+                    href="/booking/session"
+                    className={
+                      styles.errorAction
+                    }
+                  >
+                    Book Again
+                  </Link>
+                )}
             </div>
           )}
 
@@ -1441,8 +1571,7 @@ export default function CheckoutPage() {
                           styles.itemType
                         }
                       >
-                        Photography
-                        Session
+                        Photography Session
                       </span>
 
                       <h2>
@@ -1494,7 +1623,8 @@ export default function CheckoutPage() {
                                 "2-digit",
                             }
                           )}{" "}
-                          -{" "}
+                          -
+                          {" "}
                           {new Date(
                             bookingCheckout.slot_ends_at
                           ).toLocaleTimeString(
@@ -1565,12 +1695,48 @@ export default function CheckoutPage() {
                     }
                   >
                     <span>
-                      Date
+                      Total price
                     </span>
 
                     <strong>
-                      {formatDate(
-                        bookingCheckout.slot_starts_at
+                      GH₵
+                      {formatMoney(
+                        bookingPrice
+                      )}
+                    </strong>
+                  </div>
+
+                  <div
+                    className={
+                      styles.summaryRow
+                    }
+                  >
+                    <span>
+                      Booking deposit
+                    </span>
+
+                    <strong
+                      className={
+                        styles.depositAmount
+                      }
+                    >
+                      GH₵50.00
+                    </strong>
+                  </div>
+
+                  <div
+                    className={
+                      styles.summaryRow
+                    }
+                  >
+                    <span>
+                      Balance after payment
+                    </span>
+
+                    <strong>
+                      GH₵
+                      {formatMoney(
+                        bookingBalance
                       )}
                     </strong>
                   </div>
@@ -1583,19 +1749,21 @@ export default function CheckoutPage() {
 
                   <div
                     className={
-                      styles.grandTotal
+                      styles.payNowNotice
                     }
                   >
-                    <span>
-                      Total
-                    </span>
+                    <CreditCard
+                      size={16}
+                    />
 
-                    <strong>
-                      GH₵
-                      {formatMoney(
-                        bookingPrice
-                      )}
-                    </strong>
+                    <span>
+                      You only pay
+                      <strong>
+                        GH₵50.00
+                      </strong>
+                      now to secure this
+                      booking.
+                    </span>
                   </div>
 
                   <button
@@ -1614,7 +1782,9 @@ export default function CheckoutPage() {
                       size={18}
                     />
 
-                    Proceed to Payment
+                    {paying
+                      ? "Preparing Payment..."
+                      : "Proceed to Payment — GH₵50"}
                   </button>
                 </aside>
               </section>
@@ -1649,7 +1819,8 @@ export default function CheckoutPage() {
                     >
                       <Image
                         src={
-                          rentalCheckout.image_url
+                          rentalCheckout.image_url ||
+                          "/images/placeholder.png"
                         }
                         alt={
                           rentalCheckout.equipment_name
@@ -1714,7 +1885,8 @@ export default function CheckoutPage() {
                           {
                             rentalCheckout.pickup_time
                           }{" "}
-                          -{" "}
+                          -
+                          {" "}
                           {
                             rentalCheckout.dropoff_time
                           }
@@ -1782,7 +1954,9 @@ export default function CheckoutPage() {
                     </span>
 
                     <strong>
-                      {rentalDays}
+                      {
+                        rentalDays
+                      }
                     </strong>
                   </div>
 
@@ -1825,7 +1999,9 @@ export default function CheckoutPage() {
                       size={18}
                     />
 
-                    Proceed to Payment
+                    {paying
+                      ? "Preparing Payment..."
+                      : "Proceed to Payment"}
                   </button>
                 </aside>
               </section>
@@ -2037,7 +2213,9 @@ export default function CheckoutPage() {
                       size={18}
                     />
 
-                    Proceed to Payment
+                    {paying
+                      ? "Preparing Payment..."
+                      : "Proceed to Payment"}
                   </button>
                 </aside>
               </section>
@@ -2108,10 +2286,6 @@ export default function CheckoutPage() {
               styles.paymentModal
             }
           >
-            {/* ===============================================
-                WAITING
-            =============================================== */}
-
             {paymentState ===
               "waiting" && (
               <>
@@ -2128,8 +2302,8 @@ export default function CheckoutPage() {
                 </h2>
 
                 <p>
-                  Paystack has been opened
-                  in a new tab.
+                  Paystack has been
+                  opened in a new tab.
                 </p>
 
                 <p
@@ -2137,10 +2311,9 @@ export default function CheckoutPage() {
                     styles.modalSecondary
                   }
                 >
-                  Complete your payment there.
-                  We'll automatically update
-                  this window when Paystack
-                  confirms it.
+                  Complete the payment there.
+                  This window will update when
+                  Paystack confirms it.
                 </p>
 
                 <div
@@ -2152,12 +2325,22 @@ export default function CheckoutPage() {
 
                   Waiting for confirmation...
                 </div>
+
+                <button
+                  type="button"
+                  className={
+                    styles.modalSecondaryButton
+                  }
+                  onClick={() =>
+                    setPaymentState(
+                      "idle"
+                    )
+                  }
+                >
+                  Close
+                </button>
               </>
             )}
-
-            {/* ===============================================
-                SUCCESS
-            =============================================== */}
 
             {paymentState ===
               "success" && (
@@ -2179,91 +2362,72 @@ export default function CheckoutPage() {
                   successfully verified.
                 </p>
 
-                <div
-                  className={
-                    styles.receiptBox
-                  }
-                >
-                  <span>
-                    Reference
-                  </span>
+                {paymentResult && (
+                  <div
+                    className={
+                      styles.receiptBox
+                    }
+                  >
+                    <span>
+                      Reference
+                    </span>
 
-                  <strong>
-                    {paymentReference ||
-                      "Unavailable"}
-                  </strong>
+                    <strong>
+                      {
+                        paymentReference
+                      }
+                    </strong>
 
-                  {paymentResult
-                    ?.receipt
-                    ?.receipt_number && (
-                    <>
-                      <span>
-                        Receipt
-                      </span>
+                    {paymentResult.receipt
+                      ?.receipt_number && (
+                      <>
+                        <span>
+                          Receipt
+                        </span>
 
-                      <strong>
-                        {
-                          paymentResult
-                            .receipt
-                            .receipt_number
-                        }
-                      </strong>
-                    </>
-                  )}
-
-                  {paymentResult
-                    ?.receipt
-                    ?.amount_ghs && (
-                    <>
-                      <span>
-                        Amount
-                      </span>
-
-                      <strong>
-                        GH₵
-                        {Number(
-                          paymentResult
-                            .receipt
-                            .amount_ghs
-                        ).toLocaleString(
-                          "en-GH",
+                        <strong>
                           {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
+                            paymentResult
+                              .receipt
+                              .receipt_number
                           }
-                        )}
-                      </strong>
-                    </>
-                  )}
+                        </strong>
+                      </>
+                    )}
 
-                  {paymentResult
-                    ?.receipt
-                    ?.issued_at && (
-                    <>
-                      <span>
-                        Issued
-                      </span>
+                    {paymentResult.receipt
+                      ?.amount_ghs && (
+                      <>
+                        <span>
+                          Amount Paid
+                        </span>
 
-                      <strong>
-                        {new Date(
-                          paymentResult
-                            .receipt
-                            .issued_at
-                        ).toLocaleString(
-                          "en-GH"
-                        )}
-                      </strong>
-                    </>
-                  )}
-                </div>
+                        <strong>
+                          GH₵
+                          {Number(
+                            paymentResult
+                              .receipt
+                              .amount_ghs
+                          ).toLocaleString(
+                            "en-GH",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )}
+                        </strong>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 <div
                   className={
                     styles.modalReceiptActions
                   }
                 >
-                  {paymentResult
-                    ?.receipt?.id && (
+                  {paymentResult?.receipt
+                    ?.id && (
                     <Link
                       href={`/receipts/${paymentResult.receipt.id}`}
                       className={
@@ -2278,8 +2442,7 @@ export default function CheckoutPage() {
                     </Link>
                   )}
 
-                  {paymentResult
-                    ?.receipt && (
+                  {paymentResult?.receipt && (
                     <button
                       type="button"
                       className={
@@ -2297,15 +2460,6 @@ export default function CheckoutPage() {
                     </button>
                   )}
                 </div>
-
-                <p
-                  className={
-                    styles.modalSecondary
-                  }
-                >
-                  Your payment has been
-                  verified successfully.
-                </p>
 
                 <div
                   className={
@@ -2327,12 +2481,12 @@ export default function CheckoutPage() {
                   {mode ===
                     "rental" && (
                     <Link
-                      href="/rentals"
+                      href="/cart/carts?category=rentals"
                       className={
                         styles.modalPrimary
                       }
                     >
-                      Back to Rentals
+                      View My Rentals
                     </Link>
                   )}
 
@@ -2351,10 +2505,6 @@ export default function CheckoutPage() {
               </>
             )}
 
-            {/* ===============================================
-                ERROR
-            =============================================== */}
-
             {paymentState ===
               "error" && (
               <>
@@ -2367,41 +2517,13 @@ export default function CheckoutPage() {
                 </div>
 
                 <h2>
-                  Payment Verification Failed
+                  Payment could not be started
                 </h2>
 
                 <p>
-                  We couldn't confirm the
-                  payment.
+                  {error ||
+                    "We could not start the payment."}
                 </p>
-
-                {error && (
-                  <p
-                    className={
-                      styles.modalErrorText
-                    }
-                  >
-                    {error}
-                  </p>
-                )}
-
-                {paymentReference && (
-                  <div
-                    className={
-                      styles.receiptBox
-                    }
-                  >
-                    <span>
-                      Reference
-                    </span>
-
-                    <strong>
-                      {
-                        paymentReference
-                      }
-                    </strong>
-                  </div>
-                )}
 
                 <button
                   type="button"
