@@ -22,19 +22,21 @@ def _gallery_query(db: DbSession):
     return db.query(SiteContent).options(joinedload(SiteContent.session_type))
 
 
-def _ensure_gallery_session_type(section: ContentSection, session_type_id: UUID | None) -> None:
-    if section == ContentSection.gallery and session_type_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="session_type_id is required for gallery content",
-        )
+def _default_gallery_session_type_id(db: DbSession) -> UUID | None:
+    default_type = (
+        db.query(SessionType)
+        .filter(SessionType.is_active.is_(True))
+        .order_by(SessionType.name.asc())
+        .first()
+    )
+    return default_type.id if default_type is not None else None
 
 
 def _validate_session_type(db: DbSession, session_type_id: UUID) -> None:
     session_type = db.get(SessionType, session_type_id)
     if session_type is None or not session_type.is_active:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid or inactive session type",
         )
 
@@ -45,8 +47,11 @@ def create_site_content(
     user: CmsManageUser,
     db: DbSession,
 ) -> SiteContentAdminResponse:
-    if payload.session_type_id is not None:
-        _validate_session_type(db, payload.session_type_id)
+    session_type_id = payload.session_type_id
+    if session_type_id is not None:
+        _validate_session_type(db, session_type_id)
+    elif payload.section == ContentSection.gallery:
+        session_type_id = _default_gallery_session_type_id(db)
 
     content = SiteContent(
         section=payload.section,
@@ -55,7 +60,7 @@ def create_site_content(
         image_url=payload.image_url,
         imagekit_file_id=payload.imagekit_file_id,
         caption=payload.caption,
-        session_type_id=payload.session_type_id,
+        session_type_id=session_type_id,
         sort_order=payload.sort_order,
         is_published=payload.is_published,
     )
@@ -72,7 +77,8 @@ def create_site_content(
     db.commit()
 
     loaded = _gallery_query(db).filter(SiteContent.id == content.id).first()
-    assert loaded is not None
+    if loaded is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Content not found")
     return SiteContentAdminResponse.from_model(loaded)
 
 
@@ -125,7 +131,8 @@ def update_site_content(
         content.image_url = data.get("image_url", content.image_url)
         content.imagekit_file_id = new_file_id
 
-    _ensure_gallery_session_type(content.section, content.session_type_id)
+    if content.section == ContentSection.gallery and content.session_type_id is None:
+        content.session_type_id = _default_gallery_session_type_id(db)
 
     db.add(content)
     db.commit()
@@ -141,7 +148,8 @@ def update_site_content(
     db.commit()
 
     loaded = _gallery_query(db).filter(SiteContent.id == content.id).first()
-    assert loaded is not None
+    if loaded is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Content not found")
     return SiteContentAdminResponse.from_model(loaded)
 
 

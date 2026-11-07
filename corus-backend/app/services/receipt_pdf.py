@@ -329,7 +329,7 @@ def receipt_document_to_pdf(doc: ReceiptDocument) -> bytes | None:
 
             subtotal = sum(
                 (item.line_total_ghs for item in doc.line_items if item.line_total_ghs is not None),
-                Decimal("0"),
+                Decimal(0),
             )
 
         totals_rows: list[list] = []

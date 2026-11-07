@@ -7,10 +7,10 @@ from app.core.deps import CustomerUser, DbSession
 from app.models.equipment_for_rent import EquipmentForRent
 from app.models.rental_request import RentalRequest
 from app.schemas.rental import (
-    RentEquipmentPublicResponse,
     RentalCheckoutRequest,
     RentalCheckoutResponse,
     RentalDetailResponse,
+    RentEquipmentPublicResponse,
 )
 from app.services.rental_checkout import checkout_rental
 

@@ -12,7 +12,6 @@ from app.models.payment import Payment, PaymentPurpose, PaymentStatus
 from app.models.rental_request import RentalRequest, RentalStatus
 from app.models.slot_hold import HoldStatus, SlotHold
 from app.models.studio_reservation import ReservationStatus, StudioReservation
-from app.models.user import User
 from app.services.finance_service import sync_payment_to_ledger
 from app.services.order_payment import fail_order_payment
 from app.services.paystack import verify_transaction

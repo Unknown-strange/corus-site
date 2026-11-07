@@ -4,7 +4,11 @@ from fastapi import APIRouter, HTTPException, Query, status
 
 from app.core.admin_deps import DashboardViewUser
 from app.core.deps import DbSession
-from app.schemas.analytics import AnalyticsOverviewResponse, TrendInterval, TrendResponse
+from app.schemas.analytics import (
+    AnalyticsOverviewResponse,
+    TrendInterval,
+    TrendResponse,
+)
 from app.services.analytics_service import (
     get_analytics_overview,
     get_booking_trends,

@@ -5,7 +5,6 @@ from fastapi import APIRouter, status
 
 from app.core.deps import CustomerUser, DbSession
 from app.models.cart import Cart
-from app.models.cart_item import CartItem
 from app.schemas.cart import (
     CartAddItemRequest,
     CartItemResponse,
@@ -26,7 +25,7 @@ router = APIRouter(prefix="/cart", tags=["cart"])
 
 def _to_cart_response(cart: Cart) -> CartResponse:
     items: list[CartItemResponse] = []
-    total = Decimal("0")
+    total = Decimal(0)
     count = 0
 
     for item in cart.items:

@@ -11,7 +11,11 @@ from app.models.financial_record import (
     FinancialRecordSource,
     FinancialRecordType,
 )
-from app.models.notification_log import NotificationChannel, NotificationLog, NotificationStatus
+from app.models.notification_log import (
+    NotificationChannel,
+    NotificationLog,
+    NotificationStatus,
+)
 from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
 from app.models.payment import Payment, PaymentPurpose, PaymentStatus

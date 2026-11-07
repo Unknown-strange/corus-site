@@ -6,7 +6,11 @@ from fastapi.responses import Response
 
 from app.core.admin_deps import FinanceManageUser, FinanceViewUser
 from app.core.deps import DbSession
-from app.models.financial_record import FinancialCategory, FinancialRecordSource, FinancialRecordType
+from app.models.financial_record import (
+    FinancialCategory,
+    FinancialRecordSource,
+    FinancialRecordType,
+)
 from app.schemas.finance import (
     FinanceAlertsResponse,
     FinanceSummaryResponse,

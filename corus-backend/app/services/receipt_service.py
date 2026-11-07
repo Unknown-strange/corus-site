@@ -276,10 +276,10 @@ def build_document_from_payment(db: Session, payment: Payment, receipt_number: s
                 ),
                 ReceiptLineItem(
                     description="Reservation deposit (paid online)",
-                    line_total_ghs=reservation.deposit_amount_ghs or Decimal("0"),
+                    line_total_ghs=reservation.deposit_amount_ghs or Decimal(0),
                 ),
             ],
-            amount_paid_ghs=reservation.deposit_amount_ghs or Decimal("0"),
+            amount_paid_ghs=reservation.deposit_amount_ghs or Decimal(0),
             total_price_ghs=reservation.approved_price_ghs,
             balance_due_ghs=reservation.balance_due_ghs,
             footer_note="Your studio reservation is confirmed. Pay the remaining balance at the studio.",

@@ -14,6 +14,8 @@ export type GalleryContentItem = {
   category: string | null;
   caption: string | null;
   title: string | null;
+  session_type_id?: string | null;
+  session_type_name?: string | null;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";

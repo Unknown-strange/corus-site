@@ -87,7 +87,7 @@ def approve_reservation(
     deposit = get_reservation_deposit_ghs(db)
     balance = approved_price_ghs - deposit
     if balance < 0:
-        balance = Decimal("0")
+        balance = Decimal(0)
 
     reservation.status = ReservationStatus.approved
     reservation.approved_price_ghs = approved_price_ghs
@@ -219,5 +219,5 @@ def checkout_reservation_deposit(db: Session, user: User, reservation_id) -> dic
         "reference": reference,
         "public_key": settings.paystack_public_key or "",
         "amount_ghs": deposit,
-        "balance_due_ghs": reservation.balance_due_ghs or Decimal("0"),
+        "balance_due_ghs": reservation.balance_due_ghs or Decimal(0),
     }

@@ -477,6 +477,22 @@
     opacity: 1;
 }
 
+.sessionTypeBadge {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(16, 24, 40, 0.75);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+}
+
 .caption {
     margin: 8px 2px 0;
 
@@ -937,8 +953,53 @@
 }
 
 /* =========================================================
-   CAPTION
+   CATEGORY & CAPTION
 ========================================================= */
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.inputLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #344054;
+}
+
+.categorySelect {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #101828;
+    font-family: inherit;
+    font-size: 13px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+.categorySelect:focus {
+    outline: none;
+    border-color: #ff5b00;
+    box-shadow: 0 0 0 3px rgba(255, 91, 0, .08);
+}
+
+.categorySelect:disabled {
+    background-color: #f9fafb;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
 
 .captionInput {
     width: 100%;

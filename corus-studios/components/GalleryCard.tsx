@@ -47,7 +47,7 @@ function toGalleryImages(items: GalleryContentItem[]): GalleryImage[] {
   return items.map((item) => ({
     id: item.id,
     image: item.image_url,
-    category: item.category || "Agenda",
+    category: item.session_type_name || item.category || "Agenda",
     alt: item.caption || item.title || "Gallery image",
   }));
 }

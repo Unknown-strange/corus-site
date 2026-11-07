@@ -3,21 +3,18 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import Response
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload
 
 from app.core.admin_deps import (
     ReceiptsViewUser,
-    RentalsManageUser,
-    RentalsViewUser,
-    ReservationsApproveUser,
-    ReservationsViewUser,
 )
 from app.core.deps import DbSession
 from app.models.receipt import Receipt
-from app.models.user import User
 from app.schemas.pagination import PaginatedResponse, build_paginated_response
-from app.schemas.receipt import ReceiptDetailResponse, ReceiptLineItemResponse, ReceiptSummaryResponse
+from app.schemas.receipt import (
+    ReceiptDetailResponse,
+    ReceiptLineItemResponse,
+    ReceiptSummaryResponse,
+)
 from app.services.receipt_service import render_receipt_detail, render_receipt_pdf_bytes
 
 router = APIRouter(tags=["admin-receipts"])

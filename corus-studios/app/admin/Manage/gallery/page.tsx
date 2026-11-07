@@ -28,10 +28,19 @@ type GalleryItem = {
   title: string;
   body: string;
   caption: string;
+  session_type_id: string | null;
+  session_type_name: string | null;
   sort_order: number;
   is_published: boolean;
   created_at: string;
   updated_at: string;
+};
+
+type SessionType = {
+  id: string;
+  name: string;
+  slug?: string;
+  is_active?: boolean;
 };
 
 type SelectedImage = {
@@ -79,6 +88,12 @@ export default function ManageGalleryPage() {
   const [caption, setCaption] =
     useState("");
 
+  const [sessionTypes, setSessionTypes] =
+    useState<SessionType[]>([]);
+
+  const [selectedSessionTypeId, setSelectedSessionTypeId] =
+    useState<string>("");
+
   const [error, setError] =
     useState<string | null>(null);
 
@@ -91,6 +106,21 @@ export default function ManageGalleryPage() {
   /* =========================================================
      LOAD GALLERY
   ========================================================= */
+
+  const fetchSessionTypes = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/sessions/types`);
+      if (response.ok) {
+        const data: SessionType[] = await response.json();
+        setSessionTypes(data);
+        if (data.length > 0) {
+          setSelectedSessionTypeId(data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load session types", err);
+    }
+  };
 
   const fetchGallery = async () => {
     try {
@@ -160,6 +190,7 @@ export default function ManageGalleryPage() {
 
   useEffect(() => {
     fetchGallery();
+    fetchSessionTypes();
   }, []);
 
   /* =========================================================
@@ -320,6 +351,12 @@ export default function ManageGalleryPage() {
       "gallery"
     );
 
+    console.log("📤 [FRONTEND GALLERY UPLOAD] Uploading to:", `${API_BASE}/admin/uploads`, {
+      name: image.file.name,
+      size: image.file.size,
+      type: image.file.type,
+    });
+
     const uploadResponse =
       await fetch(
         `${API_BASE}/admin/uploads`,
@@ -332,6 +369,8 @@ export default function ManageGalleryPage() {
           body: uploadData,
         }
       );
+
+    console.log("📥 [FRONTEND GALLERY UPLOAD] Response status:", uploadResponse.status);
 
     if (
       uploadResponse.status === 401
@@ -423,6 +462,8 @@ export default function ManageGalleryPage() {
               uploaded.file_id,
             caption:
               caption.trim(),
+            session_type_id:
+              selectedSessionTypeId || null,
             sort_order:
               sortOrder,
             is_published: true,
@@ -445,7 +486,8 @@ export default function ManageGalleryPage() {
           .catch(() => null);
 
       throw new Error(
-        errorData?.detail ||
+        errorData?.error?.message ||
+          errorData?.detail ||
           `Failed to save ${image.file.name}.`
       );
     }
@@ -461,6 +503,13 @@ export default function ManageGalleryPage() {
     ) {
       setError(
         "Please select at least one image."
+      );
+      return;
+    }
+
+    if (sessionTypes.length > 0 && !selectedSessionTypeId) {
+      setError(
+        "Please select a shoot category / session type."
       );
       return;
     }
@@ -988,6 +1037,16 @@ export default function ManageGalleryPage() {
                           />
                           Published
                         </div>
+
+                        {item.session_type_name && (
+                          <div
+                            className={
+                              styles.sessionTypeBadge
+                            }
+                          >
+                            {item.session_type_name}
+                          </div>
+                        )}
                       </div>
 
                       {item.caption && (
@@ -1187,6 +1246,32 @@ export default function ManageGalleryPage() {
                 )}
               </div>
             )}
+
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>
+                Shoot Category / Session Type
+              </label>
+              <select
+                value={selectedSessionTypeId}
+                onChange={(event) =>
+                  setSelectedSessionTypeId(
+                    event.target.value
+                  )
+                }
+                className={styles.categorySelect}
+                disabled={uploading}
+              >
+                {sessionTypes.length === 0 ? (
+                  <option value="">No categories available</option>
+                ) : (
+                  sessionTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
 
             <input
               type="text"

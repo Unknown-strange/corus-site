@@ -6,11 +6,10 @@ from decimal import Decimal
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
-from app.models.session_type import SessionType
-
 from app.core.config import settings
 from app.models.booking import Booking, BookingStatus
 from app.models.payment import Payment, PaymentPurpose, PaymentStatus
+from app.models.session_type import SessionType
 from app.models.slot_hold import HoldStatus, SlotHold
 from app.models.user import User
 from app.services.paystack import generate_reference, initialize_transaction
@@ -114,7 +113,7 @@ def checkout_booking(
     total_price = package_price_ghs or session_type.price_ghs
     balance_due = total_price - deposit
     if balance_due < 0:
-        balance_due = Decimal("0")
+        balance_due = Decimal(0)
 
     accepted = accepted_at or datetime.now(UTC)
     if accepted.tzinfo is None:

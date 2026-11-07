@@ -93,7 +93,7 @@ def _fill_gaps(
     cursor = _first_bucket(start, interval)
     last = _first_bucket(end, interval)
     while cursor <= last:
-        count, revenue = rows.get(cursor, (0, Decimal("0")))
+        count, revenue = rows.get(cursor, (0, Decimal(0)))
         points.append(TrendPoint(bucket=cursor, count=count, revenue_ghs=revenue))
         cursor = _next_bucket(cursor, interval)
     return points
@@ -115,7 +115,7 @@ def _build_response(
 ) -> TrendResponse:
     series: dict[date, tuple[int, Decimal]] = {}
     total_count = 0
-    total_revenue = Decimal("0")
+    total_revenue = Decimal(0)
     for bucket, count, revenue in rows:
         bucket_date = _as_bucket_date(bucket)
         count = int(count or 0)

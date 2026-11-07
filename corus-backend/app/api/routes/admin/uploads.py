@@ -9,18 +9,31 @@ router = APIRouter(prefix="/admin/uploads", tags=["admin-uploads"])
 
 @router.post("", response_model=ImageUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_file(
-    _user: UploadUser,
+    user: UploadUser,
     file: UploadFile = File(...),
     purpose: UploadPurpose = Form(...),
 ) -> ImageUploadResponse:
-    file_bytes = await file.read()
-    result = upload_image(
-        file_bytes=file_bytes,
-        file_name=file.filename or "upload.jpg",
-        purpose=purpose,
-        content_type=file.content_type,
+    username = getattr(user, "username", str(user))
+    print(
+        f"📥 [ROUTE /admin/uploads] Request from user='{username}', file='{file.filename}', "
+        f"content_type='{file.content_type}', purpose='{purpose}'",
+        flush=True,
     )
-    return ImageUploadResponse(url=result.url, file_id=result.file_id)
+    file_bytes = await file.read()
+    print(f"📦 [ROUTE /admin/uploads] Read {len(file_bytes)} bytes from '{file.filename}'", flush=True)
+
+    try:
+        result = upload_image(
+            file_bytes=file_bytes,
+            file_name=file.filename or "upload.jpg",
+            purpose=purpose,
+            content_type=file.content_type,
+        )
+        print(f"✅ [ROUTE /admin/uploads] Success: url='{result.url}'", flush=True)
+        return ImageUploadResponse(url=result.url, file_id=result.file_id)
+    except Exception as exc:
+        print(f"❌ [ROUTE /admin/uploads] Error during upload: {type(exc).__name__} - {exc}", flush=True)
+        raise
 
 
 @router.get("/auth", response_model=ClientUploadAuthResponse)

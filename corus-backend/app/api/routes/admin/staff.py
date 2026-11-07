@@ -6,7 +6,11 @@ from sqlalchemy.exc import IntegrityError
 from app.core.deps import AdminUser, DbSession
 from app.core.security import hash_password
 from app.models.user import User, UserRole
-from app.schemas.auth import StaffCreateRequest, StaffPermissionsUpdateRequest, StaffResponse
+from app.schemas.auth import (
+    StaffCreateRequest,
+    StaffPermissionsUpdateRequest,
+    StaffResponse,
+)
 from app.services.audit_service import log_action
 from app.utils.staff import parse_staff_permissions, staff_to_response
 

@@ -5,7 +5,7 @@ class Base(DeclarativeBase):
     pass
 
 
-from app.models import (  # noqa: E402, F401
+from app.models import (  # noqa: F401
     booking,
     booking_settings,
     cart,

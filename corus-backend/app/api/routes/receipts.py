@@ -5,7 +5,11 @@ from fastapi.responses import Response
 
 from app.core.deps import CustomerUser, DbSession
 from app.models.receipt import Receipt
-from app.schemas.receipt import ReceiptDetailResponse, ReceiptLineItemResponse, ReceiptSummaryResponse
+from app.schemas.receipt import (
+    ReceiptDetailResponse,
+    ReceiptLineItemResponse,
+    ReceiptSummaryResponse,
+)
 from app.services.receipt_service import document_from_summary, render_receipt_pdf_bytes
 
 router = APIRouter(prefix="/receipts", tags=["receipts"])

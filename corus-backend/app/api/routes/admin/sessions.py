@@ -3,7 +3,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
-
 from sqlalchemy.orm import joinedload
 
 from app.core.admin_deps import BookingsViewUser, SessionsManageUser

@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     database_url: str
     secret_key: str
     debug: bool = True
-    access_token_expire_minutes: int = 60
+    access_token_expire_minutes: int = 1440
     admin_username: str = "admin"
     admin_password: str = "change-me-on-first-run"
 

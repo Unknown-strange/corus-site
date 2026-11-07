@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 from app.models.site_content import ContentSection, SiteContent
 
@@ -16,12 +16,6 @@ class SiteContentCreateRequest(BaseModel):
     session_type_id: UUID | None = None
     sort_order: int = 0
     is_published: bool = False
-
-    @model_validator(mode="after")
-    def gallery_requires_session_type(self) -> "SiteContentCreateRequest":
-        if self.section == ContentSection.gallery and self.session_type_id is None:
-            raise ValueError("session_type_id is required for gallery content")
-        return self
 
 
 class SiteContentUpdateRequest(BaseModel):

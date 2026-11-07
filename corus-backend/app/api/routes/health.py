@@ -1,7 +1,7 @@
 from fastapi import APIRouter
+from sqlalchemy import text
 
 from app.core.deps import DbSession
-from sqlalchemy import text
 
 router = APIRouter(tags=["health"])
 

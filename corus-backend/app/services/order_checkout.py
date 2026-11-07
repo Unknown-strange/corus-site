@@ -40,7 +40,7 @@ def checkout_order(db: Session, user: User) -> dict:
     product_map = {product.id: product for product in products}
 
     line_items: list[tuple[ProductForSale, int, Decimal]] = []
-    total_ghs = Decimal("0")
+    total_ghs = Decimal(0)
 
     for item in cart.items:
         product = product_map.get(item.product_id)

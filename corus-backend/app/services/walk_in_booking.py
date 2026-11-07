@@ -17,8 +17,8 @@ from app.models.receipt import Receipt
 from app.models.session_type import SessionType
 from app.models.user import User
 from app.schemas.walk_in_booking import WalkInPaymentMethod
-from app.services.paystack import generate_reference, initialize_transaction
 from app.services.payment_confirmation import confirm_walk_in_offline_payment
+from app.services.paystack import generate_reference, initialize_transaction
 from app.services.slot_availability import get_session_deposit_ghs, slot_is_unavailable
 
 
@@ -105,18 +105,17 @@ def _amounts_for_walk_in(
     amount_paid_ghs: Decimal | None,
 ) -> tuple[Decimal, Decimal, Decimal]:
     if payment_method == WalkInPaymentMethod.offline:
-        paid = amount_paid_ghs or Decimal("0")
+        paid = amount_paid_ghs or Decimal(0)
         balance = total_price - paid
         if balance < 0:
-            balance = Decimal("0")
+            balance = Decimal(0)
         return paid, total_price, balance
 
     deposit = get_session_deposit_ghs(db)
-    if deposit > total_price:
-        deposit = total_price
+    deposit = min(deposit, total_price)
     balance = total_price - deposit
     if balance < 0:
-        balance = Decimal("0")
+        balance = Decimal(0)
     return deposit, total_price, balance
 
 

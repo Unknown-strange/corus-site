@@ -4,7 +4,11 @@ import uuid
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.models.notification_log import NotificationChannel, NotificationLog, NotificationStatus
+from app.models.notification_log import (
+    NotificationChannel,
+    NotificationLog,
+    NotificationStatus,
+)
 from app.models.user import User, UserRole
 from app.services.email import send_email
 

@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: corus
+      POSTGRES_PASSWORD: corus
+      POSTGRES_DB: corus
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U corus" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./corus-backend
+    command: >
+      sh -c "alembic upgrade head &&
+             python scripts/seed_admin.py &&
+             python scripts/seed_catalog.py &&
+             python scripts/seed_sessions.py &&
+             python scripts/seed_rentals.py &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - ./corus-backend:/app
+    env_file: ./corus-backend/.env
+    environment:
+      DATABASE_URL: postgresql://corus:corus@db:5432/corus
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./corus-studios
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    user: root
+    command: sh -c "rm -rf .next/dev/lock && npm run dev"
+    volumes:
+      - ./corus-studios/app:/usr/src/app/app
+      - ./corus-studios/components:/usr/src/app/components
+      - ./corus-studios/lib:/usr/src/app/lib
+      - ./corus-studios/public:/usr/src/app/public
+      - ./corus-studios/tsconfig.json:/usr/src/app/tsconfig.json
+      - ./corus-studios/postcss.config.mjs:/usr/src/app/postcss.config.mjs
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

@@ -8,7 +8,6 @@ from app.core.admin_deps import CustomersViewUser
 from app.core.deps import DbSession
 from app.models.booking import Booking
 from app.models.order import Order
-from app.models.session_type import SessionType
 from app.models.user import User, UserRole
 from app.schemas.admin_ops import (
     CustomerBookingSummary,

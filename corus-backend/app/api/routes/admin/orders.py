@@ -8,7 +8,11 @@ from app.core.admin_deps import OrdersManageUser, OrdersViewUser
 from app.core.deps import DbSession
 from app.models.order import Order, OrderStatus
 from app.models.user import User
-from app.schemas.order import OrderAdminResponse, OrderItemResponse, OrderStatusUpdateRequest
+from app.schemas.order import (
+    OrderAdminResponse,
+    OrderItemResponse,
+    OrderStatusUpdateRequest,
+)
 from app.schemas.pagination import PaginatedResponse, build_paginated_response
 from app.services.audit_service import log_action
 from app.services.order_fulfillment import update_order_status

@@ -7,7 +7,10 @@ from app.core.deps import DbSession
 from app.models.payment import Payment, PaymentPurpose
 from app.models.receipt import Receipt
 from app.schemas.payment import PaymentReceiptSummary, PaymentVerifyResponse
-from app.services.payment_confirmation import PaymentConfirmResult, verify_and_confirm_payment
+from app.services.payment_confirmation import (
+    PaymentConfirmResult,
+    verify_and_confirm_payment,
+)
 from app.services.payment_redirect import callback_path_for_purpose
 
 router = APIRouter(prefix="/payments", tags=["payments"])
@@ -23,7 +26,7 @@ def _callback_path(db: DbSession, reference: str, purpose: PaymentPurpose | None
 def _payment_amount_ghs(payment: Payment | None) -> Decimal | None:
     if payment is None:
         return None
-    return Decimal(payment.amount_pesewas) / Decimal("100")
+    return Decimal(payment.amount_pesewas) / Decimal(100)
 
 
 def _receipt_summary(db: DbSession, payment: Payment | None) -> PaymentReceiptSummary | None:

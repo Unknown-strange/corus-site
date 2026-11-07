@@ -374,6 +374,12 @@ function AddGadgetContent() {
       "product"
     );
 
+    console.log("📤 [FRONTEND UPLOAD] Starting upload to:", `${API_BASE}/admin/uploads`, {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    });
+
     const response =
       await fetch(
         `${API_BASE}/admin/uploads`,
@@ -387,32 +393,14 @@ function AddGadgetContent() {
         }
       );
 
-    if (
-      response.status ===
-      401
-    ) {
-      localStorage.removeItem(
-        "access_token"
-      );
-
-      localStorage.removeItem(
-        "user"
-      );
-
-      window.location.href =
-        "/login";
-
-      throw new Error(
-        "Session expired."
-      );
-    }
-
     const responseData =
       await response
         .json()
         .catch(
           () => null
         );
+
+    console.log("📥 [FRONTEND UPLOAD] Response status:", response.status, "data:", responseData);
 
     if (!response.ok) {
       console.error(

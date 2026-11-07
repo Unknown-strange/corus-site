@@ -1,6 +1,5 @@
 from datetime import UTC, datetime, time, timedelta
 from decimal import Decimal
-from uuid import UUID
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import func

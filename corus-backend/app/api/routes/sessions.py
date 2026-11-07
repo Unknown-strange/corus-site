@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, status
@@ -6,7 +6,6 @@ from sqlalchemy.orm import joinedload
 
 from app.core.deps import CustomerUser, DbSession
 from app.models.booking import Booking
-from app.models.receipt import Receipt
 from app.models.session_type import SessionType
 from app.schemas.booking import (
     BookingDetailResponse,
@@ -15,16 +14,23 @@ from app.schemas.booking import (
     CheckoutResponse,
     ReceiptSummary,
 )
+from app.schemas.session import (
+    HoldCreateRequest,
+    HoldResponse,
+    SessionTypeResponse,
+    StudioSlotResponse,
+)
 from app.schemas.walk_in_booking import (
     WalkInBookingCreateRequest,
     WalkInBookingCreateResponse,
     WalkInBookingDetailResponse,
 )
-from app.schemas.session import HoldCreateRequest, HoldResponse, SessionTypeResponse, StudioSlotResponse
 from app.services.booking_checkout import checkout_booking, create_hold, release_hold
 from app.services.slot_availability import get_available_slots, get_booking_settings
 from app.services.walk_in_booking import (
     create_walk_in_booking as submit_walk_in_booking,
+)
+from app.services.walk_in_booking import (
     get_walk_in_booking_for_user,
     list_walk_in_bookings_for_user,
 )

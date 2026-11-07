@@ -414,6 +414,12 @@ function EditGadgetContent() {
           : "product"
       );
 
+      console.log("📤 [FRONTEND EDIT UPLOAD] Uploading to:", `${API_BASE}/admin/uploads`, {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+      });
+
       const response =
         await fetch(
           `${API_BASE}/admin/uploads`,
@@ -427,6 +433,13 @@ function EditGadgetContent() {
           }
         );
 
+      const body =
+        await response
+          .json()
+          .catch(() => null);
+
+      console.log("📥 [FRONTEND EDIT UPLOAD] Response status:", response.status, "body:", body);
+
       if (
         response.status ===
         401
@@ -437,11 +450,7 @@ function EditGadgetContent() {
       }
 
       if (!response.ok) {
-        const body =
-          await response
-            .json()
-            .catch(() => null);
-
+        console.error("❌ [FRONTEND EDIT UPLOAD FAILED]:", { status: response.status, body });
         throw new Error(
           body?.detail ||
             body?.error?.message ||
@@ -449,10 +458,10 @@ function EditGadgetContent() {
         );
       }
 
-      return response.json() as Promise<{
+      return body as {
         url: string;
         file_id: string;
-      }>;
+      };
     };
 
   /* =========================================================

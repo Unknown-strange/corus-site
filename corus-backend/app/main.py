@@ -3,7 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from app.api.routes import auth, cart, catalog, health, orders, payments, receipts, rentals, reservations, sessions, webhooks
+from app.api.routes import (
+    auth,
+    cart,
+    catalog,
+    health,
+    orders,
+    payments,
+    receipts,
+    rentals,
+    reservations,
+    sessions,
+    webhooks,
+)
 from app.api.routes.admin import (
     analytics,
     audit,
@@ -11,15 +23,23 @@ from app.api.routes.admin import (
     customers,
     dashboard,
     finance,
-    orders as admin_orders,
-    payments as admin_payments,
     products,
-    receipts as admin_receipts,
     rent_reserve,
-    sessions as admin_sessions,
     site_content,
     staff,
     uploads,
+)
+from app.api.routes.admin import (
+    orders as admin_orders,
+)
+from app.api.routes.admin import (
+    payments as admin_payments,
+)
+from app.api.routes.admin import (
+    receipts as admin_receipts,
+)
+from app.api.routes.admin import (
+    sessions as admin_sessions,
 )
 from app.core.config import settings
 from app.core.errors import error_body, register_exception_handlers

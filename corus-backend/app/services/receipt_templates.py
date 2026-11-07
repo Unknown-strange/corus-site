@@ -63,7 +63,7 @@ class ReceiptDocument:
     customer_email: str | None
     customer_phone: str | None = None
     line_items: list[ReceiptLineItem] = field(default_factory=list)
-    amount_paid_ghs: Decimal = Decimal("0")
+    amount_paid_ghs: Decimal = Decimal(0)
     total_price_ghs: Decimal | None = None
     balance_due_ghs: Decimal | None = None
     payment_reference: str | None = None
@@ -139,7 +139,7 @@ def _totals_block(doc: ReceiptDocument) -> str:
     if subtotal is None and doc.line_items:
         subtotal = sum(
             (item.line_total_ghs for item in doc.line_items if item.line_total_ghs is not None),
-            Decimal("0"),
+            Decimal(0),
         )
 
     if subtotal is not None and subtotal != doc.amount_paid_ghs:
@@ -302,7 +302,7 @@ def _pdf_totals_rows(doc: ReceiptDocument) -> str:
     if subtotal is None and doc.line_items:
         subtotal = sum(
             (item.line_total_ghs for item in doc.line_items if item.line_total_ghs is not None),
-            Decimal("0"),
+            Decimal(0),
         )
 
     if subtotal is not None and subtotal != doc.amount_paid_ghs:
