@@ -288,6 +288,9 @@ export default function RentalsAdmin() {
           );
 
       let message =
+        responseData?.error?.message ||
+        (typeof responseData?.detail === "string" ? responseData.detail : null) ||
+        responseData?.message ||
         "Failed to delete rental equipment.";
 
       if (
@@ -308,16 +311,23 @@ export default function RentalsAdmin() {
               ", "
             );
       } else if (
-        typeof responseData?.detail ===
-        "string"
+        Array.isArray(
+          responseData?.error?.details
+        ) &&
+        responseData.error.details.length > 0
       ) {
         message =
-          responseData.detail;
-      } else if (
-        responseData?.message
-      ) {
-        message =
-          responseData.message;
+          responseData.error.details
+            .map(
+              (item: {
+                msg?: string;
+              }) =>
+                item.msg ||
+                "Validation error"
+            )
+            .join(
+              ", "
+            );
       }
 
       throw new Error(

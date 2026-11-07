@@ -195,31 +195,7 @@ def delete_rent_equipment(equipment_id: UUID, user: RentalsManageUser, db: DbSes
     if equipment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Equipment not found")
 
-    # Check if equipment has any paid/completed rental requests
-    paid_rental_exists = (
-        db.query(RentalRequest.id)
-        .filter(
-            RentalRequest.equipment_id == equipment_id,
-            (
-                RentalRequest.paid_at.is_not(None)
-                | RentalRequest.status.in_([
-                    RentalStatus.paid,
-                    RentalStatus.active,
-                    RentalStatus.returned,
-                ])
-            ),
-        )
-        .first()
-        is not None
-    )
-
-    if paid_rental_exists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete equipment: this item has already been ordered and paid for by a customer.",
-        )
-
-    # Cancel any lingering unpaid requests so they cannot be paid for after deletion
+    # Cancel any lingering unpaid requests so they cannot be checked out after deactivation
     unpaid_requests = (
         db.query(RentalRequest)
         .filter(

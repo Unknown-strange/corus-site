@@ -5,8 +5,6 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.admin_deps import ProductsManageUser, ProductsViewUser
 from app.core.deps import DbSession
-from app.models.order import Order, OrderStatus
-from app.models.order_item import OrderItem
 from app.models.product import ProductForSale
 from app.models.product_category import ProductCategory
 from app.schemas.product import (
@@ -174,31 +172,6 @@ def delete_product(product_id: UUID, user: ProductsManageUser, db: DbSession) ->
     product = db.get(ProductForSale, product_id)
     if product is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-
-    paid_order_exists = (
-        db.query(OrderItem.id)
-        .join(Order, OrderItem.order_id == Order.id)
-        .filter(
-            OrderItem.product_id == product_id,
-            (
-                Order.paid_at.is_not(None)
-                | Order.status.in_([
-                    OrderStatus.pending,
-                    OrderStatus.processing,
-                    OrderStatus.in_route,
-                    OrderStatus.delivered,
-                ])
-            ),
-        )
-        .first()
-        is not None
-    )
-
-    if paid_order_exists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete product: this product has already been ordered and paid for by a customer.",
-        )
 
     product.is_active = False
     db.add(product)
