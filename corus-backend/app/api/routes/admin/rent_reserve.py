@@ -195,14 +195,50 @@ def delete_rent_equipment(equipment_id: UUID, user: RentalsManageUser, db: DbSes
     if equipment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Equipment not found")
 
-    if equipment.imagekit_file_id:
-        delete_image(equipment.imagekit_file_id)
+    # Check if equipment has any paid/completed rental requests
+    paid_rental_exists = (
+        db.query(RentalRequest.id)
+        .filter(
+            RentalRequest.equipment_id == equipment_id,
+            (
+                RentalRequest.paid_at.is_not(None)
+                | RentalRequest.status.in_([
+                    RentalStatus.paid,
+                    RentalStatus.active,
+                    RentalStatus.returned,
+                ])
+            ),
+        )
+        .first()
+        is not None
+    )
 
-    db.delete(equipment)
+    if paid_rental_exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete equipment: this item has already been ordered and paid for by a customer.",
+        )
+
+    # Cancel any lingering unpaid requests so they cannot be paid for after deletion
+    unpaid_requests = (
+        db.query(RentalRequest)
+        .filter(
+            RentalRequest.equipment_id == equipment_id,
+            RentalRequest.status == RentalStatus.pending_payment,
+        )
+        .all()
+    )
+    for req in unpaid_requests:
+        req.status = RentalStatus.cancelled
+        db.add(req)
+
+    # Soft delete the equipment
+    equipment.is_active = False
+    db.add(equipment)
     log_action(
         db,
         actor=user,
-        action="rent_equipment.deleted",
+        action="rent_equipment.deactivated",
         resource_type="rent_equipment",
         resource_id=str(equipment_id),
     )

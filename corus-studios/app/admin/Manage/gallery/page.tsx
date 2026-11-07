@@ -985,21 +985,23 @@ export default function ManageGalleryPage() {
                           styles.imageContainer
                         }
                       >
-                        <Image
-                          src={
-                            item.image_url
-                          }
-                          alt={
-                            item.caption ||
-                            item.title ||
-                            "Gallery image"
-                          }
-                          fill
-                          sizes="(max-width: 700px) 50vw, (max-width: 1100px) 25vw, 20vw"
-                          className={
-                            styles.galleryImage
-                          }
-                        />
+                        {item.image_url ? (
+                          <Image
+                            src={
+                              item.image_url
+                            }
+                            alt={
+                              item.caption ||
+                              item.title ||
+                              "Gallery image"
+                            }
+                            fill
+                            sizes="(max-width: 700px) 50vw, (max-width: 1100px) 25vw, 20vw"
+                            className={
+                              styles.galleryImage
+                            }
+                          />
+                        ) : null}
 
                         <div
                           className={
@@ -1187,19 +1189,21 @@ export default function ManageGalleryPage() {
                         styles.selectedItem
                       }
                     >
-                      <Image
-                        src={
-                          image.preview
-                        }
-                        alt={
-                          image.file.name
-                        }
-                        width={260}
-                        height={260}
-                        className={
-                          styles.selectedImage
-                        }
-                      />
+                      {image.preview ? (
+                        <Image
+                          src={
+                            image.preview
+                          }
+                          alt={
+                            image.file.name
+                          }
+                          width={260}
+                          height={260}
+                          className={
+                            styles.selectedImage
+                          }
+                        />
+                      ) : null}
 
                       <button
                         type="button"
